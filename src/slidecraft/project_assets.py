@@ -174,8 +174,17 @@ def scan_project_assets(location: str | Path) -> dict[str, Any]:
         added.append(record)
         known.add(digest)
     manifest = _read(root)
+    project_files = {
+        hashlib.sha256(path.read_bytes()).hexdigest(): path.resolve()
+        for path in asset_dir.iterdir()
+        if path.is_file() and not path.name.startswith(".")
+    }
     enriched = False
     for item in manifest["assets"]:
+        canonical_path = project_files.get(item["sha256"])
+        if canonical_path and item.get("stored_path") != str(canonical_path):
+            item["stored_path"] = str(canonical_path)
+            enriched = True
         stored = Path(item["stored_path"])
         if stored.is_file() and "visual_kind" not in item:
             item.update(_visual_metadata(stored, item.get("media_type", "application/octet-stream")))

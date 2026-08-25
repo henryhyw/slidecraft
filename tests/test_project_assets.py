@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import sys
 import tempfile
@@ -73,6 +74,28 @@ class ProjectAssetTests(unittest.TestCase):
         self.assertEqual(record["intrinsic_aspect_ratio"], 2.0)
         self.assertTrue(record["preserve_exact_content"])
         self.assertTrue(record["preserve_aspect_ratio"])
+
+    def test_folder_scan_repairs_a_stale_canonical_asset_path(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}
+        ):
+            root = Path(directory) / "deck"
+            create_project(name="Deck", location=root)
+            source = Path(directory) / "logo.svg"
+            source.write_text("<svg/>", encoding="utf-8")
+            record = add_project_asset(root, source)
+            manifest_path = root / ".slidecraft/assets/asset_manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["assets"][0]["stored_path"] = str(Path(directory) / "missing" / "logo.svg")
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+            catalog = list_project_assets(root)
+
+        repaired = next(item for item in catalog["assets"] if item["asset_id"] == record["asset_id"])
+        self.assertEqual(
+            Path(repaired["stored_path"]),
+            (root / "assets" / Path(record["stored_path"]).name).resolve(),
+        )
 
 
 if __name__ == "__main__":
