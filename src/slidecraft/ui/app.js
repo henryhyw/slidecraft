@@ -108,7 +108,7 @@ function renderTypographyLabel(displayFont, bodyFont) {
 
 async function loadOverview() {
   state.overview = await api("/api/overview");
-  const projects = state.overview.projects;
+  const projects = state.overview.projects.filter(project => project.available);
   const metrics = [
     ["Projects", state.overview.available_project_count, "Available on this Mac"],
     ["Source materials", state.overview.source_material_count, "Documents and files across projects"],

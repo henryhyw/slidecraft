@@ -15,7 +15,7 @@ from typing import Any
 
 from slidecraft.library_manager import list_library_items, resolve_library_item
 from slidecraft.project_events import record_project_event
-from slidecraft.projects import PROJECT_FILE
+from slidecraft.projects import project_manifest_path
 
 RESOURCE_FILE = Path(".slidecraft/resources/project_resources.json")
 LEGACY_SELECTION_FILE = Path(".slidecraft/resources/project_resource_selections.json")
@@ -32,8 +32,7 @@ def _now() -> str:
 
 def _root(location: str | Path) -> Path:
     root = Path(location).expanduser().resolve()
-    if not (root / PROJECT_FILE).is_file():
-        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    project_manifest_path(root)
     return root
 
 

@@ -60,6 +60,15 @@ def _existing_manifest(root: Path) -> Path | None:
     return legacy if legacy.is_file() else None
 
 
+def project_manifest_path(location: str | Path) -> Path:
+    """Return the manifest used by a current or legacy Slidecraft project."""
+    root = Path(location).expanduser().resolve()
+    manifest_path = _existing_manifest(root)
+    if manifest_path is None:
+        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    return manifest_path
+
+
 def _unique_destination(path: Path, payload: bytes) -> Path:
     if not path.exists() or path.read_bytes() == payload:
         return path
@@ -383,9 +392,7 @@ def _project_progress(root: Path, state: dict[str, Any]) -> dict[str, Any]:
 
 def project_detail(location: str | Path, *, include_internal: bool = False) -> dict[str, Any]:
     root = Path(location).expanduser().resolve()
-    manifest_path = _existing_manifest(root)
-    if manifest_path is None:
-        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    manifest_path = project_manifest_path(root)
     project = json.loads(manifest_path.read_text(encoding="utf-8"))
     state = ArtifactWorkspace(root).inspect(include_history=include_internal)
     deliverables = [

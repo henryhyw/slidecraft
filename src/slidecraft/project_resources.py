@@ -11,7 +11,7 @@ from typing import Any
 from slidecraft.library_manager import list_library_items
 from slidecraft.project_assets import list_project_assets
 from slidecraft.project_resource_selections import apply_project_resource_selections
-from slidecraft.projects import PROJECT_FILE
+from slidecraft.projects import project_manifest_path
 from slidecraft.runtime.artifacts import ArtifactWorkspace
 
 
@@ -164,8 +164,7 @@ def _retrieved_resources(active: dict[str, dict[str, Any]]) -> dict[str, list[di
 
 def project_resource_catalog(location: str | Path) -> dict[str, Any]:
     root = Path(location).expanduser().resolve()
-    if not (root / PROJECT_FILE).is_file():
-        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    project_manifest_path(root)
     active = _active_artifacts(root)
     retrieved = apply_project_resource_selections(root, _retrieved_resources(active))
     categories = {

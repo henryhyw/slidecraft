@@ -10,6 +10,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from slidecraft.project_resources import project_resource_catalog
 from slidecraft.projects import (
     LEGACY_PROJECT_FILE,
     PROJECT_FILE,
@@ -96,6 +97,22 @@ class ProjectWorkspaceTests(unittest.TestCase):
         self.assertTrue(asset_exists)
         self.assertTrue(manifest_exists)
         self.assertFalse(legacy_manifest_exists)
+
+    def test_legacy_project_can_be_opened_before_migration(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}
+        ):
+            root = Path(directory) / "legacy"
+            create_project(name="Legacy", location=root)
+            (root / PROJECT_FILE).replace(root / LEGACY_PROJECT_FILE)
+
+            projects = list_projects()
+            detail = project_detail(root)
+            resources = project_resource_catalog(root)
+
+        self.assertTrue(projects[0]["available"])
+        self.assertEqual(detail["project"]["name"], "Legacy")
+        self.assertEqual(resources["project_path"], str(root.resolve()))
 
 
 if __name__ == "__main__":

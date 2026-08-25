@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from slidecraft.projects import PROJECT_FILE
+from slidecraft.projects import project_manifest_path
 
 EVENT_FILE = Path(".slidecraft/events/project_events.json")
 
@@ -19,8 +19,7 @@ def _now() -> str:
 
 def _root(location: str | Path) -> Path:
     root = Path(location).expanduser().resolve()
-    if not (root / PROJECT_FILE).is_file():
-        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    project_manifest_path(root)
     return root
 
 
