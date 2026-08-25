@@ -19,11 +19,7 @@ except ModuleNotFoundError:  # pragma: no cover, Python 3.10 only
 from platformdirs import user_config_path, user_data_path
 
 ENV_OVERRIDES = {
-    "SLIDECRAFT_REASONING_ADAPTER": ("providers", "reasoning", "adapter"),
-    "SLIDECRAFT_REASONING_MODEL": ("providers", "reasoning", "model"),
-    "SLIDECRAFT_VISION_ADAPTER": ("providers", "vision", "adapter"),
-    "SLIDECRAFT_VISION_MODEL": ("providers", "vision", "model"),
-    "SLIDECRAFT_IMAGE_ADAPTER": ("providers", "image_generation", "adapter"),
+    "SLIDECRAFT_IMAGE_ADAPTER": ("providers", "image_generation", "configured_adapter"),
     "SLIDECRAFT_IMAGE_MODEL": ("providers", "image_generation", "model"),
     "SLIDECRAFT_RECONSTRUCTION_BACKEND": ("reconstruction", "backend"),
     "SLIDECRAFT_SEGMENTATION_DEVICE": ("segmentation", "device"),
@@ -215,12 +211,9 @@ def resolve_config(
 def validate_config(config: dict[str, Any]) -> None:
     if config.get("schema_version") != "1.0.0":
         raise ValueError("Unsupported configuration schema_version")
-    adapters = {"host", "host-file", "openai", "custom-openai-compatible"}
-    for role in ("reasoning", "vision", "image_generation"):
-        adapter = config["providers"][role]["adapter"]
-        if adapter not in adapters:
-            raise ValueError(f"Unsupported {role} adapter: {adapter}")
     image_provider = config["providers"]["image_generation"]
+    if image_provider.get("adapter", "host") != "host":
+        raise ValueError("Image generation adapter must remain host because routing is controlled by selection_policy")
     if image_provider.get("selection_policy", "prefer_host") not in {"prefer_host", "force_configured"}:
         raise ValueError("Unsupported image generation selection policy")
     if image_provider.get("configured_adapter", "openai") not in {"openai", "custom-openai-compatible"}:

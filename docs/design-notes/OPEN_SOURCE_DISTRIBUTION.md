@@ -106,15 +106,11 @@ icons = "local:icons"
 components = "local:components"
 styles = "local:styles"
 
-[providers.reasoning]
-adapter = "host"
-
-[providers.vision]
-adapter = "host"
-
 [providers.image_generation]
-adapter = "openai"
-credential = "env:OPENAI_API_KEY"
+adapter = "host"
+selection_policy = "prefer_host"
+configured_adapter = "openai"
+api_key_env = "OPENAI_API_KEY"
 
 [segmentation]
 enabled = "auto"

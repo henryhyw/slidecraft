@@ -22,13 +22,29 @@ class ConfigurationTests(TestCase):
     def test_project_and_environment_precedence_is_explainable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory) / "project.toml"
-            project.write_text('[providers.vision]\nadapter = "openai"\nmodel = "project-vision"\n', encoding="utf-8")
-            with mock.patch.dict(os.environ, {"SLIDECRAFT_VISION_MODEL": "environment-vision", "SLIDECRAFT_CONFIG": str(Path(directory) / "missing.toml")}, clear=False):
+            project.write_text('[providers.image_generation]\nmodel = "project-image"\n', encoding="utf-8")
+            with mock.patch.dict(os.environ, {"SLIDECRAFT_IMAGE_MODEL": "environment-image", "SLIDECRAFT_CONFIG": str(Path(directory) / "missing.toml")}, clear=False):
                 config, provenance = resolve_config(project)
-        self.assertEqual(config["providers"]["vision"]["adapter"], "openai")
-        self.assertEqual(config["providers"]["vision"]["model"], "environment-vision")
-        self.assertTrue(provenance["providers.vision.adapter"].startswith("project:"))
-        self.assertEqual(provenance["providers.vision.model"], "environment:SLIDECRAFT_VISION_MODEL")
+        self.assertEqual(config["providers"]["image_generation"]["model"], "environment-image")
+        self.assertEqual(provenance["providers.image_generation.model"], "environment:SLIDECRAFT_IMAGE_MODEL")
+
+    def test_image_adapter_environment_override_configures_the_fallback_connection(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, mock.patch.dict(
+            os.environ,
+            {
+                "SLIDECRAFT_CONFIG": str(Path(directory) / "missing.toml"),
+                "SLIDECRAFT_IMAGE_ADAPTER": "custom-openai-compatible",
+            },
+            clear=False,
+        ):
+            config, provenance = resolve_config()
+        provider = config["providers"]["image_generation"]
+        self.assertEqual(provider["adapter"], "host")
+        self.assertEqual(provider["configured_adapter"], "custom-openai-compatible")
+        self.assertEqual(
+            provenance["providers.image_generation.configured_adapter"],
+            "environment:SLIDECRAFT_IMAGE_ADAPTER",
+        )
 
     def test_interactive_production_config_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -49,12 +65,12 @@ class ConfigurationTests(TestCase):
     def test_project_configuration_can_be_persistently_set_and_unset(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             project = Path(directory) / "slidecraft.toml"
-            modify_config_value("providers.vision.model", "custom-vision", scope="project", project_config=project)
+            modify_config_value("providers.image_generation.model", "custom-image", scope="project", project_config=project)
             config, _ = resolve_config(project)
-            self.assertEqual(config["providers"]["vision"]["model"], "custom-vision")
-            modify_config_value("providers.vision.model", scope="project", project_config=project, unset=True)
+            self.assertEqual(config["providers"]["image_generation"]["model"], "custom-image")
+            modify_config_value("providers.image_generation.model", scope="project", project_config=project, unset=True)
             config, _ = resolve_config(project)
-            self.assertEqual(config["providers"]["vision"]["model"], "gpt-5.6-terra")
+            self.assertEqual(config["providers"]["image_generation"]["model"], "gpt-image-2")
 
     def test_deck_request_override_supports_run_specific_slide_count(self) -> None:
         request = apply_dotted_overrides({}, ["preferred_slide_count.target=12", "density_profile=medium"])
