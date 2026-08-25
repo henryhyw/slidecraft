@@ -1,8 +1,8 @@
 # Agentic run model
 
-## Control boundary
+## Conversation and project memory
 
-The host Agent owns conversation, decisions, retries, interruption, and continuation. Slidecraft stores durable project facts and immutable artifact revisions. The MCP server, Python API, CLI, and optional dashboard expose the same local capability layer. None of them owns a separate session state machine.
+The agent app manages the conversation and decides what to do next. Slidecraft saves project facts and versioned results. MCP, Python, CLI, and the dashboard all work with the same project record.
 
 ## Fresh-session behavior
 
@@ -18,11 +18,11 @@ Typical deck artifacts include the request, clarification decisions, intake, dec
 
 The Agent calls `workflow_status` after material changes and selects the highest-priority action that fits the user's intent. A full autonomous run continues until the editable deck is complete. A user may ask to inspect, revise, regenerate, or stop at any point. Continuation begins from another workspace inspection and needs no pause or resume command.
 
-External reasoning, vision, and image results are registered before downstream capabilities consume them. The host's native image tool is preferred when configured. A configured OpenAI or compatible image endpoint is the fallback.
+The agent registers reasoning, visual interpretations, and generated images with the project before construction begins. Image generation can come from the agent app or from the image service selected in Slidecraft settings.
 
 ## Quality behavior
 
-Quality gates protect publication. They are not the source of the design logic. Semantic contracts, deterministic workers, and frozen deck rules must produce a valid first pass. A failed gate returns structured evidence and a recoverable next action. Unsupported routes never publish as successful output.
+The semantic plan, deck rules, and construction workers produce the first editable result. Publication checks then verify text fit, connector logic, assets, package integrity, and cross-slide consistency. When a check finds a problem, it names the affected object and recommends the next repair.
 
 Final assembly requires every planned slide in deck order. It rejects stale or incomplete scenes, canvas mismatch, missing deck chrome, unsupported constructor routes, invalid text fit, and damaged PowerPoint packages.
 

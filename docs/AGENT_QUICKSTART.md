@@ -8,10 +8,12 @@ Install Python 3.10 or newer and Node.js. From a cloned repository, run the foll
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[cv,documents,agent]'
+.venv/bin/python -m pip install '.[cv,documents,agent]'
 .venv/bin/slidecraft init
 .venv/bin/slidecraft check-install
 ```
+
+On Windows, use `.venv\Scripts\python` and `.venv\Scripts\slidecraft` in the same commands.
 
 `slidecraft init` creates the local data directories, installs the managed PowerPoint constructor dependencies, and seeds the reusable collections. It is non-interactive.
 
@@ -23,9 +25,8 @@ Any host that supports stdio MCP can launch this command.
 slidecraft-mcp
 ```
 
-The server publishes its operating instructions during MCP initialization. The optional bundled
-skill adds richer guidance for hosts that support skills, while the MCP connection remains
-self-describing on its own.
+The server introduces its tools and workflow when the agent app connects. Agent apps with reusable
+skill support can also install the bundled Slidecraft skill for richer presentation guidance.
 
 For Codex CLI, register the installed command once.
 
@@ -77,15 +78,15 @@ The Agent should resolve the project name, inspect its durable status, and retur
 
 For a new presentation, the Agent calls `set_deck_brief` with the audience, objective, source materials, explicit constraints, desired result, optional density override, and optional slide-count range agreed in conversation. This typed entry point works over MCP and does not require the host to author hidden project files.
 
-Uploaded images and diagrams need a source-grounded interpretation from the host's visual understanding. The Agent stores that interpretation as material content and preserves the original file path. Slidecraft refuses to plan from dimensions and filenames alone.
+When a project includes images or diagrams, the agent describes the information they carry and links that interpretation to the original file. The resulting deck can trace visual claims back to their source.
 
 ## Image generation
 
 The Agent calls `resolve_image_generation_route` before generation.
 
-- If the host has image generation and the configured policy permits it, the Agent uses its native image tool and registers the generated image.
-- If the host has no image tool, Slidecraft uses the configured OpenAI or OpenAI-compatible image endpoint.
-- A user can force the configured provider through the normal Slidecraft settings.
+- Agent apps with image generation create the slide image directly and register it with the project.
+- An OpenAI or OpenAI-compatible connection gives other agent apps the same generation route.
+- The System page lets users choose which route Slidecraft uses for the project.
 
 ## Full-deck execution
 
@@ -103,4 +104,4 @@ Structural slides such as covers and section dividers use packaged deterministic
 - Progress reviews can return the deck plan, generated slides, decisions, or current preview.
 - Technical diagnosis can include internal evidence when explicitly requested.
 
-The framework contains no chat-specific pause, resume, or review command. Durable artifacts make every operation resumable, while the host Agent interprets normal conversation.
+Users can pause, continue, review, or revise the presentation in ordinary conversation. Each completed operation is saved, so another session can pick up from the same point.

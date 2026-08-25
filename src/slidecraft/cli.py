@@ -239,7 +239,7 @@ def _render_powerpoint(args: argparse.Namespace) -> int:
     if not repository_script.exists():
         repository_script = Path(sysconfig.get_path("data")) / "share" / "slidecraft" / "scripts" / "render_with_powerpoint_mac.py"
     if not repository_script.exists():
-        raise FileNotFoundError("The PowerPoint renderer script is unavailable in this installation")
+        raise FileNotFoundError("PowerPoint rendering is not ready. Run `slidecraft check-install` for setup guidance.")
     command = [sys.executable, str(repository_script), args.pptx, args.output_dir, "--dpi", str(args.dpi)]
     subprocess.run(command, check=True, timeout=args.timeout)
     return 0
@@ -310,7 +310,7 @@ def _constructor_script() -> Path:
     installed = Path(sysconfig.get_path("data")) / "share" / "slidecraft" / "js" / filename
     if installed.exists():
         return installed
-    raise FileNotFoundError("The optional JavaScript constructor is unavailable")
+    raise FileNotFoundError("The PowerPoint constructor is not ready. Run `slidecraft init`, then try again.")
 
 
 def _render_scenes(args: argparse.Namespace) -> int:
@@ -345,7 +345,7 @@ def _render_scenes(args: argparse.Namespace) -> int:
             )
             if pptxgen_probe.returncode != 0:
                 raise ConstructorConformanceError(
-                    "The portable PptxGenJS constructor is unavailable. Run slidecraft init, then retry."
+                    "The PowerPoint constructor is not ready. Run `slidecraft init`, then try again."
                 )
         subprocess.run([args.node, str(_constructor_script()), "--input", str(spec_path), "--output", str(Path(args.output).resolve())], check=True, env=env)
     print(json.dumps({"status": "ok", "pptx": str(Path(args.output).resolve()), "slide_count": len(scenes), "backend": backend}, indent=2))
@@ -353,7 +353,7 @@ def _render_scenes(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="slidecraft", description="Semantic image-to-editable-PowerPoint framework")
+    parser = argparse.ArgumentParser(prog="slidecraft", description="Create editable PowerPoint presentations with your agent app")
     parser.add_argument("--version", action="version", version="slidecraft 0.1.0a1")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -361,7 +361,7 @@ def build_parser() -> argparse.ArgumentParser:
     initialize.add_argument("--force", action="store_true")
     initialize.set_defaults(handler=_init)
 
-    config = commands.add_parser("config", help="Inspect or modify resolved configuration and its provenance")
+    config = commands.add_parser("config", help="View or change Slidecraft settings")
     config.add_argument("config_command", choices=["path", "show", "validate", "explain", "set", "unset"])
     config.add_argument("key", nargs="?")
     config.add_argument("value", nargs="?")
@@ -369,7 +369,7 @@ def build_parser() -> argparse.ArgumentParser:
     config.add_argument("--project", help="Optional project TOML or JSON overlay")
     config.set_defaults(handler=_config)
 
-    check = commands.add_parser("check-install", help="Verify that the installed runtime can satisfy its configured quality policy")
+    check = commands.add_parser("check-install", help="Check that Slidecraft is ready to build presentations")
     check.add_argument("--project")
     check.add_argument("--checkpoint")
     check.set_defaults(handler=_check_install)
@@ -378,7 +378,7 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.add_argument("--checkpoint")
     doctor.set_defaults(handler=_doctor)
 
-    agent_capabilities = commands.add_parser("agent-capabilities", help="Describe the composable capability surface for a host agent")
+    agent_capabilities = commands.add_parser("agent-capabilities", help="List the presentation tools available to an agent app")
     agent_capabilities.set_defaults(handler=_agent_capabilities)
 
     agent_call = commands.add_parser("agent-call", help="Execute one JSON capability request from an agent host")
@@ -388,7 +388,7 @@ def build_parser() -> argparse.ArgumentParser:
     agent_call.add_argument("--arguments", help="JSON object used with --capability", default="{}")
     agent_call.set_defaults(handler=_agent_call)
 
-    workflow = commands.add_parser("workflow-status", help="Return exact resumable next actions for an Agent host")
+    workflow = commands.add_parser("workflow-status", help="Show project progress and recommended next actions")
     workflow.add_argument("--workspace", required=True)
     workflow.add_argument("--include-history", action="store_true")
     workflow.set_defaults(handler=_workflow_status)
@@ -416,11 +416,11 @@ def build_parser() -> argparse.ArgumentParser:
     console.add_argument("--no-open", action="store_true")
     console.set_defaults(handler=_console)
 
-    authorize = commands.add_parser("authorize-powerpoint", help="Explicitly request one-time macOS permission for native Office validation")
+    authorize = commands.add_parser("authorize-powerpoint", help="Enable PowerPoint for Mac render checks")
     authorize.add_argument("--timeout", type=int, default=20)
     authorize.set_defaults(handler=_authorize_powerpoint)
 
-    native_render = commands.add_parser("render-powerpoint", help="Render through PowerPoint only after explicit authorization setup")
+    native_render = commands.add_parser("render-powerpoint", help="Render a presentation with PowerPoint for Mac")
     native_render.add_argument("--pptx", required=True)
     native_render.add_argument("--output-dir", required=True)
     native_render.add_argument("--dpi", type=int, default=144)

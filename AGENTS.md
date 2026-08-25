@@ -1,6 +1,6 @@
 # Working with Slidecraft
 
-Slidecraft is an Agent-native presentation framework. Use its capabilities to manage durable project artifacts while keeping conversational and session state in the host Agent.
+Slidecraft helps agent apps create and revise editable presentations. Use its tools to manage project files and results while the agent app manages the live conversation.
 
 ## Begin from a project name
 
@@ -14,6 +14,8 @@ For new work, turn the conversation into an authoritative brief and call `set_de
 New projects already contain a frozen deck-design baseline. Deck planning creates deterministic constructor scenes for structural slides and content-slide jobs for image generation. For each content job, call `prepare_slide`, use the returned prompt with the host reasoning model, then call `prepare_generation` with that semantic result. Continue from `workflow_status` after every registered artifact.
 
 The user does not need to know project paths, artifact keys, or pipeline stages. Explain decisions in ordinary presentation language.
+
+Lead public-facing explanations with what the user can do and what result they will receive. Describe setup choices through their purpose. Keep implementation boundaries and failure policy in technical contracts, and avoid defensive caveats in user guidance.
 
 ## Work conversationally
 

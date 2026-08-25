@@ -1,14 +1,22 @@
 # Documentation map
 
-Start with these documents.
+## Get started
 
 - [Agent quickstart](AGENT_QUICKSTART.md) explains installation and host integration.
-- [Agent integration](AGENT_INTEGRATION.md) defines the capability and artifact contract.
-- [Framework pipeline](FRAMEWORK_PIPELINE.md) describes the supported end-to-end workflow.
-- [Full-deck architecture](FULL_DECK_ARCHITECTURE.md) covers storyline, slide routing, coherence, and assembly.
 - [Configuration](CONFIGURATION.md) explains defaults, project settings, and runtime overrides.
 - [Release readiness](RELEASE_READINESS.md) states certified coverage and remaining release work.
 
-Specialized contracts are [connectors](CONNECTOR_CONTRACT.md), [normalization](NORMALIZATION_CONTRACT.md), [guidance profiles](GUIDANCE_PROFILES.md), and [generation preflight](USER_INTERACTION_AND_PREFLIGHT.md).
+## Understand the workflow
 
-`design-notes/` contains longer-term product and distribution proposals. Those notes are informative and do not describe a currently installed interface unless a supported document links the feature explicitly.
+- [Framework pipeline](FRAMEWORK_PIPELINE.md) follows a presentation from source material to editable PowerPoint.
+- [Full-deck architecture](FULL_DECK_ARCHITECTURE.md) explains storyline, slide routing, coherence, and assembly.
+- [Guidance profiles](GUIDANCE_PROFILES.md) explains communication approaches and information density.
+- [Generation preparation](USER_INTERACTION_AND_PREFLIGHT.md) explains user decisions, assets, and generation approval.
+
+## Integrate or extend Slidecraft
+
+- [Agent integration](AGENT_INTEGRATION.md) defines the MCP, CLI, Python, and project-artifact interfaces.
+- [Connector contract](CONNECTOR_CONTRACT.md) documents relationship reasoning and native connector construction.
+- [Normalization contract](NORMALIZATION_CONTRACT.md) documents bounded alignment and typography refinement.
+
+`design-notes/` contains longer-term product and distribution proposals. Use the documents above for features available in the current release.

@@ -2,13 +2,13 @@
 
 Validation date is 25 August 2026 on Apple silicon macOS.
 
-## Agent-native control boundary
+## How projects continue across sessions
 
-The host Agent owns the session, workflow decisions, retries, and stopping behavior. Slidecraft stores immutable artifacts, active revisions, provenance, validation, and dependency hashes in a passive local ledger. `workflow_status` derives advisory next actions from that ledger. The dashboard and MCP adapter hold no workflow session.
+The agent app manages the live conversation. Slidecraft saves accepted inputs, active revisions, source links, validation results, and deliverables in the project folder. A new session reads this record and continues from the latest valid result.
 
 ## Verified capability path
 
-The public capability surface completed this sequence.
+The installed package completed this sequence.
 
 1. Prepare generation inputs and register the generation handoff.
 2. Register a generated image.
@@ -27,7 +27,7 @@ The validated output was written to `/tmp/slidecraft_e2e_deliverables.WC9xy5/edi
 - Python test suite has 77 passing tests.
 - The wheel builds successfully in an isolated build environment.
 - A fresh virtual environment installs the wheel outside the repository.
-- The installed Agent capability surface creates a project by name, records a conversational deck brief, and derives the next clarification action without direct hidden-file access.
+- An agent can create a project by name, record the presentation brief, and receive the next useful planning action through the installed tools.
 - `slidecraft init` installs the constructor runtime into the configured user data directory.
 - `slidecraft check-install` passes in the isolated installation.
 - The installed CLI renders an editable PPTX without repository-local JavaScript packages.
@@ -35,12 +35,10 @@ The validated output was written to `/tmp/slidecraft_e2e_deliverables.WC9xy5/edi
 - Text-overflow validation passes.
 - The local dashboard responds successfully on port 8765.
 
-## External capabilities
+## Local capabilities and integrations
 
-These are environment capabilities instead of framework state.
-
-- An Agent with native vision and image generation needs no model API configuration.
-- A host without native image generation needs a configured image-generation API and credential.
-- OpenCV runs locally. SAM 2 is optional and selected lazily for eligible irregular regions.
-- Microsoft PowerPoint automation is optional canonical-render validation. It remains disabled until the user explicitly authorizes it.
-- Stable 1.0 certification still needs broader Windows, Linux, macOS, and gold-deck coverage. This does not block the supported Agent-host workflow.
+- Agent apps with vision and image generation can supply both capabilities directly.
+- The System page connects an OpenAI or compatible image service for agent apps that need image generation.
+- OpenCV provides local measurement. SAM 2 adds boundary detection for irregular filled regions.
+- Microsoft PowerPoint for Mac can render reconstructed slides and verify Office typography against the target image.
+- The current alpha is tested on Windows, Linux, and macOS. The 1.0 quality program will add more Office versions and a larger gold-deck suite.

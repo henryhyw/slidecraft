@@ -16,13 +16,13 @@ from slidecraft.runtime.artifacts import ArtifactWorkspace
 
 CAPABILITIES = {
     "create_workspace": {
-        "description": "Create or open a durable deck workspace.",
+        "description": "Create or open the working folder for a presentation.",
         "required": ["workspace"],
         "optional": ["deck_id", "metadata"],
         "mutates": True,
     },
     "create_project": {
-        "description": "Create a user-visible project folder with hidden internal state and register it locally.",
+        "description": "Create a presentation project with source and deliverable folders, then add it to the local project list.",
         "required": ["name"],
         "optional": ["location", "deck_id", "description"],
         "mutates": True,
@@ -34,13 +34,13 @@ CAPABILITIES = {
         "mutates": False,
     },
     "resolve_project": {
-        "description": "Find a project from the name, stable ID, or local folder supplied in conversation, with optional creation when the user intends a new project.",
+        "description": "Find a project by its name, stable ID, or folder, and create it when the user starts new work.",
         "required": ["identifier"],
         "optional": ["create_if_missing", "location", "deck_id", "description"],
         "mutates": True,
     },
     "project_detail": {
-        "description": "Inspect public project outputs and optionally reveal internal Agent evidence.",
+        "description": "Show project progress, user-facing outputs, and technical evidence when requested.",
         "required": ["location"],
         "optional": ["include_internal"],
         "mutates": False,
@@ -142,7 +142,7 @@ CAPABILITIES = {
         "mutates": False,
     },
     "generate_slide_image": {
-        "description": "Generate a slide image through the configured API when policy does not select the Agent image tool.",
+        "description": "Generate a slide image through the image service selected in Slidecraft settings.",
         "required": ["workspace", "slide_id", "handoff_key", "prompt", "output", "canvas_px", "host_supports_image_generation"],
         "optional": ["reference_images", "project_config", "activate"],
         "mutates": True,
@@ -154,7 +154,7 @@ CAPABILITIES = {
         "mutates": False,
     },
     "workflow_status": {
-        "description": "Return the current workflow state and exact resumable next actions for an Agent host.",
+        "description": "Show current project progress and the next useful actions.",
         "required": ["workspace"],
         "optional": ["include_history"],
         "mutates": False,
@@ -184,7 +184,7 @@ CAPABILITIES = {
         "mutates": True,
     },
     "prepare_clarifications": {
-        "description": "Select a small optional set of high-value questions before deck planning.",
+        "description": "Select up to a few high-value questions that can materially improve the deck plan.",
         "required": ["workspace", "request", "output"],
         "optional": ["candidate_result", "policy"],
         "mutates": True,
@@ -196,7 +196,7 @@ CAPABILITIES = {
         "mutates": True,
     },
     "plan_deck": {
-        "description": "Plan the deck after optional clarifications, using a host result or configured OpenAI-compatible provider.",
+        "description": "Plan the deck from the agreed brief, source material, and any clarification answers.",
         "required": ["workspace", "request", "design"],
         "optional": ["provider", "result", "model", "api_key", "base_url", "system_layouts"],
         "mutates": True,
@@ -220,7 +220,7 @@ CAPABILITIES = {
         "mutates": True,
     },
     "measure_slide": {
-        "description": "Measure slide geometry with OpenCV and optional SAM, then register the fused scene and debug evidence.",
+        "description": "Measure slide geometry with OpenCV and add SAM boundary evidence for eligible irregular regions.",
         "required": ["workspace", "image", "semantic_map", "handoff", "output_dir", "slide_id"],
         "optional": ["checkpoint", "sam_config", "device", "no_sam"],
         "mutates": True,
@@ -251,7 +251,7 @@ def list_capabilities() -> dict[str, Any]:
         "schema_version": "1.0.0",
         "control_model": "agent_host",
         "capabilities": [{"name": name, **spec} for name, spec in CAPABILITIES.items()],
-        "interaction": "The host agent selects and composes capabilities. No pause or resume operation is required.",
+        "interaction": "The agent app chooses the tools that match the conversation. After a new session begins, inspect the project and continue from its current progress.",
         "recommended_entrypoint": {
             "existing_or_named_project": "resolve_project",
             "after_project_resolution": "workflow_status",
@@ -673,7 +673,7 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
                 "action": "generate_slide_image",
                 "slide_id": slide_id,
                 "handoff_key": f"{prefix}/reconstruction_handoff",
-                "fallback": "Use the configured image API when the host has no native image tool.",
+                "fallback": "The project can use the image service selected in Slidecraft settings.",
             })
             continue
         if f"{prefix}/generated_image" in active and f"{prefix}/semantic_scene" not in active:
@@ -682,7 +682,7 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
                 "action": "semantic_map",
                 "slide_id": slide_id,
                 "input_key": f"{prefix}/generated_image",
-                "fallback": "Use the configured structured vision provider or a host VLM result.",
+                "fallback": "Semantic mapping can come from the agent app or the project's selected vision service.",
             })
             continue
         if f"{prefix}/semantic_scene" in active and f"{prefix}/measured_scene" not in active:
@@ -691,7 +691,7 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
                 "action": "measure_slide",
                 "slide_id": slide_id,
                 "input_key": f"{prefix}/semantic_scene",
-                "fallback": "Run OpenCV locally. SAM remains optional and lazy.",
+                "fallback": "OpenCV measures the slide locally. SAM adds boundary detail for eligible irregular regions.",
             })
             continue
         if f"{prefix}/measured_scene" in active and f"{prefix}/reconstruction_contract" not in active:

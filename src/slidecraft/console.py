@@ -62,9 +62,9 @@ def open_local_path(path: str | Path, *, expected: str = "file") -> dict[str, An
     """Open a trusted local file or folder with the operating system."""
     resolved = Path(path).expanduser().resolve(strict=True)
     if expected == "file" and not resolved.is_file():
-        raise FileNotFoundError(f"Local file is unavailable: {resolved}")
+        raise FileNotFoundError(f"This file could not be found at {resolved}")
     if expected == "directory" and not resolved.is_dir():
-        raise FileNotFoundError(f"Local folder is unavailable: {resolved}")
+        raise FileNotFoundError(f"This folder could not be found at {resolved}")
 
     if sys.platform == "darwin":
         command = ["open", str(resolved)]

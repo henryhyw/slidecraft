@@ -65,7 +65,7 @@ Secrets are never stored in deck or slide artifacts. Provider records name an en
 
 ## Local control console
 
-Run `slidecraft console` to open the optional local control surface. It shows project history and deliverables, presentation design defaults, reusable resource collections, model connections, and local runtime health. It binds to `127.0.0.1` by default.
+Run `slidecraft console` to open the local dashboard. It shows project history and deliverables, presentation design defaults, reusable resource collections, image connections, and runtime health. The dashboard opens locally at `127.0.0.1`.
 
 The console is a user control surface. Its primary views are Overview, Projects, Design, and System. Overview summarizes active work and completed editable presentations. A project shows its current milestone, source materials, visual assets, retrieved resources, and user-facing outputs. Design exposes one combined communication design control for communication approach and information density, plus typography, color and icon treatment, and three reusable resource collections. System exposes automatic runtime health and the image-generation connection a user can change. Internal capability catalogs and raw engineering configuration stay out of the interface. A change made in chat and a change made in the console both flow through the same validated operations.
 
@@ -93,4 +93,4 @@ The local project registry keeps the project path and recent status. If a user d
 
 Reasoning and visual understanding come from Codex or another Agent host. Image generation has two selection policies. `prefer_host` uses the Agent image tool when it is available, then falls back to the configured API connection. `force_configured` always uses that connection. `openai` uses the configured OpenAI endpoint. `custom-openai-compatible` uses a compatible base URL. The Agent can resolve this policy through `resolve_image_generation_route` before generating a slide.
 
-Normal runs do not display permission dialogs or credential prompts. Missing required capabilities fail once with a machine-readable action. Optional capabilities are skipped with a recorded capability report.
+Setup stores credentials in the operating system keychain and reports any required installation or permission in the System page. Each run records which local capabilities it used.

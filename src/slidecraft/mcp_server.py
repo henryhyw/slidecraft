@@ -1,4 +1,4 @@
-"""Optional MCP adapter for agent-native Slidecraft installations."""
+"""MCP connection for Slidecraft agent integrations."""
 
 from __future__ import annotations
 
@@ -8,19 +8,16 @@ from slidecraft import __version__
 from slidecraft.agent import list_capabilities, safe_call_capability
 
 SERVER_INSTRUCTIONS = """
-Slidecraft creates and revises editable PowerPoint presentations through durable local projects.
-The host Agent owns conversation, judgment, session progression, and use of native reasoning,
-vision, and image-generation tools. Slidecraft owns typed artifacts, provenance, reconstruction,
-validation, and resumability.
+Slidecraft creates and revises editable PowerPoint presentations through local project folders.
+The agent app interprets the conversation and chooses each action. Slidecraft organizes sources,
+decisions, generated work, editable reconstruction, validation, and deliverables.
 
-When a user names an existing project, call slidecraft_resolve_project and then
-slidecraft_workflow_status. Create a missing project only when the user intends new work. For a
-new presentation, record the agreed brief with slidecraft_set_deck_brief. After every material
-operation, call slidecraft_workflow_status and continue with its highest-priority valid action
-until the requested result is ready or the user asks to stop. Register every external model
-result before another capability consumes it. Use slidecraft_project_detail to return final
-PowerPoint files or reviewable intermediate work. Keep internal masks, contours, OCR fragments,
-caches, and logs hidden unless the user asks for technical evidence.
+When a user names a project, call slidecraft_resolve_project and then slidecraft_workflow_status.
+Create the project when they are starting new work. Record a new presentation brief with
+slidecraft_set_deck_brief. After each substantial action, call slidecraft_workflow_status and use
+the highest-priority action that serves the user's request. Register model results before using
+them in later operations. Use slidecraft_project_detail to return the final PowerPoint, previews,
+plans, or reports requested by the user. Technical reconstruction evidence is available on request.
 
 Call slidecraft_capabilities when an operation or its arguments are unknown. Use slidecraft_call
 for capabilities that do not have a dedicated MCP tool.
@@ -31,24 +28,24 @@ def build_server() -> Any:
     try:
         from mcp.server import MCPServer
     except ImportError as exc:
-        raise RuntimeError("Install Slidecraft with the agent extra: pip install 'slidecraft-ai[agent]'") from exc
+        raise RuntimeError("MCP support is not installed. From the Slidecraft folder, run `python -m pip install '.[agent]'`.") from exc
 
     server = MCPServer(
         "Slidecraft",
         title="Slidecraft",
-        description="Agent-native editable PowerPoint planning, generation, reconstruction, and validation.",
+        description="Plan, generate, reconstruct, and validate editable PowerPoint presentations.",
         instructions=SERVER_INSTRUCTIONS,
         version=__version__,
     )
 
     @server.tool()
     def slidecraft_capabilities() -> dict[str, Any]:
-        """Discover Slidecraft operations before choosing the next pipeline action."""
+        """List Slidecraft presentation tools and their arguments."""
         return list_capabilities()
 
     @server.tool()
     def slidecraft_create_workspace(workspace: str, deck_id: str | None = None) -> dict[str, Any]:
-        """Create or reopen a durable local deck workspace."""
+        """Create or reopen the working folder for a presentation."""
         return safe_call_capability("create_workspace", {"workspace": workspace, "deck_id": deck_id})
 
     @server.tool()
@@ -87,7 +84,7 @@ def build_server() -> Any:
 
     @server.tool()
     def slidecraft_workflow_status(workspace: str, include_history: bool = False) -> dict[str, Any]:
-        """Return exact resumable next actions for the current deck workspace."""
+        """Show project progress and the next useful actions."""
         return safe_call_capability("workflow_status", {"workspace": workspace, "include_history": include_history})
 
     @server.tool()

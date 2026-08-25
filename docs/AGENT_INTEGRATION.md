@@ -2,60 +2,55 @@
 
 ## Control model
 
-Slidecraft is an Agent-native capability package. The host Agent owns conversation, intent interpretation, orchestration, session progression, and the decision to stop or continue. Slidecraft supplies deterministic tools, typed artifacts, dependency tracking, validation, and reconstruction.
+Slidecraft gives an agent app a complete set of presentation tools. The agent interprets the conversation and chooses each action. Slidecraft manages project files, versioned results, validation, and editable PowerPoint construction.
 
-The local project ledger is passive durable memory. It records facts about inputs and completed outputs. It does not choose the next operation. `workflow_status` derives advisory next actions from that ledger for the current Agent call. No workflow session lives in the dashboard process, MCP process, or a background server.
+The project folder is the shared memory between sessions. It records inputs, decisions, completed work, and deliverables. `workflow_status` reads that record and recommends the next useful action. The dashboard and MCP connection show the same project state.
 
-In a fresh session, call `resolve_project` with the human project name, stable ID, or folder. The result provides the canonical workspace location. Set `create_if_missing` only when the user intends new work. Users do not need to remember local paths.
+In a fresh session, call `resolve_project` with the project name, stable ID, or folder. The result provides the workspace location. Set `create_if_missing` when the user starts a new presentation.
 
-There is no core `pause` or `resume` operation. Every completed capability commits its output atomically. When a conversation resumes, the Agent calls `inspect_workspace`, reads active revisions and freshness, and selects the next useful capability.
+Every completed action is saved as a consistent project revision. To continue later, the agent calls `inspect_workspace`, checks the current results, and proceeds from the latest valid point.
 
 ## Installation surfaces
 
-Core SDK and CLI installation:
+Install from the public GitHub repository:
 
 ```bash
-pip install slidecraft-ai
+git clone https://github.com/henryhyw/slidecraft.git
+cd slidecraft
+python3 -m venv .venv
 ```
 
-Full local deck generation installs document extraction, OpenCV measurement, and the Agent transport.
+Add document extraction, OpenCV measurement, and MCP integration:
 
 ```bash
-pip install 'slidecraft-ai[cv,documents,agent]'
-slidecraft init
-slidecraft check-install
+.venv/bin/python -m pip install '.[cv,documents,agent]'
+.venv/bin/slidecraft init
+.venv/bin/slidecraft check-install
 ```
 
-MCP installation for Codex, Claude, Copilot, and other compatible Agent hosts:
+Connect Codex, Claude Code, Copilot, or another compatible agent app to this MCP command:
 
 ```bash
-pip install 'slidecraft-ai[agent]'
+/absolute/path/to/slidecraft/.venv/bin/slidecraft-mcp
 ```
 
-The MCP server command is:
+The server introduces its tools and workflow when the agent app connects. The bundled skill adds
+deeper presentation guidance in agent apps that support reusable skills.
 
-```bash
-slidecraft-mcp
-```
+The repository also includes an agent skill under `integrations/skills/slidecraft`. It teaches an agent how to inspect project progress, ask useful planning questions, and compose the capabilities below. MCP provides the primary typed connection. Python and JSON CLI integrations expose the same operations.
 
-The server provides a concise workflow contract in its MCP initialization metadata. Generic MCP
-hosts therefore receive the entry logic without requiring a host-specific skill installation.
-The bundled skill remains available for hosts that support richer reusable instructions.
-
-The repository also includes an installable Agent skill under `integrations/skills/slidecraft`. It teaches a host how to inspect durable state, ask optional high-value clarification questions, preserve hidden evidence, and compose the capabilities below. MCP is the preferred typed transport. The Python API and JSON CLI remain equivalent fallbacks.
-
-An Agent host should launch it as a local stdio MCP server. The MCP adapter exposes focused entry tools and one generic capability tool.
+An agent app launches it as a local stdio MCP server. The connection exposes focused entry tools and one general tool for the full operation catalog.
 
 - `slidecraft_capabilities` discovers the supported operations and their arguments.
 - `slidecraft_create_workspace` creates or reopens durable project state.
 - `slidecraft_resolve_project` finds or intentionally creates a project from a conversational identifier.
 - `slidecraft_project_detail` returns user-facing progress, outputs, sources, and reviewable artifacts.
-- `slidecraft_set_deck_brief` records the authoritative conversational brief without direct hidden-file access.
+- `slidecraft_set_deck_brief` records the agreed presentation brief from the conversation.
 - `slidecraft_inspect_workspace` reports active artifacts, candidates, freshness, and validation.
 - `slidecraft_workflow_status` derives exact resumable next actions from current project evidence.
 - `slidecraft_call` invokes a discovered capability.
 
-The MCP layer is an optional adapter. The underlying Python capability API remains identical.
+Python applications can call the same capabilities directly.
 
 ```python
 from slidecraft import call_capability
@@ -99,7 +94,7 @@ Each artifact records a stable ID, logical key, revision, content hash, file pat
 
 Candidate revisions do not replace accepted work. When the Agent accepts a candidate, Slidecraft updates the active revision. Descendants that cite an older dependency immediately become stale. Their files and audit history remain available.
 
-The constructor refuses to consume stale scene artifacts. This prevents an Agent from accidentally publishing a PPTX built from an older generated image or outdated semantic map.
+The constructor checks that each scene matches the current image, semantic map, and design settings before building the PPTX. Outdated descendants remain available in history and stay out of the published deck.
 
 ## Agent behavior contract
 
@@ -124,10 +119,10 @@ The skill avoids questions that merely shift visual taste. It asks only when the
 
 ## Project visibility
 
-The `create_project` capability accepts a user-selected folder. It creates visible `sources/` and `deliverables/` directories plus a hidden `.slidecraft/` workspace. `project_detail` omits internal revision history unless the caller explicitly requests it. This lets the Agent retain full traceability without making users browse OCR fragments, masks, edge evidence, or intermediate prompts.
+The `create_project` capability can use any folder the user chooses. Source files and deliverables stay visible, while detailed reconstruction evidence lives under `.slidecraft/`. `project_detail` presents the materials, progress, and outputs people usually need and can include technical history on request.
 
-`project_detail` also returns reviewable intermediate artifacts with human-facing labels. The host Agent selects files from conversational intent. The framework imposes no fixed review screen or delivery sequence.
+`project_detail` also returns reviewable intermediate artifacts with clear labels. The agent selects the files that match the user's request, whether they ask for a plan, preview, decision record, or final deck.
 
-## Service deployment later
+## Service integration
 
-A future background service may add scheduling controls such as pause, resume, cancellation, queues, leases, and retries. Those controls remain outside the core artifact and reconstruction contracts. They can use the same capability API without changing Agent-host behavior.
+The same capability API can support future queued or hosted services. Local agent use remains the primary workflow for this release.

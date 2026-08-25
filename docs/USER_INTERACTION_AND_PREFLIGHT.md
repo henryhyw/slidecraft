@@ -71,7 +71,7 @@ The user can express this naturally. For example, “These are the OpenAI and Op
 
 For a multi-slide project, direct-use visual assets live inside the broader project resource catalog. Chat uploads, console uploads, and files placed in `sources/assets/` converge on its Visual assets category. The default policy is `available`. `preferred` asks the planner to use an asset when it strengthens a relevant slide. `required_somewhere` requires at least one semantically suitable placement. Deck-level requirements never imply placement on every slide.
 
-Adding a catalog entry has no automatic pipeline effect. It does not change the active plan, mark outputs stale, or start generation. The user must ask the Agent to use the asset or start a planning or revision action that explicitly consumes the updated catalog. The accepted slide-level allocation then becomes the dependency that can invalidate affected downstream work.
+Adding a catalog entry makes the asset available to the project. The next planning or revision request can assign it to specific slides. Once accepted, that assignment becomes part of the slide's tracked inputs.
 
 ## Multi-slide approval
 

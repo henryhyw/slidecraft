@@ -1,21 +1,25 @@
 # Slidecraft
 
-Slidecraft is a local-first, Agent-native framework that turns source material into editable PowerPoint presentations. A host Agent plans the deck and controls the workflow. Slidecraft supplies durable project artifacts, reusable visual resources, image-generation orchestration, slide understanding, and deterministic PowerPoint construction.
+Slidecraft turns source material into polished, editable PowerPoint presentations inside the agent app you already use. The agent plans and guides the work while Slidecraft organizes project files, visual resources, image generation, slide understanding, and PowerPoint construction.
 
-The package is an alpha. Its reusable runtime, dashboard, Agent capability surface, and tested reconstruction path are installable today. Release criteria are tracked in [Release readiness](docs/RELEASE_READINESS.md).
+The current alpha is ready for local projects through Codex, Claude Code, GitHub Copilot, and other MCP-compatible agent apps. Release progress is tracked in [Release readiness](docs/RELEASE_READINESS.md).
 
 ## Install
 
 Python 3.10 or newer is required. Node.js is used by the current portable PowerPoint constructor.
 
 ```bash
+git clone https://github.com/henryhyw/slidecraft.git
+cd slidecraft
 python3 -m venv .venv
-.venv/bin/python -m pip install -e '.[cv,documents,agent]'
+.venv/bin/python -m pip install '.[cv,documents,agent]'
 .venv/bin/slidecraft init
 .venv/bin/slidecraft check-install
 ```
 
-`slidecraft init` installs the managed PowerPoint constructor packages under the platform-specific Slidecraft data directory. Users need Node.js on the machine and do not need to manage repository-level JavaScript dependencies.
+On Windows, use `.venv\Scripts\python` and `.venv\Scripts\slidecraft` in the same commands.
+
+`slidecraft init` prepares the PowerPoint constructor in Slidecraft's application data folder. Install Node.js once, then Slidecraft manages the constructor packages for every project.
 
 Open the local dashboard with the following command.
 
@@ -34,7 +38,7 @@ Slidecraft exposes the same capabilities in process, through its CLI, and over M
 .venv/bin/slidecraft-mcp
 ```
 
-The host Agent owns conversational and session state. Slidecraft persists only durable project facts and artifacts. The dashboard is a second interface over those same files and resources. It does not run a competing workflow state machine.
+Your agent app manages the conversation. Slidecraft records project decisions, sources, progress, and deliverables so any new session can continue from the same project. The dashboard presents those files and settings in one place.
 
 The bundled Agent skill is available at [integrations/skills/slidecraft/SKILL.md](integrations/skills/slidecraft/SKILL.md). The complete host contract is documented in [Agent integration](docs/AGENT_INTEGRATION.md).
 
@@ -42,7 +46,7 @@ The MCP server is self-describing and works as a local STDIO tool server in Code
 GitHub Copilot Chat, and other MCP-capable hosts. Host-specific setup examples are available in
 [Agent quickstart](docs/AGENT_QUICKSTART.md).
 
-For a fresh Agent session, the user only needs to name the project. The Agent resolves the name, inspects durable progress, and either continues or returns the requested artifact. New work begins through the typed `set_deck_brief` capability, so MCP-only hosts do not need to write hidden files. See [Agent quickstart](docs/AGENT_QUICKSTART.md).
+In a fresh session, name the project and describe what you want. The agent finds its saved progress, continues the work, or returns the requested presentation artifact. See [Agent quickstart](docs/AGENT_QUICKSTART.md).
 
 Shell-based Agent hosts can use the same name-first entry point directly.
 
@@ -63,7 +67,7 @@ project/
   .slidecraft/       durable Agent evidence and resource assignments
 ```
 
-Visual inspiration, canonical icons, and reusable editable components live in shared local collections. Agent retrieval and dashboard choices are written to one project resource ledger. A restored project can therefore recover its selected resources without relying on an active server session or historical UI state.
+Visual inspiration, canonical icons, and reusable editable components live in shared local collections. Selections made in chat or in the dashboard stay attached to the project and are ready when the project is opened again.
 
 Configuration follows packaged defaults, user configuration, an optional project overlay, environment variables, and explicit runtime arguments. Use these commands to inspect every resolved value and its source.
 
@@ -85,7 +89,7 @@ The Agent composes these reusable capabilities.
 3. Retrieve visual inspiration, canonical icons, and reusable components.
 4. Assemble and execute image-generation briefs for information-bearing slides.
 5. Map meaningful rendered entities and relationships to authoritative source content.
-6. Measure geometry with OpenCV and optional SAM 2 segmentation.
+6. Measure text, shapes, and layout with OpenCV, using SAM 2 for irregular filled regions when it adds useful boundary detail.
 7. Build a reconstruction contract and compile editable PowerPoint scenes.
 8. Normalize typography, alignment, icon slots, and connector topology within bounded constraints.
 9. Render the editable deck and retain a reconstruction report.
@@ -122,7 +126,7 @@ Every new project receives a packaged deck-design baseline under its hidden `.sl
 .venv/bin/python -m build
 ```
 
-SAM 2 is optional. Install it with the `segmentation` extra when irregular filled-object boundaries materially benefit from segmentation. Ordinary text, connector, and line-art measurements use deterministic local logic.
+OpenCV handles ordinary text, connector, and line-art measurement. Install the `segmentation` extra to add SAM 2 boundary detection for irregular filled objects.
 
 ## License
 

@@ -503,7 +503,7 @@ async function loadProviders() {
   const payload = await api("/api/providers");
   state.providers = payload.providers;
   const adapterLabels = { openai: "OpenAI API", "custom-openai-compatible": "Compatible endpoint" };
-  $("#provider-list").innerHTML = state.providers.map(provider => `<button class="provider-row" type="button" data-provider-role="${provider.role}"><div><strong>${escapeHtml(provider.label)}</strong><span>${provider.selection_policy === "force_configured" ? "Always use configured connection" : "Agent first, configured fallback"}</span></div><div><b>${escapeHtml(adapterLabels[provider.configured_adapter] || humanLabel(provider.configured_adapter))} · ${escapeHtml(provider.model)}</b><small>${provider.base_url ? escapeHtml(provider.base_url) : provider.credential_available ? "Credential available" : `Uses ${escapeHtml(provider.api_key_env)}`}</small></div><span class="provider-row-hint">Configure <b aria-hidden="true">›</b></span></button>`).join("");
+  $("#provider-list").innerHTML = state.providers.map(provider => `<button class="provider-row" type="button" data-provider-role="${provider.role}"><div><strong>${escapeHtml(provider.label)}</strong><span>${provider.selection_policy === "force_configured" ? "Connected service for every image" : "Agent app first"}</span></div><div><b>${escapeHtml(adapterLabels[provider.configured_adapter] || humanLabel(provider.configured_adapter))} · ${escapeHtml(provider.model)}</b><small>${provider.base_url ? escapeHtml(provider.base_url) : provider.credential_available ? "Key saved securely" : `Key from ${escapeHtml(provider.api_key_env)}`}</small></div><span class="provider-row-hint">Configure <b aria-hidden="true">›</b></span></button>`).join("");
   $$(".provider-row[data-provider-role]").forEach(button => button.addEventListener("click", () => openProvider(button.dataset.providerRole)));
 }
 
@@ -651,11 +651,21 @@ function renderPreview(preview, fileUrl) {
 async function loadHealth(force = false) {
   $("#health-grid").innerHTML = `<div class="loading-card">Inspecting local capabilities…</div>`;
   state.health = await api(`/api/health${force ? "?refresh=1" : ""}`);
+  const powerpointNote = state.health.construction.microsoft_powerpoint_mac
+    ? state.health.construction.powerpoint_automation_authorized
+      ? "Office render checks ready"
+      : "Enable Office render checks"
+    : "Install PowerPoint to add Office render checks";
+  const samNote = state.health.segmentation.sam2
+    ? `Ready with Torch ${state.health.segmentation.torch.version}`
+    : state.health.segmentation.torch.installed
+      ? "Install SAM 2 to add irregular-shape boundaries"
+      : "Install the segmentation extra to add SAM 2";
   const cards = [
-    ["OpenCV", state.health.measurement.opencv, state.health.measurement.tesseract_binary ? "OCR available" : "OCR binary missing"],
-    ["SAM 2", state.health.segmentation.sam2, state.health.segmentation.torch.installed ? `Torch ${state.health.segmentation.torch.version}` : "Torch missing"],
-    ["PowerPoint", state.health.construction.microsoft_powerpoint_mac, state.health.construction.powerpoint_automation_authorized ? "Automation authorized" : "Validation authorization optional"],
-    ["Agent host", state.health.ready_for_host_mode, state.health.slidecraft.platform],
+    ["OpenCV", state.health.measurement.opencv, state.health.measurement.tesseract_binary ? "OCR ready" : "Install Tesseract to add OCR"],
+    ["SAM 2", state.health.segmentation.sam2, samNote],
+    ["PowerPoint for Mac", state.health.construction.microsoft_powerpoint_mac, powerpointNote],
+    ["Agent connection", state.health.ready_for_host_mode, state.health.slidecraft.platform],
   ];
   $("#health-grid").innerHTML = cards.map(([name, ready, note]) => `<article class="health-card"><div class="library-symbol">${ready ? "✓" : "·"}</div><h4>${name}</h4><p>${escapeHtml(note)}</p><span class="project-status ${ready ? "" : "unavailable"}">${ready ? "Ready" : "Unavailable"}</span></article>`).join("");
   $("#health-checked-at").textContent = `Checked ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
@@ -813,7 +823,7 @@ $("#provider-remove-credential").addEventListener("click", async () => {
   const provider = state.providers.find(item => item.role === $("#provider-role").value);
   const confirmed = await confirmRemoval({
     title: "Remove the saved API key?",
-    message: "Slidecraft will stop using the key stored in your system keychain. An environment-variable key, if configured, remains available.",
+    message: "This removes the saved key from your system keychain. Slidecraft can still use a key supplied through the named environment variable.",
     confirmLabel: "Remove saved key",
   });
   if (!confirmed) return;
