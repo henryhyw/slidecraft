@@ -23,10 +23,26 @@
     }
   },
   "explicit_human_constraints": [
-    "Use a five-stage left-to-right process because sequence is part of the authored meaning.",
-    "Show Stage 2, Stage 4, and Stage 5 internal branches.",
-    "Keep relevant technologies visibly attached to the activities they enable.",
-    "Do not generate the configured footer region."
+    {
+      "text": "Use a five-stage left-to-right process because sequence is part of the authored meaning.",
+      "strength": "hard",
+      "classification_source": "agent_reasoning"
+    },
+    {
+      "text": "Show Stage 2, Stage 4, and Stage 5 internal branches.",
+      "strength": "hard",
+      "classification_source": "agent_reasoning"
+    },
+    {
+      "text": "Keep relevant technologies visibly attached to the activities they enable.",
+      "strength": "hard",
+      "classification_source": "agent_reasoning"
+    },
+    {
+      "text": "Do not generate the configured footer region.",
+      "strength": "hard",
+      "classification_source": "agent_reasoning"
+    }
   ],
   "exact_content": {
     "title": "Proposed Architecture for AI-Assisted Slide Drafting",

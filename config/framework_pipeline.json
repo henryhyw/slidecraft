@@ -11,7 +11,8 @@
       "owner": "host_agent_reasoning",
       "rules": [
         "Exact source content remains authoritative.",
-        "Documents, images, data files, user notes, and assets are normalized into source atoms with provenance and locators.",
+        "The host Agent reads documents, images, data files, user notes, and assets, then authors source atoms with provenance and stable locators.",
+        "The host Agent decides source relevance, authority, required use, exclusions, and whether the grounded material supports credible planning.",
         "The host Agent classifies instructions as hard constraints, soft constraints, or preferences and records the source basis for each decision. Active hard constraints remain mandatory downstream.",
         "Conflicting or ambiguous hard constraints trigger user resolution instead of silent weakening.",
         "The plan describes message, hierarchy, relationships, reading logic, supporting information, and layout-agnostic visual intent.",

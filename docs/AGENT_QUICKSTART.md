@@ -76,7 +76,7 @@ A user can say any natural equivalent of the following request.
 
 The Agent calls `slidecraft_open_project` and returns the most relevant result. If the user clearly asks to begin a new project, it sets `create_if_missing`. A path is optional.
 
-For a new presentation, the Agent calls `slidecraft_prepare_deck` with the audience, objective, source materials, explicit constraints, desired result, optional density override, and optional slide-count range agreed in conversation. The tool returns planning guidance. The Agent authors the deck plan and sends it through the same tool.
+For a new presentation, the Agent first reads every source with its native document, data, and visual capabilities. It authors grounded source atoms with locators, authority, required-use decisions, exclusions, and provenance. It decides whether the evidence supports credible planning and asks only questions that could materially change the result. The Agent then calls `slidecraft_prepare_deck` with the agreed brief. The tool returns planning guidance. The Agent authors the deck plan and sends it through the same tool.
 
 When a project includes images or diagrams, the agent describes the information they carry and links that interpretation to the original file. The resulting deck can trace visual claims back to their source.
 

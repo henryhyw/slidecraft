@@ -53,6 +53,45 @@ def test_open_project_returns_context_and_prepare_deck_returns_planning_brief() 
     assert prepared["result_schema"]["type"] == "object"
 
 
+def test_prepare_deck_accepts_agent_authored_evidence_without_parsing_source_files() -> None:
+    with tempfile.TemporaryDirectory() as directory, patch.dict(
+        os.environ,
+        {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")},
+    ):
+        root = Path(directory)
+        source = root / "legacy-deck.pptx"
+        source.write_bytes(b"opaque source owned by the host Agent")
+        project = open_project(
+            identifier="Grounded Planning",
+            create_if_missing=True,
+            location=str(root / "grounded-planning"),
+        )
+        prepared = prepare_deck(
+            project=project["project"]["workspace_path"],
+            brief={
+                "objective": "Explain the operating model",
+                "materials": [{
+                    "material_id": "SOURCE_DECK",
+                    "modality": "presentation",
+                    "path": str(source),
+                }],
+                "source_atoms": [{
+                    "atom_id": "FACT_001",
+                    "material_id": "SOURCE_DECK",
+                    "locator": "slide:4",
+                    "modality": "structured_text",
+                    "value": {"claim": "The workflow has five connected capabilities."},
+                    "authority": "authoritative",
+                    "required_usage": True,
+                    "provenance": "agent_source_analysis",
+                }],
+            },
+        )
+
+    assert prepared["status"] == "ready_for_deck_plan"
+    assert "The workflow has five connected capabilities" in prepared["planning_brief"]
+
+
 def test_new_project_defaults_to_the_agent_current_workspace() -> None:
     with tempfile.TemporaryDirectory() as directory, patch.dict(
         os.environ,

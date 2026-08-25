@@ -39,9 +39,6 @@ class DeckManager:
     ) -> dict[str, Any]:
         self.run_dir = self.run_dir.resolve()
         self.run_dir.mkdir(parents=True, exist_ok=True)
-        if intake.get("quality", {}).get("pending_extraction_count"):
-            pending = ", ".join(intake["quality"].get("pending_material_ids", []))
-            raise ValueError(f"Deck planning requires source-grounded interpretation for visual materials: {pending}")
         storage_dir = self.run_dir / ".slidecraft" if (self.run_dir / "slidecraft.project.json").exists() else self.run_dir
         storage_dir.mkdir(parents=True, exist_ok=True)
         resolved_layouts_path = system_layouts_path or Path(

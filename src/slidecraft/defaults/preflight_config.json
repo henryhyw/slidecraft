@@ -62,7 +62,6 @@
   ],
   "blocking_conditions": [
     "unresolved_hard_constraint",
-    "missing_authoritative_content",
     "missing_mandatory_asset",
     "unallocated_required_source",
     "conflicting_user_instruction",

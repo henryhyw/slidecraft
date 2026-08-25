@@ -21,7 +21,8 @@ Do not recreate reasoning inside Python or ask Slidecraft to infer a decision th
 
 - When the user supplies a project name, ID, or folder, call `slidecraft_open_project` first. Use `create_if_missing` only when the user clearly intends new work. For a new project, pass the Agent's current workspace as `location` unless the user chose another folder.
 - For a new body of work, create a project in the user's chosen folder. Use the managed default location when they express no preference.
-- Convert the agreed conversation, audience, materials, constraints, desired result, density, and optional slide count into `slidecraft_prepare_deck`. Author the plan from the returned planning brief, then call the same tool with `deck_plan`.
+- Inspect every source with the host Agent's document, data, and visual capabilities. Author concise source facts and interpretations with stable locators, authority, required-use decisions, exclusions, and provenance. Decide whether the grounded evidence supports credible planning. Ask a high-value question only when the answer could materially change the result.
+- Convert the agreed conversation, audience, Agent-authored source evidence, constraints, desired result, density, and optional slide count into `slidecraft_prepare_deck`. Author the plan from the returned planning brief, then call the same tool with `deck_plan`.
 - For existing work, inspect the workspace before calling any mutating capability.
 - Treat `deliverables/` and `sources/` as user-facing. Treat `.slidecraft/` as durable Agent evidence that stays hidden during ordinary interaction.
 - Never infer progress from filenames alone. Use artifact freshness, lifecycle, validation, and dependencies.
@@ -47,7 +48,7 @@ Use a host-native structured input surface when one is available. Ordinary conve
 ## Generate, understand, and reconstruct
 
 - Preserve exact source content, provenance, constraints, and canonical assets.
-- Inspect uploaded images and diagrams with the host's visual understanding before planning. Store the source-grounded interpretation as material content while retaining the original path. Path-only visual materials remain pending and cannot be silently reduced to file metadata.
+- Read uploaded images and diagrams with the host's visual understanding before planning. Store the Agent-authored interpretation with the original path and source locator. Decide how much evidence is relevant and whether it is sufficient for the requested deck.
 - Register external model outputs before consuming them downstream.
 - Keep candidate revisions separate until the applicable acceptance policy passes.
 - Recompute stale descendants before publishing.

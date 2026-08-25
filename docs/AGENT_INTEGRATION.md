@@ -53,9 +53,9 @@ The Agent can stop after any completed operation. Reopening the project returns 
 
 ## What the Agent owns
 
-The Agent owns every decision that requires judgment. This includes useful clarification questions, source interpretation, storyline, slide allocation, headers and footers, semantic design, reusable-resource choices, visual analysis, connector meaning, reconstruction routes, and refinement groups.
+The Agent owns every decision that requires judgment. This includes source reading, grounded fact extraction, authority, relevance, required use, exclusions, evidence sufficiency, useful clarification questions, storyline, slide allocation, headers and footers, semantic design, reusable-resource choices, visual analysis, connector meaning, reconstruction routes, and refinement groups.
 
-Slidecraft validates and executes those decisions. It manages provenance, candidate search, exact pixel measurement, bounded alignment, Office-safe text fitting, editable PowerPoint construction, and final deck checks.
+Slidecraft stores and validates those decisions. It manages file provenance, candidate search, exact pixel measurement, bounded alignment, Office-safe text fitting, editable PowerPoint construction, and final deck checks. It does not parse project sources or decide when the content is sufficient.
 
 ## Image generation
 

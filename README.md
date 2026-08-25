@@ -65,7 +65,7 @@ slidecraft-mcp
 
 The guided installer registers this local server with detected Agent apps. The Agent app starts it when needed. You do not run it for each project. If you ask to see the dashboard, the Agent can launch `slidecraft console` and open the local webpage for you.
 
-Your Agent app manages the conversation and makes the decisions that require judgment. Slidecraft records project decisions, sources, progress, and deliverables so another session can continue from the same project. The dashboard presents the same durable project information.
+Your Agent app manages the conversation and makes every decision that requires judgment. This includes interpreting source files and deciding whether the material supports a credible deck. Slidecraft records the Agent's evidence and decisions, manages project files, and performs measurement and PowerPoint construction. The dashboard presents the same durable project information.
 
 The bundled Agent skill is available at [integrations/skills/slidecraft/SKILL.md](integrations/skills/slidecraft/SKILL.md). The complete host contract is documented in [Agent integration](docs/AGENT_INTEGRATION.md).
 
@@ -111,7 +111,7 @@ See [Configuration](docs/CONFIGURATION.md), [Guidance profiles](docs/GUIDANCE_PR
 
 The Agent guides the work from the first conversation to the finished deck. Slidecraft supplies dependable operations for each part of that work.
 
-1. Understand the brief. The Agent reads the supplied material, preserves source provenance, identifies hard constraints, and asks only questions that could materially change the result.
+1. Understand the brief. The Agent reads every supplied source, identifies grounded facts and exact content, decides relevance and authority, preserves source provenance, and judges whether the evidence supports credible planning. It asks only questions that could materially change the result.
 2. Plan the story. The Agent chooses the governing message, sections, slide sequence, information density, and the purpose of every page.
 3. Choose reusable resources. The Agent searches local collections of visual inspiration, icons, and editable components, then selects resources that fit each slide.
 4. Design content slides. The Agent prepares an image-generation brief with exact content and project style. It uses its own image tool when available or the image service connected in Slidecraft.

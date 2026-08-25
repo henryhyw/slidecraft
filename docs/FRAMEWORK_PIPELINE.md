@@ -53,6 +53,7 @@ The generation review and native validation are pipeline quality gates. They do 
 
 | Information | Owner | Lifecycle |
 | --- | --- | --- |
+| Source interpretation, relevance, authority, required use, exclusions, and evidence sufficiency | Host Agent | Authored before deck planning and retained with provenance |
 | Slide objective and exact content | Per-slide input | Supplied for each slide |
 | Explicit layout or asset requirements | Per-slide input | Supplied only when needed |
 | Slide dimensions and exclusions | Deck design configuration | Shared across a deck or selected deck variant |

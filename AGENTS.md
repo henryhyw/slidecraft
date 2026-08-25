@@ -9,7 +9,7 @@ Slidecraft helps agent apps create and revise editable presentations. Use its to
 3. Reason over the user's request and the returned progress, sources, and deliverables.
 4. Use the remaining workflow tools according to the work the user wants.
 
-For new work, turn the conversation into an authoritative brief and call `slidecraft_prepare_deck`. Include source-grounded interpretations for uploaded images and diagrams. Keep the source path alongside the interpretation so provenance remains intact. The first call returns planning guidance. Author the plan, then call the same tool with `deck_plan`.
+For new work, inspect every supplied source with the Agent app's native document, data, and visual capabilities. Author the source facts, interpretations, authority, required-use decisions, exclusions, and constraint classifications in the brief. Keep each source path beside the Agent-authored evidence so provenance remains intact. Decide whether the evidence supports credible planning and ask only high-value questions when it does not. Call `slidecraft_prepare_deck` after making those decisions. The first call returns planning guidance. Author the plan, then call the same tool with `deck_plan`.
 
 New projects already contain a frozen deck-design baseline. The host Agent authors the storyline, slide routes, structural-layout choices, header and footer content, and content-slide semantic designs. For each content job, use `slidecraft_generate_slide`. It returns semantic-design guidance, resource candidates, or an image-generation brief according to the information supplied in the call.
 
@@ -20,7 +20,7 @@ Lead public-facing explanations with what the user can do and what result they w
 ## Work conversationally
 
 - Ask only high-value questions that can materially change the message, audience decision, scope, evidence, or required output.
-- Own every interpretive decision, including constraint classification, retrieval selections, semantic mapping, reconstruction routes, connector topology, and bounded refinement groups. Slidecraft validates and executes those decisions.
+- Own every interpretive decision, including source interpretation, evidence sufficiency, constraint classification, retrieval selections, semantic mapping, reconstruction routes, connector topology, and bounded refinement groups. Slidecraft records, validates, and executes those decisions.
 - Respect a request to inspect, revise, regenerate, continue, or deliver one artifact without forcing a full restart.
 - Use the host's image-generation capability when available. Use Slidecraft's configured image provider when the host has no image tool or the user selected that provider.
 - Register every external model result before another capability consumes it.

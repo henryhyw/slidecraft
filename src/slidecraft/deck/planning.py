@@ -31,11 +31,11 @@ FROZEN DECK DESIGN SYSTEM
 {json.dumps(design, indent=2, ensure_ascii=False)}
 
 PLANNING METHOD
-1. Resolve the audience decision, governing thought, source authority, hard constraints, selected guidance profile, and density before allocating slides.
+1. Use the audience decision, Agent-authored source authority and use decisions, hard constraints, selected guidance profile, and density before allocating slides. Establish one governing thought for the deck.
 2. Build two or three plausible storylines. Evaluate them for answer quality, evidence flow, section logic, source coverage, audience fit, density, and requested length. Select the strongest one.
 3. Organize the selected storyline into purposeful argument phases. Use section dividers only when they materially clarify a new phase.
 4. Give every information-bearing slide one governing message supported by several semantic or evidence units. Avoid duplicate messages and sparse content slides that violate the density profile.
-5. Allocate every authoritative source atom to a slide, appendix, or explicit exclusion with a reason. Preserve exact content and provenance.
+5. Use the Agent-authored source authority, required-use, and exclusion decisions. Allocate every required source atom to a slide or appendix. Preserve exact content and provenance.
 6. Use deterministic system layouts only for low-information structural slides. Use image generation for every information-bearing slide so the image model can choose its visual form.
 7. Record dependencies, terminology obligations, repeated component roles, and cross-slide data consistency requirements.
 8. Consider project assets by semantic role. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. Record chosen asset IDs on their assigned slides and in asset_allocation.
@@ -160,8 +160,8 @@ def validate_and_normalize_plan(
     if not plan["quality_evaluation"]["passed"]:
         raise ValueError("Deck planner marked its own result as failed")
     used_atoms = {atom for slide in normalized for atom in slide["source_atom_ids"]}
-    authoritative = {atom["atom_id"] for atom in intake.get("source_atoms", []) if atom.get("authority") == "authoritative"}
-    missing_authoritative = sorted(authoritative - used_atoms)
+    required_atoms = {atom["atom_id"] for atom in intake.get("source_atoms", []) if atom.get("required_usage")}
+    missing_required_atoms = sorted(required_atoms - used_atoms)
     project_assets = {item["asset_id"]: item for item in (request or {}).get("project_assets", [])}
     used_assets = {asset_id for slide in normalized for asset_id in slide.get("asset_ids", [])}
     unknown_assets = sorted(used_assets - set(project_assets))
@@ -176,13 +176,13 @@ def validate_and_normalize_plan(
         "section_count": len(known_sections),
         "system_slide_count": sum(slide["route"] == "system_layout" for slide in normalized),
         "generated_slide_count": sum(slide["route"] == "image_generation" for slide in normalized),
-        "missing_authoritative_source_atoms": missing_authoritative,
+        "missing_required_source_atoms": missing_required_atoms,
         "missing_required_assets": missing_required_assets,
         "slide_count_contract": _validate_requested_slide_count(request or {}, len(normalized)),
-        "passed": not missing_authoritative and not missing_required_assets,
+        "passed": not missing_required_atoms and not missing_required_assets,
     }
-    if missing_authoritative:
-        raise ValueError(f"Authoritative source atoms are unallocated: {missing_authoritative}")
+    if missing_required_atoms:
+        raise ValueError(f"Required source atoms are unallocated: {missing_required_atoms}")
     if missing_required_assets:
         raise ValueError(f"Required project assets are unallocated: {missing_required_assets}")
     return {**plan, "slides": normalized}, report

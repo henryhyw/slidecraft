@@ -23,11 +23,11 @@
 
 ## Partially closed
 
-### Extended multimodal extraction
+### Agent source understanding
 
-The intake manifest and source-atom contract are implemented. The current runtime handles text, JSON, CSV, PDF, DOCX, XLSX, XLSM, PPTX text, source-grounded host interpretations of images and diagrams, exact content, notes, and canonical assets. Path-only visuals remain explicitly pending until the host Agent interprets them. Audio transcription, URL capture, scanned-document vision, and PPTX shape-level extraction remain optional adapter extensions. They are outside the currently advertised supported-material set.
+The intake manifest and source-atom contract are implemented. The host Agent reads text, documents, presentations, spreadsheets, images, diagrams, audio, and URLs through the capabilities available in its environment. It authors the grounded facts, interpretations, exact content, authority, required use, exclusions, and stable source locators. Slidecraft records the original files, hashes, provenance, and Agent-authored source atoms without interpreting source contents.
 
-Each adapter must produce source atoms with stable locators such as page, paragraph, table cell, slide shape, worksheet cell, image region, timestamp, or URL fragment. Tables and charts must retain structured data instead of becoming plain text.
+Agents should preserve structured tables and chart data as structured evidence. Useful locators include page, paragraph, table cell, slide shape, worksheet cell, image region, timestamp, and URL fragment.
 
 ### Constraint reasoning
 
@@ -85,7 +85,7 @@ The Agent may choose the component route only when the candidate is certified an
 
 ## Multimodal source model
 
-Every material receives a stable material ID and provenance record. Extracted information becomes source atoms.
+Every material receives a stable material ID and provenance record. The host Agent turns relevant information into source atoms.
 
 ```json
 {
@@ -95,7 +95,7 @@ Every material receives a stable material ID and provenance record. Extracted in
   "locator": "Revenue!B12:E12",
   "value": [120, 145, 171, 205],
   "authority": "authoritative",
-  "extraction_confidence": 1.0
+  "required_usage": true
 }
 ```
 

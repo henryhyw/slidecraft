@@ -119,12 +119,6 @@ def prepare_deck(
         from slidecraft.intake import normalize_deck_intake
 
         intake = normalize_deck_intake(request, workspace)
-        if intake["quality"]["pending_extraction_count"]:
-            return {
-                "status": "needs_source_interpretation",
-                "materials": intake["quality"]["pending_material_ids"],
-                "instruction": "Inspect these visual materials and add source-grounded descriptions to the brief before planning.",
-            }
         design = json.loads(design_path.read_text(encoding="utf-8"))
         return {
             "status": "ready_for_deck_plan",

@@ -977,12 +977,6 @@ def plan_deck(**arguments: Any) -> dict[str, Any]:
         request.setdefault("project_assets", [])
     intake_base = workspace_path if (workspace_path / "slidecraft.project.json").is_file() else request_path.parent
     intake = normalize_deck_intake(request, intake_base)
-    if intake["quality"]["pending_extraction_count"]:
-        pending = ", ".join(intake["quality"]["pending_material_ids"])
-        raise ValueError(
-            f"Visual source interpretation is required before deck planning for: {pending}. "
-            "Use the host Agent's visual understanding and add its source-grounded interpretation as material content."
-        )
     design = json.loads(Path(arguments["design"]).expanduser().read_text(encoding="utf-8"))
     authored_plan = RecordedDeckPlan(Path(arguments["result"]).expanduser().resolve()).read()
     manifest = DeckManager(workspace_path, authored_plan).initialize(

@@ -20,9 +20,12 @@ conversation and use these tools as complete presentation tasks. Open the projec
 the agreed brief and Agent-authored deck plan. Generate each information-bearing slide, measure its
 accepted image with Agent-authored visual analysis, reconstruct it, then render the complete deck.
 
-The Agent owns questions, source interpretation, storyline, resource choices, visual analysis,
-connector meaning, reconstruction routes, and refinement decisions. Slidecraft stores those
-decisions, performs deterministic measurement and construction, and validates the result. Tools may
+The Agent reads every source and owns grounded fact extraction, relevance, authority, required use,
+exclusions, evidence sufficiency, questions, storyline, resource choices, visual analysis, connector
+meaning, reconstruction routes, and refinement decisions. Include those source decisions in the
+brief with stable locators and provenance. Slidecraft never parses sources or decides whether the
+material is sufficient. It stores Agent-authored decisions, performs deterministic measurement and
+construction, and validates mechanical consistency. Tools may
 return a brief or candidate set for the Agent to complete, then accept that authored result on the
 next call. Return the editable PowerPoint or requested review artifact to the user. Keep internal
 masks, contours, caches, and logs hidden unless technical evidence is requested.
@@ -68,7 +71,7 @@ def build_server() -> Any:
         brief: dict[str, Any] | None = None,
         deck_plan: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Record the brief, prepare deck-planning guidance, or validate and store the Agent-authored plan."""
+        """Store Agent-authored source evidence and the brief, return planning guidance, or validate the authored plan."""
         return prepare_deck(project=project, brief=brief, deck_plan=deck_plan)
 
     @server.tool()

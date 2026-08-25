@@ -67,6 +67,40 @@ class DeckManagerTests(unittest.TestCase):
                 system_layouts_path=ROOT / "src" / "slidecraft" / "defaults" / "system_slide_layouts.json",
             )
 
+    def test_source_coverage_enforces_agent_authored_required_usage(self) -> None:
+        request = {
+            "schema_version": "1.0.0",
+            "deck_id": "demo_deck",
+            "objective": "Explain one answer",
+            "audience": {"description": "Executives"},
+            "materials": [{
+                "material_id": "M1",
+                "modality": "text",
+                "content": "Authoritative context",
+                "authority": "authoritative",
+                "required_usage": False,
+            }],
+        }
+        plan = RecordedDeckPlan(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json").read()
+        plan["slides"][1]["source_atom_ids"] = []
+        intake = normalize_deck_intake(request, ROOT)
+        with tempfile.TemporaryDirectory() as directory:
+            manifest = DeckManager(Path(directory), plan).initialize(
+                request=request,
+                intake=intake,
+                design_system={"config_id": "test", "full_slide_px": [1000, 562], "style": {}, "deck_chrome": {"enabled": False}},
+            )
+        self.assertEqual(manifest["validation"]["missing_required_source_atoms"], [])
+
+        request["materials"][0]["required_usage"] = True
+        required_intake = normalize_deck_intake(request, ROOT)
+        with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(ValueError, "Required source atoms"):
+            DeckManager(Path(directory), plan).initialize(
+                request=request,
+                intake=required_intake,
+                design_system={"config_id": "test", "full_slide_px": [1000, 562], "style": {}, "deck_chrome": {"enabled": False}},
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

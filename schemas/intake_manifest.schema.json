@@ -24,13 +24,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["atom_id", "source_path", "modality", "value", "authority", "citation"],
+        "required": ["atom_id", "source_path", "modality", "value", "authority", "required_usage", "citation"],
         "properties": {
           "atom_id": {"type": "string"},
           "source_path": {"type": "string"},
           "modality": {"type": "string"},
           "value": {},
           "authority": {"enum": ["authoritative", "intent_evidence", "supporting_evidence", "derived"]},
+          "required_usage": {"type": "boolean"},
           "citation": {
             "type": "object",
             "required": ["material_id", "locator"],
@@ -66,16 +67,16 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["material_id", "modality", "role", "authority", "required_usage", "extraction_status", "provenance"],
+        "required": ["material_id", "modality", "role", "authority", "required_usage", "agent_content_present", "provenance"],
         "properties": {
           "material_id": {"type": "string"},
-          "modality": {"enum": ["text", "structured_text", "document", "pdf", "spreadsheet", "image", "diagram", "canonical_asset", "audio", "url"]},
+          "modality": {"enum": ["text", "structured_text", "document", "presentation", "pdf", "spreadsheet", "image", "diagram", "canonical_asset", "audio", "url"]},
           "role": {"type": "string"},
           "description": {"type": "string"},
           "authority": {"type": "string"},
           "required_usage": {"type": "boolean"},
           "path": {"type": ["string", "null"]},
-          "extraction_status": {"type": "string"},
+          "agent_content_present": {"type": "boolean"},
           "content": {},
           "provenance": {"type": "string"},
           "sha256": {"type": ["string", "null"]},

@@ -105,8 +105,6 @@ def build_generation_preflight(
         if not item["internal"].get("canonical_file") and item["internal"].get("attachment_status") != "available"
     ]
     blocking = []
-    if not intake["source_atoms"]:
-        blocking.append({"code": "missing_authoritative_content", "message": "No authoritative source atoms are available."})
     if intake["quality"]["requires_user_resolution"]:
         blocking.append({"code": "unresolved_hard_constraint", "ids": intake["unresolved_constraint_ids"]})
     if missing_assets:

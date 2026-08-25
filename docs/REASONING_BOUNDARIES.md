@@ -5,6 +5,9 @@ People work with Slidecraft through an AI Agent. The Agent interprets the reques
 ## Agent-owned decisions
 
 - Whether clarification is useful and which questions to ask
+- What every source means, which facts it supports, and where those facts occur
+- Which sources are authoritative, relevant, required, supporting, or excluded
+- Whether the available grounded material supports credible planning
 - How user statements become constraints, preferences, objectives, and source facts
 - How a deck storyline and its slide jobs should be organized
 - Which slide roles, routes, and configured structural layouts serve the storyline
@@ -17,11 +20,11 @@ People work with Slidecraft through an AI Agent. The Agent interprets the reques
 - Which peer objects should align or share typography
 - Whether a generated candidate is strong enough to accept
 
-These decisions are stored as typed artifacts with provenance. Slidecraft validates their structure and references. It does not recreate them from keywords, filenames, proximity, lexical rank, or first-result fallbacks.
+These decisions are stored as typed artifacts with provenance. Slidecraft validates their structure and references. It never reads a source to decide its meaning, relevance, authority, required use, exclusion, or planning sufficiency.
 
 ## Framework-owned operations
 
-- Project folders, source copying, hashes, locators, and artifact history
+- Project folders, source copying, hashes, Agent-supplied locators, and artifact history
 - Reusable-resource indexing and candidate search
 - Configuration resolution and canvas derivation
 - Schema validation and stable ID resolution
