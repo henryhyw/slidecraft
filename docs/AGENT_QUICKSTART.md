@@ -1,109 +1,62 @@
 # Agent quickstart
 
-This guide connects Slidecraft to an Agent host. Users then work through ordinary conversation and may ignore the dashboard entirely.
-
-## Install
-
-Install Python 3.10 or newer and the current Node.js LTS release. The guided installer creates an isolated runtime, prepares the constructor, verifies the installation, and connects detected agent apps.
+## Install from a checkout
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | python3 -
+python3 -m venv .venv
+.venv/bin/python -m pip install -e '.[cv,documents,openai]'
+.venv/bin/slidecraft init
+.venv/bin/slidecraft check-install
 ```
 
-Windows PowerShell users can run this equivalent command.
+Install the bundled skill into the Agent host or run `python3 install.py --source .` to install the runtime and skill together.
 
-```powershell
-irm https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | py -3 -
-```
-
-See [Installation](INSTALLATION.md) for selected host setup, a reviewable download flow, and the manual contributor installation.
-
-## Connect an Agent host
-
-Any host that supports stdio MCP can launch this command.
-
-```text
-slidecraft-mcp
-```
-
-The server introduces six presentation tools when the Agent app connects. Agent apps with reusable
-skill support also receive the bundled Slidecraft skill for richer presentation guidance.
-
-The guided installer registers detected Codex and Claude Code installations. It also installs the bundled Slidecraft workflow skill for those hosts. The commands below are available when manual registration is useful.
-
-For Codex CLI, register the installed MCP command once.
+## Start shared work
 
 ```bash
-codex mcp add slidecraft -- /absolute/path/to/slidecraft-mcp
+slidecraft project create "AI strategy" --location /absolute/path/ai-strategy
+slidecraft project context /absolute/path/ai-strategy
 ```
 
-Codex desktop, CLI, and IDE clients share the same MCP configuration. The server can also be
-added from the MCP settings interface as a local STDIO server.
-
-For Claude Code, register the same executable.
+Open the optional web app in another terminal.
 
 ```bash
-claude mcp add slidecraft --scope user -- /absolute/path/to/slidecraft-mcp
+slidecraft console
 ```
 
-For GitHub Copilot, add the MCP command to `~/.copilot/mcp-config.json` for the current user or `.mcp.json` in a presentation workspace.
+Both surfaces now use the same settings, project resources, artifact manifest, and deliverables.
 
-```json
-{
-  "servers": {
-    "slidecraft": {
-      "command": "/absolute/path/to/slidecraft-mcp",
-      "args": []
-    }
-  }
-}
+## Follow the skill
+
+Ask the Agent to create or revise the presentation. The Agent reads the planning reference, discusses the research synthesis and brief, proposes the slide count and per-slide messages, and records the accepted storyboard.
+
+```bash
+slidecraft project record /absolute/path/ai-strategy \
+  --path /absolute/path/ai-strategy/.slidecraft/working/storyboard.json \
+  --logical-key deck/plan \
+  --kind deck_plan
 ```
 
-For another MCP client, create a local STDIO server entry with `slidecraft-mcp` as the command.
-The client starts that process automatically when it needs Slidecraft. If the client has no MCP
-support but can run Python, it can import the six functions in `slidecraft.agent_workflows`.
+After the Agent accepts a slide image and authors its visual analysis, reconstruct it.
 
-The bundled skill at `integrations/skills/slidecraft/SKILL.md` teaches compatible hosts the conversational workflow. The repository-level `AGENTS.md` gives the same entry guidance to Agents working from this source tree.
+```bash
+slidecraft reconstruct-slide \
+  --project /absolute/path/ai-strategy \
+  --image /absolute/path/ai-strategy/.slidecraft/working/slide-01/generated.png \
+  --visual-analysis /absolute/path/ai-strategy/.slidecraft/working/slide-01/visual-analysis.json \
+  --slide-id slide-01 \
+  --output-dir /absolute/path/ai-strategy/.slidecraft/working/slide-01 \
+  --output /absolute/path/ai-strategy/deliverables/slides/slide-01.pptx
+```
 
-When a user asks to see the optional dashboard, the Agent can run `slidecraft console`. Slidecraft
-starts the local webpage and opens it in the default browser.
+The command automatically records its resolved design and reconstruction artifacts in the shared project manifest. Refreshing the web app shows the same progress and outputs.
 
-## Start a fresh session
+## Recheck changes
 
-A user can say any natural equivalent of the following request.
+If the user changes style, resources, assets, or provider settings in the web app, run this before the next slide.
 
-> Continue the Market Growth project and show me what is ready.
+```bash
+slidecraft project context /absolute/path/ai-strategy
+```
 
-The Agent calls `slidecraft_open_project` and returns the most relevant result. If the user clearly asks to begin a new project, it sets `create_if_missing`. A path is optional.
-
-For a new presentation, the Agent first reads every source with its native document, data, and visual capabilities. It authors grounded source atoms with locators, authority, required-use decisions, exclusions, and provenance. It decides whether the evidence supports credible planning and asks only questions that could materially change the result. The Agent then calls `slidecraft_prepare_deck` with the agreed brief. The tool returns planning guidance. The Agent authors the deck plan and sends it through the same tool.
-
-Unless the user requests uninterrupted execution, the Agent shares its source and research synthesis before finalizing the brief. Before slide generation, it shows the recommended length, storyline phases, conclusion-led message for every slide, evidence allocation, required topics, assumptions, and exclusions. This is an ordinary conversation with the Agent. Slidecraft does not create an approval state.
-
-When a project includes images or diagrams, the agent describes the information they carry and links that interpretation to the original file. The resulting deck can trace visual claims back to their source.
-
-## Image generation
-
-`slidecraft_generate_slide` resolves image generation automatically.
-
-- Agent apps with image generation receive the prompt and references, create the slide image directly, and send its path through the same tool.
-- An OpenAI or OpenAI-compatible connection gives other agent apps the same generation route.
-- The System page lets users choose which route Slidecraft uses for the project.
-
-## Full-deck execution
-
-The Agent interprets project sources, decides whether any high-value clarification is useful, and creates one deck plan. The plan freezes the storyline, source allocation, density, shared design system, page order, and route for each slide.
-
-Structural slides such as covers and section dividers use packaged deterministic layouts selected by the Agent. For each content slide, `slidecraft_generate_slide` guides semantic design and resource selection before image generation. `slidecraft_measure_slide` accepts the Agent's visual analysis and records exact geometry. `slidecraft_reconstruct_slide` builds editable objects from the measured evidence and refinement plan.
-
-`slidecraft_open_project` reports which planned slides are complete. The Agent calls `slidecraft_render_deck` when every planned slide is ready and the user's request calls for the deck. Assembly uses deck-plan order and enforces the frozen design identity, canvas, background, repeated typography roles, canonical asset roles, connector minimums, and deterministic header and footer contract.
-
-## What the Agent returns
-
-`slidecraft_open_project` exposes user-facing deliverables and a curated list of reviewable intermediate artifacts. The Agent chooses what to return from conversational intent.
-
-- Final deck requests return the editable `.pptx` and any requested report.
-- Progress reviews can return the deck plan, generated slides, decisions, or current preview.
-- Technical diagnosis can include internal evidence when explicitly requested.
-
-Users can pause, continue, review, or revise the presentation in ordinary conversation. Each completed operation is saved, so another session can pick up from the same point.
+The next reconstruction resolves the current global and project configuration automatically.

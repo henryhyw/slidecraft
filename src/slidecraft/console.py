@@ -51,7 +51,7 @@ from slidecraft.project_resource_selections import (
     remove_project_resource,
 )
 from slidecraft.project_resources import project_resource_catalog, resolve_project_resource
-from slidecraft.projects import create_project, list_projects, project_detail
+from slidecraft.projects import create_project, list_projects, project_detail, project_manifest_path
 from slidecraft.resource_preview import build_path_preview, build_resource_preview
 from slidecraft.runtime.doctor import collect_diagnostics
 
@@ -180,6 +180,15 @@ def _design_summary(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _project_config(query: dict[str, list[str]]) -> Path | None:
+    if not query.get("path"):
+        return None
+    root = Path(query["path"][0]).expanduser().resolve()
+    project_manifest_path(root)
+    path = root / ".slidecraft" / "config.toml"
+    return path if path.is_file() else None
+
+
 def _font_choices() -> list[dict[str, Any]]:
     preferred = [
         "Aptos", "Arial", "Avenir Next", "Baskerville", "Calibri", "Futura", "Georgia",
@@ -294,9 +303,14 @@ class ConsoleHandler(BaseHTTPRequestHandler):
                 self._json(project_detail(query["path"][0], include_internal=query.get("internal", ["0"])[0] == "1"))
                 return
             if parsed.path == "/api/config":
-                config, provenance = resolve_config()
+                query = parse_qs(parsed.query)
+                config, provenance = resolve_config(_project_config(query))
                 values = flatten(config)
-                self._json({"config": config, "values": [{"key": key, "value": values[key], "source": provenance.get(key, "default")} for key in sorted(values)]})
+                self._json({
+                    "config": config,
+                    "scope": "project" if query.get("path") else "user",
+                    "values": [{"key": key, "value": values[key], "source": provenance.get(key, "default")} for key in sorted(values)],
+                })
                 return
             if parsed.path == "/api/capabilities":
                 self._json(list_capabilities())
@@ -335,8 +349,9 @@ class ConsoleHandler(BaseHTTPRequestHandler):
                 self._json(list_project_events(query["path"][0], pending_only=query.get("all", ["0"])[0] != "1"))
                 return
             if parsed.path == "/api/design":
-                config, _ = resolve_config()
-                self._json(_design_summary(config))
+                query = parse_qs(parsed.query)
+                config, _ = resolve_config(_project_config(query))
+                self._json({**_design_summary(config), "scope": "project" if query.get("path") else "user"})
                 return
             if parsed.path == "/api/providers":
                 config, _ = resolve_config()

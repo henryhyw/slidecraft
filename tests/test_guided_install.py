@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,18 +23,18 @@ def test_package_requirement_supports_release_and_local_sources(tmp_path: Path) 
     checkout.mkdir()
     local = INSTALLER.package_requirement(str(checkout))
     remote = INSTALLER.package_requirement("https://example.com/slidecraft.zip")
-    assert local == f"{checkout.resolve()}[cv,documents,agent,openai]"
-    assert remote == "slidecraft-ai[cv,documents,agent,openai] @ https://example.com/slidecraft.zip"
+    assert local == f"{checkout.resolve()}[cv,documents,openai]"
+    assert remote == "slidecraft-ai[cv,documents,openai] @ https://example.com/slidecraft.zip"
 
 
 def test_explicit_agent_selection_is_stable() -> None:
-    assert INSTALLER.choose_agents(["codex", "claude", "codex"], None) == ["codex", "claude"]
-    assert INSTALLER.choose_agents(["none"], None) == []
+    assert INSTALLER.choose_agents(["codex", "claude", "codex"]) == ["codex", "claude"]
+    assert INSTALLER.choose_agents(["none"]) == []
 
 
 def test_windows_executable_paths() -> None:
     root = Path("C:/Slidecraft/runtime")
-    assert INSTALLER.executable(root, "slidecraft-mcp", "Windows") == root / "Scripts" / "slidecraft-mcp.exe"
+    assert INSTALLER.executable(root, "slidecraft", "Windows") == root / "Scripts" / "slidecraft.exe"
 
 
 def test_agent_skill_is_installed_for_hosts_with_skill_support(tmp_path: Path) -> None:
@@ -43,20 +42,13 @@ def test_agent_skill_is_installed_for_hosts_with_skill_support(tmp_path: Path) -
     source.mkdir()
     (source / "SKILL.md").write_text("---\nname: slidecraft\n---\n", encoding="utf-8")
 
-    codex = INSTALLER.install_agent_skill("codex", source, home=tmp_path)
+    cli = Path("/managed/slidecraft")
+    codex = INSTALLER.install_agent_skill("codex", source, cli_path=cli, home=tmp_path)
     claude = INSTALLER.install_agent_skill("claude", source, home=tmp_path)
     copilot = INSTALLER.install_agent_skill("copilot", source, home=tmp_path)
 
     assert Path(codex["path"], "SKILL.md").is_file()
+    runtime = Path(codex["path"], "references", "runtime.md")
+    assert str(cli) in runtime.read_text(encoding="utf-8")
     assert Path(claude["path"], "SKILL.md").is_file()
-    assert copilot["status"] == "mcp_instructions_only"
-
-
-def test_copilot_workspace_configuration_preserves_other_servers(tmp_path: Path) -> None:
-    config = tmp_path / ".mcp.json"
-    config.write_text('{"servers":{"existing":{"command":"existing-server"}}}\n', encoding="utf-8")
-    result = INSTALLER.connect_copilot(tmp_path, Path("/managed/slidecraft-mcp"))
-    payload = json.loads(config.read_text(encoding="utf-8"))
-    assert result["status"] == "connected"
-    assert payload["servers"]["existing"]["command"] == "existing-server"
-    assert payload["servers"]["slidecraft"]["command"] == str(Path("/managed/slidecraft-mcp"))
+    assert copilot["status"] == "unsupported"

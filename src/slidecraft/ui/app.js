@@ -172,6 +172,7 @@ async function openProject(path, includeInternal = false) {
   ]);
   state.selectedProjectPath = path;
   state.internalVisible = includeInternal;
+  await loadDesign();
   $("#workspace-project-title").textContent = detail.project.name;
   $("#workspace-project-description").textContent = detail.project.description || "Presentation project";
   $("#workspace-project-path").textContent = detail.project.workspace_path;
@@ -424,7 +425,8 @@ function optionList(values, selected, labels = {}) {
 }
 
 async function loadDesign() {
-  state.design = await api("/api/design");
+  const projectQuery = state.selectedProjectPath ? `?path=${encodeURIComponent(state.selectedProjectPath)}` : "";
+  state.design = await api(`/api/design${projectQuery}`);
   const settings = state.design.settings;
   const profiles = state.design.guidance_profiles;
   const selectedProfile = profiles.find(item => item.profile_id === settings.guidance_profile) || profiles[0];
@@ -445,11 +447,17 @@ async function loadDesign() {
 }
 
 async function saveDesignSettings(values) {
+  const projectConfig = state.selectedProjectPath ? `${state.selectedProjectPath}/.slidecraft/config.toml` : null;
   for (const [key, value] of Object.entries(values)) {
-    await api("/api/config", { method: "POST", body: JSON.stringify({ key: `design.${key}`, value, scope: "user" }) });
+    await api("/api/config", { method: "POST", body: JSON.stringify({
+      key: `design.${key}`,
+      value,
+      scope: state.selectedProjectPath ? "project" : "user",
+      project_config: projectConfig,
+    }) });
   }
   await Promise.all([loadDesign(), loadOverview()]);
-  showToast("Presentation defaults saved");
+  showToast(state.selectedProjectPath ? "Project presentation settings saved" : "Presentation defaults saved");
 }
 
 function fontPicker(name, selected, role) {
@@ -732,6 +740,7 @@ $("#project-back").addEventListener("click", () => {
   $("#project-workspace-panel").hidden = true;
   $("#projects-list-panel").hidden = false;
   state.selectedProjectPath = null;
+  loadDesign().catch(error => showToast(error.message));
 });
 $$('.resource-tab').forEach(button => button.addEventListener('click', () => {
   $$('.resource-tab').forEach(item => item.classList.toggle('active', item === button));

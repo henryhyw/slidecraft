@@ -1,52 +1,35 @@
-# Reasoning boundaries
+# Reasoning and construction responsibilities
 
-People work with Slidecraft through an AI Agent. The Agent interprets the request, materials, images, and design context. Slidecraft supplies reliable operations that turn those decisions into traceable editable presentations.
+Slidecraft gives the Agent broad responsibility for the presentation while local code executes repeatable construction operations.
 
-## Agent-owned decisions
+## Agent responsibility
 
-- Whether clarification is useful and which questions to ask
-- Whether the user wants collaborative review or uninterrupted delegated execution
-- Which research findings and planning decisions should be surfaced during collaboration
-- What every source means, which facts it supports, and where those facts occur
-- Which sources are authoritative, relevant, required, supporting, or excluded
-- Whether the available grounded material supports credible planning
-- How user statements become constraints, preferences, objectives, and source facts
-- How a deck storyline and its slide jobs should be organized
-- Which slide roles, routes, and configured structural layouts serve the storyline
-- What each slide should communicate
-- Which reusable visual references, icons, and components fit the task
-- What the generated slide contains and how entities relate
-- Which canonical asset an icon slot maps to
-- Which reconstruction route preserves each authored object
-- Connector source, target, topology, direction, and clean route
-- Which peer objects should align or share typography
-- Whether a generated candidate is strong enough to accept
+- Interpret the request, materials, and research
+- Define the audience transformation and governing message
+- Decide which evidence is authoritative and useful
+- Compare narrative options and select the storyline
+- Recommend the slide count and message sequence
+- Choose slide routes and visual forms
+- Select visual references, icons, components, and project assets
+- Review generated candidates
+- Identify semantic objects, groups, and relationships
+- Choose reconstruction routes and connector meaning
+- Identify meaningful alignment and typography peer groups
+- Review deck-level coherence and presentation quality
 
-These decisions are stored as typed artifacts with provenance. Slidecraft validates their structure and references. It never reads a source to decide its meaning, relevance, authority, required use, exclusion, or planning sufficiency.
+## Local construction responsibility
 
-## Framework-owned operations
+- Resolve user and project configuration
+- Maintain project folders, resource catalogs, and artifact history
+- Search reusable local resources
+- Measure geometry, color, text regions, and contours
+- Fit canonical assets proportionally
+- Apply bounded alignment plans
+- Fit native text for PowerPoint
+- Route native connectors from semantic relationships
+- Compile editable PowerPoint objects
+- Verify package integrity
 
-- Project folders, source copying, hashes, Agent-supplied locators, and artifact history
-- Reusable-resource indexing and candidate search
-- Configuration resolution and canvas derivation
-- Schema validation and stable ID resolution
-- OpenCV measurements and eligible SAM boundary evidence
-- Coordinate transforms, mask and contour evidence, and color sampling
-- Proportional SVG fitting into authoritative icon slots
-- Bounded application of Agent-authored alignment plans
-- Joint Office-safe text fitting from Agent-authored semantic roles
-- Native connector construction from Agent-authored relationship graphs
-- Editable PowerPoint construction and package integrity checks
-- Artifact freshness, dependency tracking, and cross-slide conformance
+## Collaboration between the layers
 
-## Why this preserves quality
-
-The agent sees the whole communication problem and can make coherent decisions across slides and resources. Deterministic code then executes those decisions without introducing semantic guesses. Quality gates verify source coverage, containment, legibility, topology, style consistency, package integrity, and other observable requirements. They catch execution failures. They do not design the deck after the fact.
-
-## Retrieval contract
-
-Search functions return candidates and evidence. The agent selects the final set and records why each resource fits. Exact known identities resolve directly. Candidate scores support recall and ordering only. They never authorize final use.
-
-## Refinement contract
-
-The agent identifies the semantic peers and intended relationship. Slidecraft computes the smallest feasible correction and rejects unsafe movement. This keeps normalization intelligent and bounded without encoding slide-specific designs in the constructor.
+The Agent writes the semantic intent and reviews the outcome. Construction code preserves that intent through deterministic geometry, typography, asset placement, connector routing, and package generation. Shared project files keep the Agent and web app synchronized throughout the work.

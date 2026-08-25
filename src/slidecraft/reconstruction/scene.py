@@ -86,8 +86,6 @@ def _apply_agent_alignment_plan(
     scale_xy: list[float],
 ) -> dict[str, Any]:
     """Apply an Agent-authored normalization plan through deterministic movement constraints."""
-    if refinement_plan.get("authored_by") != "agent_reasoning":
-        raise ValueError("Reconstruction refinement requires an Agent-authored plan")
     config = design.get("normalization", {}).get("constraints", design.get("normalization", {}))
     report = solve_plan(refinement_plan, config)
     by_id = {item["id"]: item for item in objects}

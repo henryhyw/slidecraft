@@ -2,30 +2,28 @@
 
 ## Conversation and project memory
 
-The agent app manages the conversation and decides what to do next. Slidecraft saves project facts and versioned results. MCP, Python, CLI, and the dashboard all work with the same project record.
+The Agent manages the conversation and decides what to do next. Slidecraft stores ordinary project files and an optional artifact ledger. The CLI and web app read and edit the same local state.
 
-## Fresh-session behavior
+## Shared project context
 
-The Agent opens a human project name with `slidecraft_open_project`. Existing progress, validation, sources, and deliverables are read from the project folder. If the user clearly intends new work, the same tool can create the project and its default deck design.
+`slidecraft project context` returns the effective global and project configuration, resolved design, materials, assets, selected resources, pending web app events, current artifacts, and deliverables. The Agent reads this context before planning and whenever the user may have changed controls in the web app.
 
-## Durable dependency graph
+The project registry helps the web app discover local folders. Construction commands operate directly on the shared project files selected by the Agent.
 
-Every registered artifact has a logical key, revision, hash, producer, dependency hashes, validation result, and lifecycle. Changing an active input makes affected descendants stale. Unrelated accepted slides remain usable.
+## Durable artifact graph
 
-Typical deck artifacts include the request, clarification decisions, intake, deck plan, frozen design, slide jobs, semantic prompts, generation packages, generated images, semantic scenes, measured scenes, reconstruction contracts, constructor scenes, and editable PowerPoint.
+An Agent can record useful milestones such as a storyboard, generated image, visual analysis, constructor scene, or editable presentation. Each record includes a logical key, revision, file hash, producer, and lifecycle. The web app uses these records to present current progress.
+
+Direct project reconstruction automatically records its design snapshot and construction outputs.
 
 ## Agent operation
 
-The Agent opens the project again when it needs a current progress inventory. It reasons over the user's request, the workflow skill, and those durable facts to choose its next action. A full autonomous run continues until the editable deck is complete. A user may ask to inspect, revise, regenerate, or stop at any point. Continuation begins by reopening the project and needs no pause or resume command.
-
-The agent registers reasoning, visual interpretations, and generated images with the project before construction begins. Image generation can come from the agent app or from the image service selected in Slidecraft settings.
+The Agent follows the bundled skill, discusses planning when the work is collaborative, creates and reviews slides, then invokes local construction commands. A user can inspect, revise, regenerate, or stop at any point. Continuation begins by reading the current project context.
 
 ## Quality behavior
 
-The semantic plan, deck rules, and construction workers produce the first editable result. Publication checks then verify text fit, connector logic, assets, package integrity, and cross-slide consistency. When a check finds a problem, it names the affected object and recommends the next repair.
-
-Final assembly requires every planned slide in deck order. It rejects stale or incomplete scenes, canvas mismatch, missing deck chrome, unsupported constructor routes, invalid text fit, and damaged PowerPoint packages.
+The Agent owns editorial quality, evidence sufficiency, message relevance, storyline coherence, semantic mapping, and visual review. Local code checks the mechanical conditions needed for reliable construction. These include readable inputs, valid geometry, available assets, supported object routes, safe text fit, bounded movement, and PowerPoint package integrity.
 
 ## User-facing artifacts
 
-The Agent returns the editable PowerPoint when asked for the final deck. It can also return the plan, generated slide, decision record, preview, or reconstruction report on request. Internal masks, OCR fragments, contours, caches, and logs remain hidden during ordinary use.
+The Agent returns the editable PowerPoint for final deck requests. It can also return the storyboard, generated slide, decision record, preview, or reconstruction evidence when requested. Masks, OCR fragments, contours, caches, and logs remain internal during ordinary use.

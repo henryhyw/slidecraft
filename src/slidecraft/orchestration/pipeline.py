@@ -501,11 +501,16 @@ def review_contract(slide: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _apply_user_defaults(deck: dict[str, Any], config_root: Path) -> dict[str, Any]:
+def apply_application_defaults(
+    deck: dict[str, Any],
+    config_root: Path,
+    *,
+    project_config: Path | None = None,
+) -> dict[str, Any]:
     from slidecraft.configuration import data_root, initialize_user_environment, resolve_config
 
     initialize_user_environment(force=False)
-    application, _ = resolve_config()
+    application, _ = resolve_config(project_config)
     preferences = application.get("design", {})
     profile_id = preferences.get("guidance_profile")
     if profile_id:
@@ -584,7 +589,7 @@ def run_pipeline(
     slide_path = slide_path.resolve()
     config_root = config_path.parent
     deck = _read_json(config_path)
-    deck = _apply_user_defaults(deck, config_root)
+    deck = apply_application_defaults(deck, config_root)
     if overrides:
         from slidecraft.configuration import apply_dotted_overrides
 

@@ -3,8 +3,8 @@
   "$id": "https://slidecraft.dev/schemas/semantic-scene-draft-1.0.0.json",
   "title": "Slidecraft Semantic Scene Draft",
   "type": "object",
-  "additionalProperties": false,
-  "required": ["schema_version", "slide", "groups", "entities", "relationships", "quality"],
+  "additionalProperties": true,
+  "required": ["schema_version", "slide", "groups", "entities", "relationships"],
   "properties": {
     "schema_version": {"const": "1.0.0"},
     "slide": {
@@ -20,8 +20,8 @@
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "role", "bbox_norm", "children", "confidence"],
+        "additionalProperties": true,
+        "required": ["id", "role", "bbox_norm", "children"],
         "properties": {
           "id": {"type": "string", "pattern": "^G_[A-Za-z0-9_]+$"},
           "role": {"type": "string"},
@@ -35,13 +35,9 @@
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
-          "id", "kind", "role", "bbox_norm", "confidence", "reconstruction_significance",
-          "reconstruction_route",
-          "visible_text", "authoritative_source_path", "semantic_icon_intent", "candidate_asset_ids",
-          "upstream_asset_id", "slot_bbox_norm", "generated_glyph_bbox_norm", "shape", "style_hint",
-          "table_structure", "chart_structure", "connector_intent", "visual_constraints", "segmentation_role"
+          "id", "kind", "role", "bbox_norm", "reconstruction_route"
         ],
         "properties": {
           "id": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9_]+$"},
@@ -78,8 +74,8 @@
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
-        "required": ["type", "from", "to", "back", "front", "confidence"],
+        "additionalProperties": true,
+        "required": ["type"],
         "properties": {
           "type": {"type": "string"},
           "from": {"type": ["string", "array", "null"], "items": {"type": "string"}},
@@ -92,8 +88,7 @@
     },
     "quality": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["meaningful_granularity", "source_coverage", "relationship_completeness", "uncertainties"],
+      "additionalProperties": true,
       "properties": {
         "meaningful_granularity": {"type": "number", "minimum": 0, "maximum": 1},
         "source_coverage": {"type": "number", "minimum": 0, "maximum": 1},

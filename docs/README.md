@@ -12,13 +12,13 @@
 - [Framework pipeline](FRAMEWORK_PIPELINE.md) follows a presentation from source material to editable PowerPoint.
 - [Full-deck architecture](FULL_DECK_ARCHITECTURE.md) explains storyline, slide routing, coherence, and assembly.
 - [Guidance profiles](GUIDANCE_PROFILES.md) explains communication approaches and information density.
-- [Generation preparation](USER_INTERACTION_AND_PREFLIGHT.md) explains user decisions, assets, and generation approval.
+- [Collaborative planning](USER_INTERACTION_AND_PREFLIGHT.md) explains brief discussion, assets, and generation preparation.
 
 ## Integrate or extend Slidecraft
 
-- [Agent integration](AGENT_INTEGRATION.md) defines the MCP, CLI, Python, and project-artifact interfaces.
+- [Agent integration](AGENT_INTEGRATION.md) defines the skill, CLI, web app, and shared project-artifact interfaces.
 - [Connector contract](CONNECTOR_CONTRACT.md) documents relationship reasoning and native connector construction.
 - [Normalization contract](NORMALIZATION_CONTRACT.md) documents bounded alignment and typography refinement.
 - [Reasoning boundaries](REASONING_BOUNDARIES.md) explains which decisions belong to the Agent and which operations Slidecraft validates or executes.
 
-`design-notes/` contains longer-term product and distribution proposals. Use the documents above for features available in the current release.
+The documents above describe the current product and development contracts.

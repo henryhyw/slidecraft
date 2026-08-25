@@ -2,22 +2,8 @@
 
 from __future__ import annotations
 
-import json
-from importlib.resources import files
 from pathlib import Path
 from typing import Any
-
-from jsonschema import Draft202012Validator
-
-
-def _validate_refinement_plan(plan: dict[str, Any]) -> None:
-    schema = json.loads(
-        files("slidecraft.schemas").joinpath("refinement_plan.schema.json").read_text(encoding="utf-8")
-    )
-    errors = sorted(Draft202012Validator(schema).iter_errors(plan), key=lambda error: list(error.path))
-    if errors:
-        summary = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:8])
-        raise ValueError(f"Agent refinement plan failed schema validation: {summary}")
 
 
 def _asset_catalog(handoff: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -84,9 +70,6 @@ def build_reconstruction_contract(
     design: dict[str, Any],
     reasoned_refinement_plan: dict[str, Any],
 ) -> dict[str, Any]:
-    _validate_refinement_plan(reasoned_refinement_plan)
-    if reasoned_refinement_plan.get("authored_by") != "agent_reasoning":
-        raise ValueError("Reconstruction contract requires an Agent-authored refinement plan")
     handoff = measured_scene.get("upstream_handoff", {})
     source = measured_scene["source"]
     source_width = int(source["width_px"])

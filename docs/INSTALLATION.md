@@ -1,110 +1,65 @@
 # Installation
 
-The guided installer prepares Slidecraft in its own local runtime and connects supported agent apps found on the computer. It leaves the system Python environment unchanged.
+The guided installer prepares Slidecraft in an isolated local runtime and installs the presentation skill for supported Agent hosts.
 
-## Before you start
+## Requirements
 
-Install these two supported runtimes once.
+- Python 3.10 or newer
+- The current Node.js LTS release
 
-- Python 3.10 or newer from [python.org](https://www.python.org/downloads/)
-- The current Node.js LTS release from [nodejs.org](https://nodejs.org/)
-
-Node.js powers editable PowerPoint construction. Slidecraft installs and manages the JavaScript presentation packages inside its own application data folder.
+Node.js powers editable PowerPoint construction. The installer manages the required JavaScript presentation packages inside the application data folder.
 
 ## Guided installation
 
-On macOS or Linux, run this command.
+macOS and Linux
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | python3 -
 ```
 
-On Windows PowerShell, run this command.
+Windows PowerShell
 
 ```powershell
 irm https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | py -3 -
 ```
 
-The installer completes five steps.
+The installer performs five operations.
 
 1. Check Python, Node.js, and npm.
-2. Create an isolated Slidecraft runtime in the standard application data folder.
-3. Install Slidecraft with document, computer vision, agent, and image API support.
-4. Prepare the editable PowerPoint constructor and run the readiness gate.
-5. Connect detected Codex and Claude Code installations and install the Slidecraft reasoning skill for hosts that support local skills. A Copilot workspace can be supplied explicitly.
+2. Create an isolated Slidecraft runtime.
+3. Install document, computer vision, and image API support.
+4. Prepare and verify the editable PowerPoint constructor.
+5. Install the Slidecraft skill for detected Codex and Claude hosts.
 
-It is safe to run the same command again. A repeated run refreshes the installed release, shared starter resources, and constructor packages while preserving healthy agent connections.
+The installed skill contains a generated `references/runtime.md` file with the exact local `slidecraft` command for reliable invocation.
 
-The installer never asks for an API key. Add an image-generation connection later from the dashboard if your agent app has no suitable image tool.
+The optional web app remains available through `slidecraft console`. It reads and edits the same local configuration and project files used by the Agent and CLI.
 
-## Review the installer first
+## Select an Agent host
 
-Download the installer when you want to inspect it before execution.
-
-```bash
-curl -fLO https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py
-python3 install.py --dry-run
-python3 install.py
-```
-
-On Windows, download `install.py` from the same address, then run these commands.
-
-```powershell
-py -3 install.py --dry-run
-py -3 install.py
-```
-
-## Choose agent apps
-
-Auto-detection is the default. You can select hosts explicitly.
+Auto-detection is the default. You can choose hosts explicitly.
 
 ```bash
 python3 install.py --agent codex --agent claude
 ```
 
-To configure GitHub Copilot for the current user, select it explicitly.
-
-```bash
-python3 install.py --agent copilot
-```
-
-To keep the connection inside one workspace, supply that workspace folder.
-
-```bash
-python3 install.py --agent copilot --copilot-workspace /path/to/workspace
-```
-
-To install the runtime without changing any agent configuration, use this option.
+Install only the runtime with this option.
 
 ```bash
 python3 install.py --agent none
 ```
 
-An existing healthy agent connection is preserved. If Slidecraft was moved to a different installation folder, refresh its registered command explicitly.
-
-```bash
-python3 install.py --refresh-agent-connections
-```
-
-Codex desktop, Codex CLI, and the Codex IDE extension share the same local MCP configuration. The installer registers the MCP server and installs the Slidecraft skill under the user's Codex skills directory.
-
-## Open Slidecraft
-
-The installer prints the exact dashboard and MCP commands for the new runtime. Their stable launchers live in the installation folder under `bin`.
-
-Typical application locations are listed below.
+## Managed locations
 
 | Platform | Managed installation |
-|---|---|
+| --- | --- |
 | macOS | `~/Library/Application Support/Slidecraft/app` |
 | Linux | `~/.local/share/slidecraft/app` |
 | Windows | `%LOCALAPPDATA%\Slidecraft\app` |
 
-Open the dashboard through the launcher printed at the end of installation. The agent connection uses the managed `slidecraft-mcp` executable directly, so the installation folder does not need to be added to `PATH`.
+The stable launchers are stored under the managed installation in `bin`.
 
-## Install from a cloned repository
-
-Contributors and local source testers can point the same installer at the checkout.
+## Install from a checkout
 
 ```bash
 git clone https://github.com/henryhyw/slidecraft.git
@@ -112,24 +67,24 @@ cd slidecraft
 python3 install.py --source .
 ```
 
-The manual virtual-environment workflow remains available in [Agent quickstart](AGENT_QUICKSTART.md).
+Use `--dry-run` to inspect the installation plan first.
 
-## Optional SAM 2 support
+## Optional SAM support
 
-The default installation uses OpenCV for ordinary deterministic measurements. SAM 2 is useful for selected irregular filled boundaries and adds a large PyTorch-based dependency. Install it into the managed runtime only when a project needs that capability.
+OpenCV covers ordinary deterministic measurement. SAM is useful for selected irregular filled boundaries and adds a large PyTorch dependency.
 
 ```bash
 "/path/to/Slidecraft/app/runtime/bin/python" -m pip install 'slidecraft-ai[segmentation]'
 ```
 
-Use `Scripts\python.exe` in the managed runtime on Windows.
+Use `Scripts\python.exe` inside the managed runtime on Windows.
 
 ## Troubleshooting
 
-Run the readiness gate at any time.
+Run the readiness check at any time.
 
 ```bash
 "/path/to/Slidecraft/app/bin/slidecraft" check-install
 ```
 
-If the installer reports that Node.js is missing, install the current LTS release and run the installer again. If an agent app was installed after Slidecraft, run the installer again to connect it or register the printed MCP command in that app's local STDIO server settings.
+If Node.js is missing, install the current LTS release and rerun the installer. If an Agent host was installed later, rerun the installer so it can copy the skill and runtime reference.

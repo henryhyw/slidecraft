@@ -34,7 +34,7 @@ The current deck design configuration selects:
 }
 ```
 
-Future profiles can include `academic_explanatory`, `product_strategy`, `investor_pitch`, and `training_material` without changing the pipeline contracts.
+Future profiles can include `academic_explanatory`, `product_strategy`, `investor_pitch`, and `training_material` while preserving the construction contracts.
 
 ## Inheritance
 
@@ -57,7 +57,7 @@ The consulting profile covers these concerns.
 - Semantic relationships and hierarchy
 - Conclusion-led writing where appropriate
 - Consulting communication diagnostics and anti-patterns
-- Visual obligations that express required meaning without prescribing layout
+- Visual obligations that express required meaning while leaving layout open
 
 It includes a powerful deck diagnostic. Reading only the slide messages should recover the core argument.
 
@@ -75,7 +75,7 @@ Visual obligations describe what the generated design must make apparent while p
 }
 ```
 
-The image model chooses how to express these obligations. The profile cannot prescribe coordinates, component counts, page topology, or a fixed chart or diagram type.
+The image model chooses how to express these obligations. Coordinates, component counts, page topology, and specific chart or diagram forms remain composition decisions.
 
 ## Pipeline influence
 
@@ -91,7 +91,7 @@ The semantic planner receives exact content, constraints, intake evidence, and t
 
 ### Image generation
 
-Prompt assembly includes the selected profile's slide reasoning, visual communication, writing, design freedom, and the slide's visual obligations. These instructions guide communication quality without constraining composition.
+Prompt assembly includes the selected profile's slide reasoning, visual communication, writing, design freedom, and the slide's visual obligations. These instructions guide communication quality while preserving composition freedom.
 
 ### Review
 
@@ -103,7 +103,7 @@ The resolved profile is preserved for Slide understanding, Editable reconstructi
 
 ## Ownership boundaries
 
-Guidance profiles do not own these concerns.
+Other workflow layers own these concerns.
 
 - Fonts and colors
 - Canvas, title anchor, header, and footer

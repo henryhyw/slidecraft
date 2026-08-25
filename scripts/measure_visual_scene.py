@@ -16,7 +16,6 @@ from typing import Any
 import cv2
 import numpy as np
 import pytesseract
-import torch
 from PIL import Image
 from pytesseract import Output
 
@@ -37,6 +36,14 @@ KIND_COLORS = {
 }
 
 SUPPORTED_SEMANTIC_KINDS = set(KIND_COLORS)
+
+
+def optional_torch() -> Any | None:
+    try:
+        import torch
+    except ImportError:
+        return None
+    return torch
 
 
 def parse_args() -> argparse.Namespace:
@@ -233,6 +240,11 @@ def words_in_box(words: list[dict[str, Any]], box: list[int]) -> list[dict[str, 
 
 
 def choose_device(requested: str) -> str:
+    torch = optional_torch()
+    if torch is None:
+        if requested == "mps":
+            raise RuntimeError("MPS requires the optional PyTorch and SAM dependencies")
+        return "cpu"
     if requested == "mps":
         if not torch.backends.mps.is_available():
             raise RuntimeError("MPS was requested but is unavailable")
@@ -249,6 +261,9 @@ def run_sam(
     config: str,
     device: str,
 ) -> tuple[dict[str, dict[str, Any]], dict[str, float]]:
+    torch = optional_torch()
+    if torch is None:
+        raise RuntimeError("SAM requires the optional PyTorch and SAM dependencies")
     os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
     from sam2.build_sam import build_sam2
     from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -444,7 +459,7 @@ def main() -> None:
         raise ValueError(f"Unsupported semantic entity kinds: {unsupported}")
     cv_masks = {entity["id"]: cv_foreground_mask(image_rgb, entity) for entity in entities}
 
-    device = choose_device(args.device)
+    device = "cpu"
     sam_results: dict[str, dict[str, Any]] = {}
     sam_timing = {"model_load_sec": 0.0, "image_embedding_sec": 0.0, "total_sam_sec": 0.0}
     sam_error = None
@@ -457,16 +472,20 @@ def main() -> None:
     else:
         checkpoint = Path(args.checkpoint).resolve()
         if not checkpoint.exists():
-            raise FileNotFoundError(f"SAM checkpoint missing: {checkpoint}")
-        try:
-            sam_results, sam_timing = run_sam(image_rgb, eligible_sam_entities, checkpoint, args.sam_config, device)
-        except Exception as exc:
-            if device == "mps" and args.device == "auto":
-                sam_error = f"MPS failed, retried on CPU: {type(exc).__name__}: {exc}"
-                device = "cpu"
+            sam_skip_reason = "checkpoint_unavailable"
+        elif optional_torch() is None:
+            sam_skip_reason = "optional_sam_dependencies_unavailable"
+        else:
+            device = choose_device(args.device)
+            try:
                 sam_results, sam_timing = run_sam(image_rgb, eligible_sam_entities, checkpoint, args.sam_config, device)
-            else:
-                raise
+            except Exception as exc:
+                if device == "mps" and args.device == "auto":
+                    sam_error = f"MPS failed, retried on CPU: {type(exc).__name__}: {exc}"
+                    device = "cpu"
+                    sam_results, sam_timing = run_sam(image_rgb, eligible_sam_entities, checkpoint, args.sam_config, device)
+                else:
+                    raise
 
     measured_entities = []
     for entity in entities:
@@ -648,6 +667,7 @@ def main() -> None:
 
     sam_improvements = [e["id"] for e in measured_entities if e["measurement"].get("mask_source") == "sam2"]
     report_path = output_dir / "report.md"
+    torch = optional_torch()
     result = {
         "schema_version": "0.1.0",
         "source": {"image": str(image_path), "width_px": width, "height_px": height, "aspect_ratio": round(width / height, 6)},
@@ -672,12 +692,12 @@ def main() -> None:
         "runtime": {
             "platform": platform.platform(),
             "python": platform.python_version(),
-            "torch": torch.__version__,
+            "torch": torch.__version__ if torch is not None else None,
             "opencv": cv2.__version__,
-            "mps_built": bool(torch.backends.mps.is_built()),
-            "mps_available": bool(torch.backends.mps.is_available()),
-            "sam_enabled": not args.no_sam,
-            "sam_executed": bool(eligible_sam_entities),
+            "mps_built": bool(torch and torch.backends.mps.is_built()),
+            "mps_available": bool(torch and torch.backends.mps.is_available()),
+            "sam_enabled": not args.no_sam and torch is not None,
+            "sam_executed": bool(sam_results),
             "sam_skip_reason": sam_skip_reason,
             "sam_eligible_entity_ids": [entity["id"] for entity in eligible_sam_entities],
             "sam_model": "SAM 2.1 Hiera Tiny" if eligible_sam_entities else None,
@@ -742,8 +762,8 @@ def main() -> None:
         f"- Recovered the semantic structure described as {semantic['slide']['intent']}\n"
         "- Stored pixel, normalized, inch, and PowerPoint EMU coordinates together with OCR evidence, reading order, grouping, stacking, and geometry evidence for non-icon shapes. Icon measurements retain only canonical-asset placement evidence.\n\n"
         "## Local setup\n\n"
-        f"- Apple Silicon with PyTorch {torch.__version__}\n"
-        f"- MPS built and available {torch.backends.mps.is_built()} and {torch.backends.mps.is_available()}\n"
+        f"- PyTorch {torch.__version__ if torch is not None else 'not installed'}\n"
+        f"- MPS built and available {bool(torch and torch.backends.mps.is_built())} and {bool(torch and torch.backends.mps.is_available())}\n"
         f"- SAM 2.1 Hiera Tiny on {device if eligible_sam_entities else 'skipped'}\n"
         f"- OpenCV {cv2.__version__} ARM64\n"
         f"- OCR {ocr_sec:.2f} seconds\n"

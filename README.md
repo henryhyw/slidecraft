@@ -1,25 +1,86 @@
 # Slidecraft
 
-Slidecraft helps an AI Agent turn your documents, data, images, and instructions into a polished PowerPoint deck that you can edit normally.
+Slidecraft is a presentation creation framework that turns source material into a planned, visually designed, and fully editable PowerPoint deck.
 
-You work through conversation. Tell the Agent what the presentation needs to achieve, share the source material, and review decisions or slides whenever you want. The Agent develops the storyline and visual direction. Slidecraft keeps the work organized, prepares slide images, rebuilds them as native PowerPoint objects, and saves the finished deck with its sources and decisions.
+It gives the creation process a clear structure from research and storyline development through slide design, editable reconstruction, and final assembly. A shared web workspace lets you manage the presentation, review progress, control the design system, and continue revisions across sessions.
 
-The current alpha works locally with Codex, Claude Code, GitHub Copilot, and other Agent apps that support MCP. Release progress is tracked in [Release readiness](docs/RELEASE_READINESS.md).
+## What the framework adds
 
-## What using Slidecraft looks like
+- A research and briefing method that starts with the audience and intended decision
+- A storyboard with a recommended slide count and one conclusion-led message per slide
+- A consistent presentation design system covering typography, color, density, icons, connectors, and deck chrome
+- Shared materials, visual assets, reusable components, and visual references
+- Slide-level visual design with exact content and semantic relationships
+- Conversion of designed slides into editable PowerPoint content
+- A persistent project record for review, revision, and continuation
+- A central web app for presentation settings, resources, progress, and deliverables
 
-1. Open your Agent in the folder where you want the project to live, then name the presentation and share your material. You can choose another folder whenever you want.
-2. Discuss the audience, objective, constraints, and any decisions that matter.
-3. Review the proposed storyline when you want control over the deck structure. You can also delegate the choices and let the Agent continue.
-4. The Agent creates each slide using the project style, approved visual resources, and exact source content.
-5. Slidecraft converts the visual result into editable text, shapes, tables, charts, icons, and connectors.
-6. Receive a normal `.pptx` file. You can return later, name the project, and continue from its saved work.
+## How Slidecraft works
 
-Image generation handles information-rich slide composition. Consistent structural pages such as covers and section dividers use reusable PowerPoint layouts. Header, footer, typography, color, and spacing rules stay coherent across the complete deck.
+### 1. Build the presentation brief
+
+Slidecraft guides the interpretation of your materials and any supporting research. The brief identifies the audience, the change in understanding the deck should create, the governing answer, the evidence available, and the assumptions that matter.
+
+For collaborative work, you see the research synthesis and proposed brief before slide production begins.
+
+### 2. Plan the argument
+
+The framework compares possible narrative structures and develops a storyboard. The proposal includes the recommended number of slides, storyline phases, and a project-specific message, evidence allocation, visual job, and transition for every slide.
+
+This makes the deck reviewable as an argument before time is spent designing pages.
+
+### 3. Resolve the visual system
+
+Slidecraft applies the selected communication style, information density, typography, colors, icon treatment, connector conventions, and page structure across the deck. Project assets and reusable visual resources remain attached to the presentation and available for later revisions.
+
+### 4. Design each slide
+
+Every slide begins with a communication contract that defines what the audience should understand and what the visual must make clear. Information-rich pages can be composed visually, while structural pages and straightforward arrangements use native layouts.
+
+Each candidate is reviewed for message fidelity, evidence accuracy, hierarchy, grouping, relationships, legibility, and consistency with the deck.
+
+### 5. Reconstruct editable PowerPoint content
+
+Slidecraft identifies the meaningful text, shapes, tables, charts, images, icons, groups, and connectors in an accepted design. It measures their geometry and appearance, maps them to appropriate PowerPoint objects, fits typography, restores canonical assets, and rebuilds semantic connector systems.
+
+OpenCV handles ordinary visual measurement. SAM can support irregular filled boundaries. The resulting slide remains editable in PowerPoint.
+
+### 6. Assemble and review the deck
+
+The framework assembles slides in storyboard order and checks package integrity, text fit, asset resolution, connector behavior, and repeated design roles. The final review covers the argument, evidence, visual rhythm, editability, and cross-slide coherence.
+
+## Shared workspace and web app
+
+Each presentation has one project workspace containing its materials, assets, settings, working artifacts, and deliverables. The conversation and web app use the same project state.
+
+The web app provides a central view for:
+
+- Presentation progress and latest outputs
+- Source material and project visuals
+- Selected icons, components, and visual inspiration
+- Communication style, density, typography, and color
+- Image-generation configuration
+- Editable slides and assembled decks
+
+Open it with:
+
+```bash
+slidecraft console
+```
+
+## Working with Slidecraft
+
+You can stay involved throughout the process or delegate the complete presentation.
+
+For collaborative work, ask to review the research synthesis and proposed brief first.
+
+> Create an executive presentation from these materials. Show me the research findings, recommended slide count, storyline, and message for every slide before designing the deck.
+
+At any point, you can request the brief, storyboard, visual design, editable slide, or complete presentation.
 
 ## Install
 
-Install Python 3.10 or newer and the current Node.js LTS release, then run the guided installer.
+Install Python 3.10 or newer and the current Node.js LTS release. Then run the guided installer.
 
 macOS and Linux
 
@@ -33,11 +94,9 @@ Windows PowerShell
 irm https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | py -3 -
 ```
 
-The installer creates an isolated runtime, installs everyday presentation features, prepares the editable PowerPoint constructor, verifies the installation, and connects detected agent apps. It can be run again safely when Slidecraft is updated.
+See [Installation](docs/INSTALLATION.md) for platform locations and troubleshooting.
 
-See [Installation](docs/INSTALLATION.md) for an inspect-before-running option, selected agent setup, GitHub Copilot workspace setup, installation locations, and troubleshooting.
-
-Contributors can install from a cloned checkout with the same guided flow.
+## For contributors
 
 ```bash
 git clone https://github.com/henryhyw/slidecraft.git
@@ -45,117 +104,7 @@ cd slidecraft
 python3 install.py --source .
 ```
 
-The installer prints the exact dashboard command when it finishes. It follows this form.
-
-```bash
-/path/to/Slidecraft/app/bin/slidecraft console
-```
-
-The dashboard is optional. It gives you one place to browse projects, adjust presentation style, manage reusable resources, connect an image service, and check the local installation. Project and collection folders open directly in the operating-system file browser.
-
-## Use it from an Agent app
-
-The installer connects supported Agent apps automatically. Once connected, ask the Agent to create or continue a Slidecraft project in ordinary language. New projects use the Agent's current workspace by default. You do not need to run pipeline commands or manage internal files.
-
-Slidecraft connects through six presentation tools. They open a project, prepare the deck, generate a slide, measure a slide, reconstruct a slide, and render the complete deck. Each tool accepts the Agent's decisions directly and hides the bookkeeping underneath.
-
-```bash
-slidecraft-mcp
-```
-
-The guided installer registers this local server with detected Agent apps. The Agent app starts it when needed. You do not run it for each project. If you ask to see the dashboard, the Agent can launch `slidecraft console` and open the local webpage for you.
-
-Your Agent app manages the conversation and makes every decision that requires judgment. This includes interpreting source files and deciding whether the material supports a credible deck. Slidecraft records the Agent's evidence and decisions, manages project files, and performs measurement and PowerPoint construction. The dashboard presents the same durable project information.
-
-The bundled Agent skill is available at [integrations/skills/slidecraft/SKILL.md](integrations/skills/slidecraft/SKILL.md). The complete host contract is documented in [Agent integration](docs/AGENT_INTEGRATION.md).
-
-The MCP server is self-describing and works as a local STDIO tool server in Codex, Claude Code,
-GitHub Copilot Chat, and other MCP-capable hosts. Host-specific setup examples are available in
-[Agent quickstart](docs/AGENT_QUICKSTART.md).
-
-In a fresh session, name the project and describe what you want. The agent finds its saved progress, continues the work, or returns the requested presentation artifact. See [Agent quickstart](docs/AGENT_QUICKSTART.md).
-
-Shell-based Agent hosts can use the same name-first entry point directly.
-
-```bash
-slidecraft project resolve "Market Growth"
-slidecraft project show "Market Growth"
-```
-
-## Projects and resources
-
-A project can live in a user-selected directory or in Slidecraft's managed data directory.
-
-```text
-project/
-  assets/            logos, screenshots, photographs, and other slide visuals
-  materials/         briefs, documents, data, notes, and working sources
-  deliverables/      editable slide files, the combined deck, previews, and reports
-  .slidecraft/       hidden project identity, Agent evidence, and processing state
-```
-
-Visual inspiration, canonical icons, and reusable editable components live in shared local collections. Selections made in chat or in the dashboard stay attached to the project and are ready when the project is opened again.
-
-Icon search can also include the official Tabler Icons collection. This option is enabled by default under Resources. Slidecraft downloads matching SVG candidates into the local icon collection, then the Agent chooses the icon that best expresses each role. Turn the option off when a project must use only locally approved icons.
-
-Configuration follows packaged defaults, user configuration, an optional project overlay, environment variables, and explicit runtime arguments. Use these commands to inspect every resolved value and its source.
-
-```bash
-slidecraft config path
-slidecraft config show
-slidecraft config validate
-slidecraft config explain
-```
-
-See [Configuration](docs/CONFIGURATION.md), [Guidance profiles](docs/GUIDANCE_PROFILES.md), and the [documentation map](docs/README.md).
-
-## How the complete workflow works
-
-The Agent guides the work from the first conversation to the finished deck. Slidecraft supplies dependable operations for each part of that work.
-
-1. Understand the brief. The Agent reads every supplied source, identifies grounded facts and exact content, decides relevance and authority, preserves source provenance, and judges whether the evidence supports credible planning. It asks only questions that could materially change the result.
-2. Plan the story. The Agent chooses the governing message, sections, slide sequence, information density, and the purpose of every page.
-3. Choose reusable resources. The Agent searches local collections of visual inspiration, icons, and editable components, then selects resources that fit each slide.
-4. Design content slides. The Agent prepares an image-generation brief with exact content and project style. It uses its own image tool when available or the image service connected in Slidecraft.
-5. Understand the result. The Agent identifies meaningful text, groups, icons, diagrams, images, and relationships. OpenCV measures their exact placement and appearance. SAM 2 is available for irregular filled boundaries.
-6. Rebuild the slide. Slidecraft creates native PowerPoint text, tables, charts, shapes, connectors, canonical SVG icons, reusable components, and carefully fitted custom geometry.
-7. Refine and assemble. The Agent identifies alignments and peer typography that should be normalized. Slidecraft applies bounded corrections and writes an editable file for the reconstructed slide. It also refreshes `deliverables/current_deck.pptx` from every completed slide in planned order. When the plan is complete, the Agent asks Slidecraft to validate every page and export the final editable deck.
-
-The generated image provides visual design. Exact source text and data remain authoritative. Icons return to clean library assets. Supplied project images return to their exact source files. Image content created during generation becomes a clean screenshot object. Connectors are rebuilt from their relationship meaning. OCR fragments, masks, and contours remain measurement evidence and never become stray PowerPoint objects.
-
-The system contract is documented in [Framework pipeline](docs/FRAMEWORK_PIPELINE.md). Connector reasoning is documented in [Connector contract](docs/CONNECTOR_CONTRACT.md). Refinement constraints are documented in [Normalization contract](docs/NORMALIZATION_CONTRACT.md).
-
-## Repository layout
-
-```text
-src/slidecraft/       installable Python package and dashboard
-js/                   portable PowerPoint constructor
-scripts/              installed worker and platform integration scripts
-config/               versioned framework and design-policy examples
-src/slidecraft/guidance_profiles/ reusable communication profiles
-schemas/              interchange contracts
-integrations/         Agent integration packages
-tests/                automated tests
-tools/historical_regression/  architecture-slide regression utilities excluded from the runtime
-vendor/               upstream development sources for bundled resources
-workspace/            ignored local projects, caches, and generated evidence
-```
-
-The top-level [AGENTS.md](AGENTS.md) gives repository-aware Agents a concise entry contract. Shared framework code never depends on a project under `workspace/` or on test fixtures.
-
-Live presentation projects and generated output stay under `workspace/` during repository development and are excluded from Git. Packaged starter resources live under `src/slidecraft/starter_resources/`.
-
-Every new project receives a packaged deck-design baseline under its hidden `.slidecraft/` directory. Covers, agendas, section dividers, statements, closings, and appendix dividers use shared deterministic layouts. Information-bearing slides use the image-generation route. Final assembly requires all planned slides in deck order and checks the frozen design, repeated typography roles, connector policy, canonical assets, canvas, and deck chrome before export.
-
-## Development
-
-```bash
-.venv/bin/python -m pytest -q
-.venv/bin/python -m ruff check src tests tools
-.venv/bin/python -m build
-```
-
-OpenCV handles ordinary text, connector, and line-art measurement. Install the `segmentation` extra to add SAM 2 boundary detection for irregular filled objects.
+Implementation details are documented in [Agent integration](docs/AGENT_INTEGRATION.md), [Presentation workflow](docs/FRAMEWORK_PIPELINE.md), and [Full-deck architecture](docs/FULL_DECK_ARCHITECTURE.md).
 
 ## License
 

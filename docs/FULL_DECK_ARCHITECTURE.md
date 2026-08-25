@@ -2,15 +2,15 @@
 
 ## Planning contract
 
-The host Agent reads the project materials, authors grounded source evidence, decides authority and required use, and determines whether the evidence supports credible planning. It then starts from audience, desired outcome, explicit constraints, density, and an optional page-count range. It records that conversational result through `slidecraft_prepare_deck`. The planning brief resolves the full selected communication profile and density targets. The Agent compares plausible storylines, chooses one governing thought, creates purposeful sections, allocates every required source atom, and assigns one communication job to every slide. A second call validates and stores the authored plan.
+The host Agent reads the project materials, decides authority and required use, and determines whether the evidence supports credible planning. It starts from the audience, desired outcome, explicit constraints, density, and an optional page-count range. The Agent compares plausible storylines, chooses one governing thought, creates purposeful sections, and assigns one communication job to every slide. It shares the proposed slide count and per-slide messages during collaborative work, then stores the accepted storyboard as an ordinary project file.
 
-Visual source material is interpreted by the host's visual understanding before planning. The interpretation remains paired with the original path and hash. Path-only images remain explicitly pending, so filename and dimension metadata cannot masquerade as semantic evidence.
+Visual source material is interpreted by the host's visual understanding before planning. The interpretation remains paired with the original path and hash. Image semantics come from visual inspection, while filenames and dimensions remain supporting metadata.
 
-The plan validator enforces unique ordered slide IDs, valid sections and dependencies, complete authoritative-source allocation, requested page-count bounds, required asset placement, and a passing planner self-evaluation.
+The skill guides editorial review of relevance, evidence, sequence, and audience value. Lightweight file schemas help the Agent keep identifiers and handoffs consistent. The Agent records editorial assessments alongside the plan.
 
 ## Shared deck design
 
-Each project receives `.slidecraft/deck_design.json` from the packaged baseline. The dashboard and configuration system can override its user-facing style choices. Planning stores a frozen design snapshot that controls the following deck-wide properties.
+Each project receives `.slidecraft/deck_design.json` from the packaged baseline. The dashboard and configuration system can override its user-facing style choices. Every direct reconstruction writes the effective resolved design used for that slide, so the Agent and dashboard can inspect the same downstream inputs. The design controls the following deck-wide properties.
 
 - Full slide dimensions and generation exclusions
 - Header, footer, page number, and slide variants
@@ -19,13 +19,13 @@ Each project receives `.slidecraft/deck_design.json` from the packaged baseline.
 - Color roles, surfaces, icon treatment, and connector policy
 - Density, whitespace, normalization, and validation rules
 
-Every generated content slide and every deterministic structural slide consumes the same snapshot. Resolved header and footer content is merged into the reconstruction contract, including the project label, slide title, confidentiality text, project footer, date, and page number. Final assembly rejects mismatched design identities, canvases, backgrounds, repeated text-role styles, connector minimums, or deterministic deck chrome.
+Every generated content slide and deterministic structural slide consumes the resolved project design. Resolved header and footer content can be merged into the reconstruction handoff, including the project label, slide title, confidentiality text, project footer, date, and page number. Construction checks the mechanical consistency required by the selected routes.
 
 ## Slide routing
 
 Low-information structural roles use packaged native layouts. The supported roles are cover, agenda, section divider, statement, closing, and appendix divider. Their scenes are created during deck planning, use normalized layout recipes, and pass the same Office-safe text-fit policy used by reconstructed content.
 
-Every information-bearing slide uses image generation. `slidecraft_generate_slide` compiles its deck job and allocated source atoms into semantic-design guidance. The host Agent creates the structured semantic design, reviews candidates from the configured collections, and selects the final resources. The same tool then assembles the image-generation and reconstruction handoffs.
+Information-bearing slides can use image generation. The host Agent creates the structured semantic design, reads the resources selected in the shared project context, and chooses the final visual inputs. It authors the image-generation and reconstruction handoffs according to the skill.
 
 This routing keeps covers and transitions consistent across the deck. It also lets the image model choose the most effective visual form for substantive content.
 
@@ -42,11 +42,11 @@ The Agent composes the workflow from the user's request and durable project fact
 7. Compile reconstruction routes and a constructor scene.
 8. Apply bounded alignment, typography, icon-slot, and connector normalization.
 
-The dashboard does not own this progression. It reads and edits the same project files and durable artifact ledger used by the Agent.
+The dashboard presents this progression through the same project files and durable artifact ledger used by the Agent.
 
 ## Assembly and coherence
 
-`slidecraft_render_deck` reads the active deck plan and derives the required reconstructed slides in page order. It rejects missing, extra, reordered, stale, or invalid slides. It then checks the frozen design identity, shared canvas, background, structural routing, repeated typography roles, canonical asset roles, connector visibility policy, and exact header and footer geometry before invoking the certified PowerPoint constructor.
+`slidecraft render-scenes` receives constructor scenes in the order selected by the Agent. The Agent verifies that the sequence matches the accepted storyboard. The constructor checks supported objects and package integrity before writing the editable PowerPoint.
 
 Package integrity and constructor conformance remain mandatory. Native Microsoft PowerPoint rendering is an optional additional gate when the user has authorized local automation.
 

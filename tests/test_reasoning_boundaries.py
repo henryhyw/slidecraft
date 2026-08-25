@@ -41,11 +41,6 @@ def test_generation_requires_the_recorded_agent_retrieval_decision() -> None:
     assert parameters["resource_selection"].default is inspect.Parameter.empty
 
 
-def test_no_server_side_run_state_controller_remains() -> None:
-    package_root = Path(__file__).resolve().parents[1] / "src" / "slidecraft"
-    assert not (package_root / "runtime" / "state.py").exists()
-
-
 def test_workflow_status_reports_facts_without_prescribing_actions() -> None:
     with tempfile.TemporaryDirectory() as directory:
         safe_call_capability("create_workspace", {"workspace": directory, "deck_id": "demo"})

@@ -197,7 +197,7 @@ def test_new_project_status_reports_an_empty_project() -> None:
 
 def test_agent_can_start_a_deck_without_direct_filesystem_authoring() -> None:
     with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}):
-        project = safe_call_capability("create_project", {"name": "Agent Native", "location": str(Path(directory) / "project")})["result"]
+        project = safe_call_capability("create_project", {"name": "Shared Workflow", "location": str(Path(directory) / "project")})["result"]
         started = safe_call_capability(
             "set_deck_brief",
             {
@@ -212,7 +212,7 @@ def test_agent_can_start_a_deck_without_direct_filesystem_authoring() -> None:
         status = safe_call_capability("workflow_status", {"workspace": project["workspace_path"]})
 
     assert started["status"] == "ok"
-    assert started["result"]["brief"]["project_name"] == "Agent Native"
+    assert started["result"]["brief"]["project_name"] == "Shared Workflow"
     assert started["result"]["brief"]["materials"][0]["material_id"] == "MATERIAL_001"
     assert status["result"]["project_facts"]["brief_recorded"] is True
     assert status["result"]["project_facts"]["clarifications_recorded"] is False

@@ -17,7 +17,7 @@ from typing import Any
 RELEASE = "v0.1.0-alpha.1"
 REPOSITORY = "https://github.com/henryhyw/slidecraft"
 DEFAULT_SOURCE = f"{REPOSITORY}/archive/refs/tags/{RELEASE}.zip"
-EXTRAS = "cv,documents,agent,openai"
+EXTRAS = "cv,documents,openai"
 
 
 class InstallError(RuntimeError):
@@ -38,7 +38,7 @@ def default_install_root(system: str | None = None, home: Path | None = None) ->
 
 def executable(venv: Path, name: str, system: str | None = None) -> Path:
     if (system or platform.system()) == "Windows":
-        suffix = ".exe" if name in {"python", "slidecraft", "slidecraft-mcp", "slidecraft-console"} else ""
+        suffix = ".exe" if name in {"python", "slidecraft", "slidecraft-console"} else ""
         return venv / "Scripts" / f"{name}{suffix}"
     return venv / "bin" / name
 
@@ -111,7 +111,7 @@ def check_prerequisites() -> dict[str, str]:
 
 def create_launchers(install_root: Path, venv: Path, dry_run: bool = False) -> dict[str, str]:
     target = install_root / "bin"
-    commands = ("slidecraft", "slidecraft-mcp", "slidecraft-console")
+    commands = ("slidecraft", "slidecraft-console")
     launchers: dict[str, str] = {}
     if dry_run:
         for command in commands:
@@ -136,6 +136,7 @@ def install_agent_skill(
     agent: str,
     source: Path,
     *,
+    cli_path: Path | None = None,
     dry_run: bool = False,
     home: Path | None = None,
 ) -> dict[str, Any]:
@@ -145,7 +146,7 @@ def install_agent_skill(
         "claude": ".claude/skills/slidecraft",
     }
     if agent not in roots:
-        return {"host": agent, "status": "mcp_instructions_only"}
+        return {"host": agent, "status": "unsupported"}
     target = (home or Path.home()) / roots[agent]
     if dry_run:
         print(f"    install agent skill in {_quote(str(target))}")
@@ -154,6 +155,15 @@ def install_agent_skill(
         raise InstallError(f"The packaged Slidecraft skill is missing from {source}")
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(source, target, dirs_exist_ok=True)
+    if cli_path is not None:
+        references = target / "references"
+        references.mkdir(parents=True, exist_ok=True)
+        (references / "runtime.md").write_text(
+            "# Installed runtime\n\n"
+            "Use this local Slidecraft command for every CLI example in the skill.\n\n"
+            f"```text\n{cli_path}\n```\n",
+            encoding="utf-8",
+        )
     return {"host": agent, "status": "installed", "path": str(target)}
 
 
@@ -169,71 +179,13 @@ def packaged_skill_source(python: Path, runner: Runner, venv: Path) -> Path:
     return data_root / "share" / "slidecraft" / "integrations" / "skills" / "slidecraft"
 
 
-def _configured(command: str, name: str, runner: Runner) -> bool:
-    result = runner.run([command, "mcp", "get", name], capture=True, check=False)
-    return result.returncode == 0
-
-
-def connect_cli_agent(
-    command: str,
-    mcp_path: Path,
-    runner: Runner,
-    assume_yes: bool,
-    refresh: bool,
-) -> dict[str, Any]:
-    label = "Codex" if command == "codex" else "Claude Code"
-    if not shutil.which(command) and not runner.dry_run:
-        return {"host": label, "status": "not_detected"}
-    exists = _configured(command, "slidecraft", runner)
-    if exists and not refresh:
-        return {"host": label, "status": "already_connected"}
-    action = "Refresh" if exists else "Connect"
-    if not assume_yes and not prompt(f"{action} Slidecraft in {label}?"):
-        return {"host": label, "status": "skipped"}
-    if exists:
-        remove = [command, "mcp", "remove", "slidecraft"]
-        if command == "claude":
-            remove.extend(["--scope", "user"])
-        runner.run(remove, capture=True)
-    add = [command, "mcp", "add", "slidecraft"]
-    if command == "claude":
-        add.extend(["--scope", "user"])
-    add.extend(["--", mcp_path])
-    runner.run(add, capture=True)
-    return {"host": label, "status": "connected", "command": str(mcp_path)}
-
-
-def connect_copilot(workspace: Path | None, mcp_path: Path, dry_run: bool = False) -> dict[str, Any]:
-    config_path = (
-        workspace.expanduser().resolve() / ".mcp.json"
-        if workspace
-        else Path.home() / ".copilot" / "mcp-config.json"
-    )
-    if dry_run:
-        print(f"    update {_quote(str(config_path))}")
-        return {"host": "GitHub Copilot", "status": "connected", "config": str(config_path)}
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    if config_path.exists():
-        try:
-            payload = json.loads(config_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
-            raise InstallError(f"Cannot update {config_path} because it is not plain JSON. Add Slidecraft to that file manually.") from exc
-    else:
-        payload = {}
-    payload.setdefault("servers", {})["slidecraft"] = {"command": str(mcp_path), "args": []}
-    config_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    return {"host": "GitHub Copilot", "status": "connected", "config": str(config_path)}
-
-
-def choose_agents(requested: list[str], copilot_workspace: Path | None) -> list[str]:
+def choose_agents(requested: list[str]) -> list[str]:
     if "none" in requested:
         return []
     explicit = [item for item in requested if item != "auto"]
     if explicit:
         return list(dict.fromkeys(explicit))
     detected = [name for name in ("codex", "claude") if shutil.which(name)]
-    if copilot_workspace:
-        detected.append("copilot")
     return detected
 
 
@@ -259,33 +211,27 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
     source = args.source or os.environ.get("SLIDECRAFT_INSTALL_SOURCE") or DEFAULT_SOURCE
     runner.run([python, "-m", "pip", "install", "--quiet", "--upgrade", package_requirement(source)])
     cli = executable(venv, "slidecraft")
-    mcp = executable(venv, "slidecraft-mcp")
     launchers = create_launchers(install_root, venv, args.dry_run)
 
     print("4 of 5  Preparing presentation tools")
     runner.run([cli, "init"], capture=True)
     runner.run([cli, "check-install"], capture=True)
 
-    print("5 of 5  Connecting agent apps")
-    connections: list[dict[str, Any]] = []
+    print("5 of 5  Installing agent skills")
     skill_installations: list[dict[str, Any]] = []
-    agents = choose_agents(args.agent, Path(args.copilot_workspace) if args.copilot_workspace else None)
+    agents = choose_agents(args.agent)
     skill_source = packaged_skill_source(python, runner, venv)
     for agent in agents:
-        if agent in {"codex", "claude"}:
-            connections.append(connect_cli_agent(agent, mcp, runner, args.yes, args.refresh_agent_connections))
-            skill_installations.append(
-                install_agent_skill(agent, skill_source, dry_run=args.dry_run)
+        skill_installations.append(
+            install_agent_skill(
+                agent,
+                skill_source,
+                cli_path=Path(launchers["slidecraft"]),
+                dry_run=args.dry_run,
             )
-        elif agent == "copilot":
-            workspace = Path(args.copilot_workspace) if args.copilot_workspace else None
-            connections.append(connect_copilot(workspace, mcp, args.dry_run))
-            skill_installations.append(install_agent_skill(agent, skill_source, dry_run=args.dry_run))
-    if not connections:
-        print("    No supported agent app was selected. The MCP command is available for manual connection.")
-    for connection in connections:
-        status = connection["status"].replace("_", " ")
-        print(f"    {connection['host']}  {status}")
+        )
+    if not skill_installations:
+        print("    No supported agent skill was selected. The runtime is ready for manual use.")
     for skill in skill_installations:
         if skill["status"] == "installed":
             print(f"    {skill['host']} reasoning skill  installed")
@@ -295,8 +241,6 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "release": RELEASE,
         "install_root": str(install_root),
         "commands": launchers,
-        "mcp_command": str(mcp),
-        "connections": connections,
         "skills": skill_installations,
         "source": source,
     }
@@ -308,22 +252,15 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Install Slidecraft and connect it to your agent app")
-    parser.add_argument("--yes", "-y", action="store_true", help="accept recommended agent connections")
+    parser = argparse.ArgumentParser(description="Install Slidecraft and its local agent skill")
     parser.add_argument("--install-dir", help="choose the managed installation folder")
     parser.add_argument("--source", help="install from a local checkout or another package URL")
     parser.add_argument(
         "--agent",
         action="append",
-        choices=("auto", "codex", "claude", "copilot", "none"),
+        choices=("auto", "codex", "claude", "none"),
         default=[],
         help="choose an agent app, repeat to select more than one",
-    )
-    parser.add_argument("--copilot-workspace", help="workspace where .mcp.json should be updated")
-    parser.add_argument(
-        "--refresh-agent-connections",
-        action="store_true",
-        help="replace an existing Slidecraft agent connection with this managed runtime",
     )
     parser.add_argument("--dry-run", action="store_true", help="show the installation plan without changing files")
     return parser
@@ -346,9 +283,7 @@ def main() -> int:
     print("\nSlidecraft is ready.\n")
     print("Open the dashboard")
     print(f"    {result['commands']['slidecraft']} console")
-    print("\nConnect another MCP-compatible app with this command")
-    print(f"    {result['mcp_command']}")
-    print("\nYou can now ask your agent to create or continue a Slidecraft project.\n")
+    print("\nYou can now ask your agent to create or revise an editable presentation.\n")
     return 0
 
 

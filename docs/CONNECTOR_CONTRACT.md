@@ -21,7 +21,7 @@ The audit resolves:
 - logical junctions and visible junction semantics
 - approximate routing corridors and visual style
 
-The audit preserves the composition. It does not redesign the slide.
+The audit preserves the composition while clarifying the intended connector graph.
 
 ## Deterministic compilation
 
@@ -52,7 +52,7 @@ The relevant design configuration values are `collapse_aligned_one_to_one`, `sna
 
 ## Conformance
 
-Compilation checks endpoint cardinality, required shared junctions, route support, terminal clearance, owner attachment, axis alignment, junction semantics, arrowhead size, and object coverage. The constructor never traces raster connector fragments or emits separate arrowhead shapes.
+Compilation checks endpoint cardinality, required shared junctions, route support, terminal clearance, owner attachment, axis alignment, junction semantics, arrowhead size, and object coverage. The constructor rebuilds the semantic graph with native connector objects and integrated arrowheads.
 
 Synthetic routing tests use arbitrary component IDs and geometry. They provide a clean-room check that routing behavior comes from repository policies instead of slide-specific patches or conversational context.
 

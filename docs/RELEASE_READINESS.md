@@ -10,7 +10,7 @@ The agent workflow is ready for local use. The 1.0 quality program will expand c
 - Windows and Linux construction and package-validation coverage
 - A larger gold-deck quality suite covering dense tables, charts, screenshots, and irregular visuals
 
-MCP exposes six complete presentation tools. Python integrations provide the same six workflows, and lower-level capabilities remain available for advanced extensions. The Agent app guides each session. Reopening a project returns its saved progress without prescribing the next action.
+The bundled skill defines the Agent workflow. Local CLI commands expose planning support, resource access, image measurement, reconstruction, and deck assembly. The web app manages the same local configuration, projects, resources, and deliverables. Reopening a project returns the saved context for the Agent's next decision.
 
 ## Acceptance policy
 

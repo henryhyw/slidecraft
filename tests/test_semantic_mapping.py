@@ -43,7 +43,7 @@ class SemanticMappingTests(unittest.TestCase):
         self.assertEqual(by_id["I_example"]["asset_mapping_status"], "exact_agent_selected_asset")
         self.assertEqual(result["semantic_mapping_runtime"]["authored_by"], "agent_record")
 
-    def test_low_quality_scene_is_rejected(self) -> None:
+    def test_agent_quality_assessment_is_recorded_for_review(self) -> None:
         fixture = json.loads((ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json").read_text())
         fixture["quality"]["source_coverage"] = 0.4
         with tempfile.TemporaryDirectory() as directory:
@@ -52,8 +52,9 @@ class SemanticMappingTests(unittest.TestCase):
             image_path = Path(directory) / "slide.png"
             Image.new("RGB", (100, 100), "white").save(image_path)
             analysis = RecordedVisualAnalysis(result_path)
-            with self.assertRaisesRegex(ValueError, "quality floor"):
-                compile_semantic_map(analysis=analysis, image_path=image_path, upstream_handoff={})
+            result = compile_semantic_map(analysis=analysis, image_path=image_path, upstream_handoff={})
+
+        self.assertEqual(result["semantic_mapping_runtime"]["quality"]["source_coverage"], 0.4)
 
     def test_agent_selected_project_image_maps_to_canonical_file(self) -> None:
         fixture = json.loads((ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json").read_text())

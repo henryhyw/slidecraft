@@ -89,6 +89,45 @@ def _project(args: argparse.Namespace) -> int:
                 "resolution": resolved,
                 "detail": project_detail(resolved["location"], include_internal=bool(args.include_internal)),
             }
+        elif args.project_command == "context":
+            from slidecraft.configuration import resolve_config
+            from slidecraft.orchestration.pipeline import apply_application_defaults
+            from slidecraft.project_events import list_project_events
+            from slidecraft.project_resources import project_resource_catalog
+
+            root = Path(resolved["location"])
+            project_config = root / ".slidecraft" / "config.toml"
+            project_config = project_config if project_config.is_file() else None
+            config, provenance = resolve_config(project_config)
+            design_path = root / ".slidecraft" / "deck_design.json"
+            design = apply_application_defaults(
+                _read_json(design_path),
+                design_path.parent,
+                project_config=project_config,
+            )
+            result = {
+                "resolution": resolved,
+                "detail": project_detail(root, include_internal=True),
+                "effective_configuration": config,
+                "configuration_provenance": provenance,
+                "effective_deck_design": design,
+                "resources": project_resource_catalog(root),
+                "pending_events": list_project_events(root, pending_only=True),
+            }
+        elif args.project_command == "record":
+            from slidecraft.runtime.artifacts import ArtifactWorkspace
+
+            root = Path(resolved["location"])
+            record = ArtifactWorkspace(root).register(
+                logical_key=args.logical_key,
+                kind=args.kind,
+                path=Path(args.path),
+                producer="agent_local_workflow",
+                slide_id=args.slide_id,
+                activate=not args.candidate,
+                validation={"status": "agent_reviewed"},
+            )
+            result = {"resolution": resolved, "artifact": record}
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
@@ -216,7 +255,7 @@ def _check_install(args: argparse.Namespace) -> int:
         "resources": resource_checks,
         "constructor": {**constructor, "requested_backend": requested_backend},
         "diagnostics": diagnostics,
-        "publish_policy": "No PPTX is accepted when a required capability or conformance gate fails.",
+        "publication_requirements": "PPTX publication requires construction capabilities and conformance checks to pass.",
     }
     print(json.dumps(report, indent=2))
     return 0 if report["status"] == "passed" else 2
@@ -284,6 +323,27 @@ def _compile_scene(args: argparse.Namespace) -> int:
     return 0
 
 
+def _reconstruct_slide(args: argparse.Namespace) -> int:
+    from slidecraft.direct_workflow import reconstruct_slide_files
+
+    result = reconstruct_slide_files(
+        image=Path(args.image),
+        visual_analysis=Path(args.visual_analysis),
+        handoff=Path(args.handoff) if args.handoff else None,
+        design=Path(args.design) if args.design else None,
+        refinement_plan=Path(args.refinement_plan) if args.refinement_plan else None,
+        slide_id=args.slide_id,
+        output_dir=Path(args.output_dir),
+        output=Path(args.output),
+        sam=args.sam,
+        checkpoint=Path(args.checkpoint) if args.checkpoint else None,
+        device=args.device,
+        project=Path(args.project) if args.project else None,
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _constructor_script() -> Path:
     filename = "scene_to_pptx.mjs"
     repository_candidate = Path(__file__).resolve().parents[2] / "js" / filename
@@ -335,7 +395,7 @@ def _render_scenes(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="slidecraft", description="Create editable PowerPoint presentations with your agent app")
+    parser = argparse.ArgumentParser(prog="slidecraft", description="Create and manage editable PowerPoint presentations")
     parser.add_argument("--version", action="version", version="slidecraft 0.1.0a1")
     commands = parser.add_subparsers(dest="command", required=True)
 
@@ -391,6 +451,23 @@ def build_parser() -> argparse.ArgumentParser:
     project_show.add_argument("identifier")
     project_show.add_argument("--include-internal", action="store_true")
     project_show.set_defaults(handler=_project)
+    project_context = project_commands.add_parser(
+        "context",
+        help="Show the same effective project state, configuration, and resources used by the local console",
+    )
+    project_context.add_argument("identifier")
+    project_context.set_defaults(handler=_project)
+    project_record = project_commands.add_parser(
+        "record",
+        help="Record an Agent-authored file so the local console can display it",
+    )
+    project_record.add_argument("identifier")
+    project_record.add_argument("--path", required=True)
+    project_record.add_argument("--logical-key", required=True)
+    project_record.add_argument("--kind", required=True)
+    project_record.add_argument("--slide-id")
+    project_record.add_argument("--candidate", action="store_true")
+    project_record.set_defaults(handler=_project)
 
     console = commands.add_parser("console", help="Run the local project and configuration console")
     console.add_argument("--host", default="127.0.0.1")
@@ -446,6 +523,24 @@ def build_parser() -> argparse.ArgumentParser:
     scene.add_argument("--slide-id", required=True)
     scene.add_argument("--output", required=True)
     scene.set_defaults(handler=_compile_scene)
+
+    reconstruct = commands.add_parser(
+        "reconstruct-slide",
+        help="Convert one Agent-generated slide image into an editable PowerPoint",
+    )
+    reconstruct.add_argument("--image", required=True)
+    reconstruct.add_argument("--visual-analysis", required=True, help="Semantic scene JSON authored by the Agent")
+    reconstruct.add_argument("--slide-id", required=True)
+    reconstruct.add_argument("--output-dir", required=True)
+    reconstruct.add_argument("--output", required=True)
+    reconstruct.add_argument("--handoff", help="Optional Agent-authored reconstruction context JSON")
+    reconstruct.add_argument("--design", help="Optional deck design JSON")
+    reconstruct.add_argument("--project", help="Shared project folder used by the Agent and local console")
+    reconstruct.add_argument("--refinement-plan", help="Optional Agent-authored alignment plan JSON")
+    reconstruct.add_argument("--sam", choices=["auto", "never"], default="auto")
+    reconstruct.add_argument("--checkpoint")
+    reconstruct.add_argument("--device", choices=["auto", "mps", "cpu"], default="auto")
+    reconstruct.set_defaults(handler=_reconstruct_slide)
 
     render = commands.add_parser("render-scenes", help="Render one or more constructor scenes into an editable PPTX")
     render.add_argument("--scene", action="append", required=True)

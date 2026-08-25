@@ -1,99 +1,75 @@
 # Agent integration
 
-Slidecraft gives an AI Agent six tools for creating editable PowerPoint presentations. The person continues to work through ordinary conversation. The Agent handles interpretation and design decisions while Slidecraft manages files, measurements, construction, and validation.
+Slidecraft integrates through a local skill, CLI, and shared project workspace.
 
-## The six tools
+## Responsibility boundary
 
-| Tool | Purpose |
-| --- | --- |
-| `slidecraft_open_project` | Find or create a project and return its progress, sources, previews, and deliverables |
-| `slidecraft_prepare_deck` | Record the agreed brief, provide planning guidance, and validate the Agent-authored deck plan |
-| `slidecraft_generate_slide` | Prepare semantic design, present reusable-resource candidates, assemble the image brief, and register the generated image |
-| `slidecraft_measure_slide` | Accept the Agent's visual analysis and measure exact slide geometry with OpenCV and optional SAM 2 |
-| `slidecraft_reconstruct_slide` | Build editable PowerPoint objects from measured evidence and the Agent's refinement decisions |
-| `slidecraft_render_deck` | Validate every planned slide and export the complete editable `.pptx` file |
+The Agent owns interpretation, research, audience reasoning, storyline, slide messages, semantic design, image generation, visual analysis, and editorial review.
 
-Several tools support a short exchange. For example, `slidecraft_generate_slide` first returns semantic-design guidance. A later call with `semantic_design` returns resource candidates. A call with the selected resources returns the final image brief or uses the connected image service. This keeps reasoning with the Agent and keeps internal file operations out of the conversation.
+The local package owns deterministic operations. These include configuration resolution, resource catalogs, OpenCV measurement, optional SAM segmentation, bounded geometry refinement, text fitting, connector routing, native PowerPoint compilation, and package verification.
 
-`slidecraft_open_project` also returns the discovered materials and project visuals. The Agent reads the presentation, visually inspects the images, and records concise descriptions and semantic roles through the `visual_assets` field of the next `slidecraft_prepare_deck` brief. Slidecraft stores those annotations and intrinsic image measurements. The Agent then decides which slides can benefit from each visual and whether each use is optional or mandatory.
+## Shared control model
 
-## Automatic connection
-
-The guided installer registers Slidecraft with detected Agent apps. Those apps start the local STDIO MCP server when its tools are needed. Users do not start a server for each project.
-
-```bash
-slidecraft-mcp
-```
-
-The command above is the registered server command. It is useful for manual MCP configuration and is normally invisible during everyday use.
-
-If an Agent has shell access and the MCP connection is unavailable, it can import and call the matching functions in `slidecraft.agent_workflows`. The bundled skill teaches both routes. A user can therefore ask for a presentation in chat without knowing which route is active.
-
-When the user asks to see the dashboard, the Agent can launch `slidecraft console`. The command starts the local webpage and opens it in the default browser. The dashboard is optional and reads the same projects and settings.
-
-See [Agent quickstart](AGENT_QUICKSTART.md) for host-specific setup examples.
-
-## A complete run
+The Agent, CLI, and web app use the same local source of truth.
 
 ```text
-slidecraft_open_project
-        ↓
-slidecraft_prepare_deck
-        ↓
-slidecraft_generate_slide × each information-bearing slide
-        ↓
-slidecraft_measure_slide × each generated slide
-        ↓
-slidecraft_reconstruct_slide × each generated slide
-        ↓
-slidecraft_render_deck
+project/
+  materials/
+  assets/
+  deliverables/
+  .slidecraft/
+    project.json
+    config.toml
+    deck_design.json
+    artifact_manifest.json
+    working/
 ```
 
-Cover pages, section dividers, and other low-information structural pages use the reusable layouts selected in the deck plan. They enter final assembly without image generation.
+User defaults live in the normal Slidecraft configuration directory. A project can add `.slidecraft/config.toml` as an overlay. The effective order is packaged defaults, user settings, project settings, environment overrides, and explicit runtime overrides.
 
-For a new deck, the Agent normally works collaboratively. It shares a concise source and research synthesis, asks only questions that can materially change the story, and then presents one planning proposal with the audience decision, governing message, recommended slide count, storyline phases, conclusion-led slide messages, evidence allocation, required topics, assumptions, and exclusions. A user can explicitly delegate uninterrupted execution. The same reasoning still occurs, while the Agent continues without waiting for review. This conversational posture belongs to the Agent app and creates no server-owned approval state.
+The web app writes these same files. The Agent should run `slidecraft project context` before planning and after possible web app changes. That command returns effective settings, design, resources, pending events, artifacts, and deliverables.
 
-The Agent can stop after any completed operation. Reopening the project returns the saved progress and current deliverables. A new Agent session only needs the project name.
+## Agent-visible commands
 
-## What the Agent owns
+Create or inspect shared work.
 
-The Agent owns every decision that requires judgment. This includes source reading, grounded fact extraction, authority, relevance, required use, exclusions, evidence sufficiency, useful clarification questions, storyline, slide allocation, headers and footers, semantic design, reusable-resource choices, visual analysis, connector meaning, reconstruction routes, and refinement groups.
-
-Slidecraft stores and validates those decisions. It manages file provenance, candidate search, exact pixel measurement, bounded alignment, Office-safe text fitting, editable PowerPoint construction, and final deck checks. It does not parse project sources or decide when the content is sufficient.
-
-## Image generation
-
-When the Agent app has an image tool, `slidecraft_generate_slide` returns the assembled prompt, references, and canvas dimensions. The Agent generates the image and calls the same tool with `generated_image`.
-
-Each successful `slidecraft_reconstruct_slide` call returns an editable one-slide file and refreshes `deliverables/current_deck.pptx`. The current deck contains every fresh reconstructed slide in plan order, so the Agent and dashboard always have one consolidated view of progress. `slidecraft_render_deck` remains the final assembly call and accepts the deck only when every planned slide is ready.
-
-When the Agent app has no image tool, Slidecraft uses the OpenAI or OpenAI-compatible image service configured in the dashboard. A user can also select that service as the required route.
-
-## Python fallback
-
-Agent runtimes that embed Python can call the same six workflows directly.
-
-```python
-from slidecraft import open_project, prepare_deck
-
-project = open_project(identifier="Market Review", create_if_missing=True)
-planning = prepare_deck(
-    project=project["project"]["workspace_path"],
-    brief={
-        "objective": "Recommend a market entry strategy",
-        "materials": [],
-    },
-)
+```bash
+slidecraft project create "Presentation name" --location /absolute/path/project
+slidecraft project context /absolute/path/project
 ```
 
-For new work, `open_project` uses the current working folder when `location` is omitted. Pass an
-explicit location when the user selected a different folder. Agent apps using MCP should pass their
-current workspace as `location`, since the MCP process can have a different working directory.
+Record an Agent-authored artifact for web display and project continuation.
 
-The lower-level Python capabilities remain available to Slidecraft itself and to advanced integrations. They are intentionally absent from the MCP surface so an Agent sees a small and coherent tool set.
+```bash
+slidecraft project record /absolute/path/project \
+  --path /absolute/path/project/.slidecraft/working/storyboard.json \
+  --logical-key deck/plan \
+  --kind deck_plan
+```
 
-## Project visibility
+Reconstruct an accepted image with the configured design and construction logic.
 
-People normally see `assets/`, `materials/`, and `deliverables/`. Slidecraft stores project identity, prompts, measurements, revision records, and construction evidence under `.slidecraft/`. The dashboard presents the same project and resource information without controlling workflow progression.
+```bash
+slidecraft reconstruct-slide \
+  --project /absolute/path/project \
+  --image /absolute/path/generated.png \
+  --visual-analysis /absolute/path/visual-analysis.json \
+  --slide-id slide-01 \
+  --output-dir /absolute/path/project/.slidecraft/working/slide-01 \
+  --output /absolute/path/project/deliverables/slides/slide-01.pptx
+```
 
-The Agent should return the editable PowerPoint for final-deck requests. It can return plans, generated slides, previews, or decisions when the user asks to review progress. Masks, OCR fragments, contours, caches, and logs stay hidden unless technical evidence is requested.
+Assemble constructor scenes in Agent-selected order.
+
+```bash
+slidecraft render-scenes \
+  --scene /absolute/path/project/.slidecraft/working/slide-01/constructor_scene.json \
+  --scene /absolute/path/project/.slidecraft/working/slide-02/constructor_scene.json \
+  --output /absolute/path/project/deliverables/presentation.pptx
+```
+
+## Quality and construction
+
+The skill guides the Agent through research synthesis, brief discussion, narrative comparison, storyboard quality, semantic completeness, and visual review. These are reasoning tasks.
+
+The construction package confirms JSON readability, valid geometry, referenced asset availability, supported reconstruction routes, bounded transformations, safe text fit, and a healthy PowerPoint ZIP package.

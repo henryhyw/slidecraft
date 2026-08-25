@@ -21,14 +21,14 @@ The two technology badges are semantically equivalent attribution components. Th
 
 The executable regression fixture is in `tests/fixtures/architecture/normalization_plan.json`. The solver configuration is in `config/normalization_config.json`. The reusable implementation is in `src/slidecraft/refinement/constrained_normalization.py`.
 
-The constructor also applies a final native-text gate. It revalidates supplied text-fit contracts, includes literal bullet prefixes in width measurement, applies configured line spacing and margins, rounds font sizes downward to the configured point grid, and rejects any textbox that still cannot fit. The current design profile uses a 0.5 pt grid and emits explicit `noAutofit` OOXML.
+The constructor also applies final native-text fitting. It revalidates supplied text-fit contracts, includes literal bullet prefixes in width measurement, applies configured line spacing and margins, and rounds font sizes downward to the configured point grid. Construction completes when every textbox fits. The current design profile uses a 0.5 pt grid and emits explicit `noAutofit` OOXML.
 
 ## Guardrails
 
 - No correction may cross a parent boundary.
 - No correction may create a new overlap or violate minimum clearance.
 - Width and height remain fixed unless a separate, explicitly authorized size-normalization intent exists.
-- Child fragments never move independently when they belong to one semantic object.
+- Child fragments move together when they belong to one semantic object.
 - Textbox content, margins, and wrapping policy stay intact during geometric translation.
 - Low-confidence relationships remain unchanged.
 - Aesthetic preference alone is insufficient. Every move needs a declared semantic relationship.
