@@ -55,9 +55,11 @@ def _load_manifest(location: Path) -> tuple[dict[str, Any], Path]:
     return manifest, manifest_path
 
 
-def retrieve_visual_references(manifest_path: Path, plan: dict[str, Any], deck: dict[str, Any], max_results: int = 3) -> dict[str, Any]:
-    if max_results < 1 or max_results > 3:
-        raise ValueError("Visual-reference retrieval must return between one and three pages")
+def search_visual_references(
+    manifest_path: Path, plan: dict[str, Any], deck: dict[str, Any], max_results: int = 12
+) -> dict[str, Any]:
+    if max_results < 1:
+        raise ValueError("Visual-reference search must return at least one candidate")
     manifest, manifest_path = _load_manifest(manifest_path)
     query = _query_text(plan, deck)
     query_tokens = _tokens(query)
@@ -77,33 +79,24 @@ def retrieve_visual_references(manifest_path: Path, plan: dict[str, Any], deck: 
         ranked.append({**item, "semantic_score": score, "matched_terms": overlap, "matched_relationships": relationship_matches})
     ranked.sort(key=lambda item: (-item["semantic_score"], item["reference_id"]))
 
-    selected = []
-    used_families: set[str] = set()
-    remaining = list(ranked)
-    while remaining and len(selected) < max_results:
-        for candidate in remaining:
-            candidate["diversity_adjusted_score"] = candidate["semantic_score"] - (6.0 if candidate["structural_family"] in used_families else 0.0)
-        remaining.sort(key=lambda item: (-item["diversity_adjusted_score"], item["reference_id"]))
-        chosen = remaining.pop(0)
-        used_families.add(chosen["structural_family"])
-        path = (manifest_path.parent / chosen["path"]).resolve()
-        if not path.exists():
-            raise FileNotFoundError(f"Visual reference is missing: {path}")
-        selected.append({
-            **chosen,
-            "path": str(path),
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            "role": "retrieved_visual_reference_page",
-            "must_not_be_copied_as_layout": True,
-            "retrieval_reason": f"Matched semantic structure through {', '.join(chosen['matched_terms'][:8]) or 'library fallback'} and added structural-family diversity.",
-        })
+    candidates = []
+    for candidate in ranked[:max_results]:
+        path = (manifest_path.parent / candidate["path"]).resolve()
+        if path.exists():
+            candidates.append({
+                **candidate,
+                "path": str(path),
+                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "role": "visual_reference_candidate",
+                "must_not_be_copied_as_layout": True,
+            })
     return {
         "schema_version": "1.0.0",
-        "provider_interface": "visual_reference_retriever_v1",
+        "provider_interface": "visual_reference_search_v1",
         "retrieval_mode": "metadata_first_semantic",
         "visual_files_opened_before_ranking": False,
         "query": query,
-        "maximum_results": max_results,
-        "selected": selected,
-        "ranked_metadata": ranked,
+        "maximum_candidates": max_results,
+        "decision_owner": "host_agent",
+        "candidates": candidates,
     }

@@ -10,7 +10,7 @@ The agent workflow is ready for local use. The 1.0 quality program will expand c
 - Windows and Linux construction and package-validation coverage
 - A larger gold-deck quality suite covering dense tables, charts, screenshots, and irregular visuals
 
-MCP, CLI, and Python integrations expose the same project capabilities. The agent app guides each session, while `workflow_status` reads the project record and recommends the next useful action.
+MCP, CLI, and Python integrations expose the same project capabilities. The agent app guides each session. `workflow_status` reports the project record without prescribing the next action.
 
 ## Acceptance policy
 

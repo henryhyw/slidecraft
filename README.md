@@ -93,16 +93,16 @@ See [Configuration](docs/CONFIGURATION.md), [Guidance profiles](docs/GUIDANCE_PR
 
 ## Pipeline
 
-The Agent composes these reusable capabilities.
+The Agent reasons through the presentation workflow and composes these reusable capabilities.
 
 1. Normalize multimodal source material and hard constraints.
 2. Plan the deck storyline and slide-specific semantic intent.
-3. Retrieve visual inspiration, canonical icons, and reusable components.
+3. Search visual inspiration, canonical icons, and reusable components, then select the useful resources in context.
 4. Assemble and execute image-generation briefs for information-bearing slides.
-5. Map meaningful rendered entities and relationships to authoritative source content.
+5. Use Agent visual reasoning to map meaningful rendered entities and relationships to authoritative source content.
 6. Measure text, shapes, and layout with OpenCV, using SAM 2 for irregular filled regions when it adds useful boundary detail.
-7. Build a reconstruction contract and compile editable PowerPoint scenes.
-8. Normalize typography, alignment, icon slots, and connector topology within bounded constraints.
+7. Author reconstruction routes and refinement intent, then compile editable PowerPoint scenes.
+8. Apply deterministic bounded normalization to Agent-identified typography groups, alignments, icon slots, and connector topology.
 9. Render the editable deck and retain a reconstruction report.
 
 The system contract is documented in [Framework pipeline](docs/FRAMEWORK_PIPELINE.md). Connector reasoning is documented in [Connector contract](docs/CONNECTOR_CONTRACT.md). Refinement constraints are documented in [Normalization contract](docs/NORMALIZATION_CONTRACT.md).

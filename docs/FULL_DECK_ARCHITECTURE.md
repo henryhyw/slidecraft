@@ -25,17 +25,17 @@ Every generated content slide and every deterministic structural slide consumes 
 
 Low-information structural roles use packaged native layouts. The supported roles are cover, agenda, section divider, statement, closing, and appendix divider. Their scenes are created during deck planning, use normalized layout recipes, and pass the same Office-safe text-fit policy used by reconstructed content.
 
-Every information-bearing slide uses image generation. `prepare_slide` compiles its deck job and allocated source atoms into an authoritative slide request plus a semantic-planning prompt. The host Agent creates the structured semantic design, then `prepare_generation` retrieves resources and assembles the image-generation and reconstruction handoffs.
+Every information-bearing slide uses image generation. `prepare_slide` compiles its deck job and allocated source atoms into an authoritative slide request plus a semantic-planning prompt. The host Agent creates the structured semantic design, searches the configured collections, selects the final resources, then asks `prepare_generation` to assemble the image-generation and reconstruction handoffs.
 
 This routing keeps covers and transitions consistent across the deck. It also lets the image model choose the most effective visual form for substantive content.
 
 ## Content-slide execution
 
-The Agent follows the durable actions returned by `workflow_status`.
+The Agent composes the workflow from the user's request and durable project facts.
 
 1. Prepare the slide request and semantic prompt.
 2. Create and register the semantic design.
-3. Retrieve visual inspiration, icons, components, and slide assets.
+3. Search visual inspiration, icons, and components, then reason over the candidates and select the useful resources.
 4. Generate and review the content-region image.
 5. Map meaningful entities and semantic connector topology.
 6. Measure geometry with OpenCV and selective optional segmentation.

@@ -58,17 +58,16 @@ def _rank(description: str, catalog: list[dict[str, Any]]) -> list[dict[str, Any
     return sorted(ranked, key=lambda item: (-item["score"], item["icon_id"]))
 
 
-def retrieve_icons(
+def search_icons(
     library_root: Path,
     asset_needs: list[dict[str, Any]] | None = None,
     excluded_semantic_roles: set[str] | None = None,
 ) -> dict[str, Any]:
-    """Select a distinct, coherent set and retain stable canonical SVG paths."""
+    """Return canonical icon candidates for Agent selection."""
     manifest, catalog = _load_catalog(library_root)
     excluded = excluded_semantic_roles or set()
     requests = asset_needs or []
-    used: set[str] = set()
-    selections = []
+    candidate_sets = []
     for request in requests:
         role = request["semantic_role"]
         if role in excluded:
@@ -76,39 +75,29 @@ def retrieve_icons(
         dimension_role = request.get("dimension_role", "module_icon")
         description = " ".join([request.get("purpose", ""), request.get("query", ""), " ".join(request.get("concepts", []))]).strip()
         candidates = _rank(description, catalog)
-        selected = next((item for item in candidates if item["icon_id"] not in used and item["score"] > 0), candidates[0])
-        used.add(selected["icon_id"])
-        asset_path = (library_root / selected["file"]).resolve()
-        if not asset_path.exists():
-            raise FileNotFoundError(f"Canonical icon is missing: {asset_path}")
-        selections.append({
-            "asset_id": f"TABLER_OUTLINE_{selected['icon_id'].upper().replace('-', '_')}",
+        records = []
+        for candidate in candidates:
+            asset_path = (library_root / candidate["file"]).resolve()
+            if not asset_path.exists():
+                continue
+            records.append({
+                **candidate,
+                "asset_id": f"TABLER_OUTLINE_{candidate['icon_id'].upper().replace('-', '_')}",
+                "canonical_file": str(asset_path),
+            })
+        candidate_sets.append({
             "semantic_role": role,
             "semantic_intent": description,
             "dimension_role": dimension_role,
-            "selection_mode": "set_level_substitution" if len(requests) > 1 else "individual_substitution",
-            "library": "Tabler Icons Outline",
-            "library_icon_id": selected["icon_id"],
-            "canonical_file": str(asset_path),
-            "prompt_name": role.replace("_", " ").title(),
-            "prompt_description": selected["description"],
             "required_usage": request.get("requirement") == "mandatory",
-            "alternative_candidates": [
-                {"library_icon_id": item["icon_id"], "score": item["score"], "matched_concepts": item["matched_concepts"]}
-                for item in candidates
-                if item["icon_id"] != selected["icon_id"]
-            ][:3],
+            "candidates": records,
         })
     return {
         "provider": "tabler_outline_local_semantic_index",
-        "provider_interface": "canonical_icon_retriever_v1",
+        "provider_interface": "canonical_icon_search_v1",
         "manifest": str((library_root / "semantic_manifest.json").resolve()),
         "retrieval_mode": "semantic_metadata_first",
         "style_family": manifest["style_family"],
-        "selection_policy": {
-            "exact_upstream_asset_first": True,
-            "fallback": "joint coherent set selection",
-            "preserve_canonical_id_and_file": True,
-        },
-        "assets": selections,
+        "decision_owner": "host_agent",
+        "candidate_sets": candidate_sets,
     }

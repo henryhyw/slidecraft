@@ -31,7 +31,7 @@ The installer completes five steps.
 2. Create an isolated Slidecraft runtime in the standard application data folder.
 3. Install Slidecraft with document, computer vision, agent, and image API support.
 4. Prepare the editable PowerPoint constructor and run the readiness gate.
-5. Connect detected Codex and Claude Code installations. A Copilot workspace can be supplied explicitly.
+5. Connect detected Codex and Claude Code installations and install the Slidecraft reasoning skill for hosts that support local skills. A Copilot workspace can be supplied explicitly.
 
 It is safe to run the same command again. A repeated run refreshes the installed release, shared starter resources, and constructor packages while preserving healthy agent connections.
 
@@ -86,7 +86,7 @@ An existing healthy agent connection is preserved. If Slidecraft was moved to a 
 python3 install.py --refresh-agent-connections
 ```
 
-Codex desktop, Codex CLI, and the Codex IDE extension share the same local MCP configuration. The installer uses the [official Codex MCP registration flow](https://learn.chatgpt.com/docs/extend/mcp#configure-with-the-cli).
+Codex desktop, Codex CLI, and the Codex IDE extension share the same local MCP configuration. The installer registers the MCP server and installs the Slidecraft skill under the user's Codex skills directory.
 
 ## Open Slidecraft
 

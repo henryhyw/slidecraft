@@ -24,7 +24,7 @@ def main() -> None:
 
     output_dir = Path(args.output_dir).resolve()
     preflight_path = output_dir / "generation_preflight.json"
-    state_path = output_dir / "orchestration_state.json"
+    state_path = output_dir / "generation_context.json"
     handoff_path = output_dir / "reconstruction_handoff.json"
     preflight = json.loads(preflight_path.read_text(encoding="utf-8"))
     if args.fingerprint != preflight["approval"]["fingerprint"]:

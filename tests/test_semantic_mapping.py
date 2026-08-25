@@ -40,7 +40,7 @@ class SemanticMappingTests(unittest.TestCase):
         self.assertEqual(by_id["T_title"]["bbox_hint"], [70, 35, 600, 60])
         self.assertTrue(by_id["S_accent"]["sam_prompt"])
         self.assertFalse(by_id["I_example"]["sam_prompt"])
-        self.assertEqual(by_id["I_example"]["asset_mapping_status"], "exact_upstream_candidate")
+        self.assertEqual(by_id["I_example"]["asset_mapping_status"], "exact_agent_selected_asset")
         self.assertTrue(result["semantic_mapping_runtime"]["automatic"])
 
     def test_low_quality_scene_is_rejected(self) -> None:

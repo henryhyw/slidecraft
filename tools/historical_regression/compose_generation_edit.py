@@ -15,7 +15,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--review-result", required=True)
     parser.add_argument("--candidate", help="Generated candidate image. It may be attached later when omitted.")
-    parser.add_argument("--state", default="outputs/architecture_generation_orchestration/orchestration_state.json")
+    parser.add_argument("--state", default="outputs/architecture_generation_orchestration/generation_context.json")
     parser.add_argument("--review-config", default="config/generation_review_config.json")
     parser.add_argument("--output-dir", default="outputs/architecture_generation_orchestration/edit")
     args = parser.parse_args()

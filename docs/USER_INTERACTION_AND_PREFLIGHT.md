@@ -43,7 +43,7 @@ The concise summary should expose decisions and risks without repeating the full
 - Deck objective, audience, desired outcome, guidance profile, and density profile
 - Storyline and section structure for a multi-slide deck
 - A slide matrix showing slide number, role, objective, governing message, title, route, and source allocation
-- Proposed header and footer content, with user-provided and framework-proposed values clearly distinguished
+- Header and footer content proposed by the Agent or supplied by the user, with provenance clearly distinguished
 - Mandatory and optional assets, semantic roles, status, and intended slide usage
 - Selected visual reference pages and their purpose
 - Hard constraints and explicit prohibitions

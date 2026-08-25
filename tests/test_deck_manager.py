@@ -38,9 +38,9 @@ class DeckManagerTests(unittest.TestCase):
 
         self.assertEqual(plan["slides"][0]["route"], "system_layout")
         self.assertEqual(plan["slides"][1]["route"], "image_generation")
-        self.assertEqual(content_job["status"], "ready_for_semantic_planning")
         self.assertEqual(cover_scene["system_layout_id"], "title_slide_minimal_v1")
-        self.assertEqual(manifest["next_gate"], "agent_slide_execution")
+        self.assertNotIn("next_gate", manifest)
+        self.assertNotIn("status", content_job)
         self.assertEqual(manifest["interaction_policy"]["workflow_state_source"], "artifact_ledger")
         self.assertEqual(artifact_manifest["control_model"], "agent_host")
         self.assertIn("deck/plan", artifact_manifest["active"])

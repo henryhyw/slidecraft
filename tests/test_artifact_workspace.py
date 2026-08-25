@@ -64,7 +64,7 @@ class ArtifactWorkspaceTests(unittest.TestCase):
         self.assertFalse(after_active["slides/s1/scene"]["freshness"]["fresh"])
 
     def test_agent_surface_has_no_pause_or_resume_control(self) -> None:
-        names = {item["name"] for item in list_capabilities()["capabilities"]}
+        names = {item["name"] for item in list_capabilities(include_internal=True)["capabilities"]}
         self.assertIn("inspect_workspace", names)
         self.assertNotIn("pause", names)
         self.assertNotIn("resume", names)

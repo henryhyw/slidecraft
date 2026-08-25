@@ -21,8 +21,13 @@
       "dependencies": [],
       "semantic_unit_count": 0,
       "supporting_evidence_count": 0,
-      "route": "image_generation",
-      "system_layout_id": null
+      "route": "system_layout",
+      "system_layout_id": "title_slide_minimal_v1",
+      "chrome_content_proposal": {
+        "variant": "title_slide",
+        "header": {"left_text": "DEMO", "right_text": ""},
+        "footer": {"left_text": "", "center_text": "", "right_text_format": "{slide_number}"}
+      }
     },
     {
       "slide_id": "content_1",
@@ -36,8 +41,13 @@
       "dependencies": ["cover"],
       "semantic_unit_count": 4,
       "supporting_evidence_count": 1,
-      "route": "system_layout",
-      "system_layout_id": "agenda_clean_v1"
+      "route": "image_generation",
+      "system_layout_id": null,
+      "chrome_content_proposal": {
+        "variant": "content_slide",
+        "header": {"left_text": "DEMO", "right_text": "EVIDENCE"},
+        "footer": {"left_text": "", "center_text": "Demo deck", "right_text_format": "{slide_number}"}
+      }
     }
   ],
   "source_allocation": [{"source_atom_id": "M1_ATOM_001", "slide_ids": ["content_1"], "status": "used"}],

@@ -21,18 +21,18 @@ Canonical identity assets           Icon slots and connector style
 Style presets                        Validation tolerances
               \                      /
                \                    /
-                         Semantic planning
+                         Agent semantic planning
                          exact content stays authoritative
                               ↓
-                    Reference and asset retrieval
+                 Agent resource search and selection
                               ↓
                  Prompt assembly and visual generation
                               ↓
-                       Material-failure review
+                    Agent visual-quality review
                               ↓
                   Final image plus upstream handoff
                               ↓
-                         Semantic mapping
+                      Agent semantic mapping
                          Pixel measurement
                               ↓
                     Reconstruction contract
@@ -40,7 +40,7 @@ Style presets                        Validation tolerances
                   Known element reconstruction
                  New element reconstruction
                               ↓
-                 Reasoning-guided normalization
+               Agent-guided bounded normalization
                               ↓
                 Deck chrome and native validation
                               ↓
@@ -60,10 +60,10 @@ The generation review and native validation are pipeline quality gates. They do 
 | Visual reference pages | Visual Reference Library | Maintained reference collection |
 | Canonical pictograms and logos | Icon Library and asset store | Maintained with stable IDs and provenance |
 | Reusable editable constructions | Known Element Library | Grows over time |
-| Semantic design | Semantic planning runtime output | Derived for each slide |
-| Selected references and assets | Resource retrieval runtime output | Derived for each slide and retained |
+| Semantic design | Host Agent | Authored for each slide and retained |
+| Selected references and assets | Host Agent using library search evidence | Authored for each slide and retained |
 | Visual composition | Image model | Derived for each candidate image |
-| Semantic entities and relationships | Semantic mapping | Derived from the final image and upstream state |
+| Semantic entities and relationships | Host Agent visual reasoning | Authored from the final image and upstream state |
 | Pixel geometry and visual evidence | Visual measurement | Derived from the final image |
 | Editable object implementation | Editable reconstruction | Derived from the reconstruction contract |
 
@@ -89,9 +89,9 @@ The exclusion resolver supports configured values, adaptive values, and configur
 
 The title sits inside the generation region. Its anchor, maximum width, font, nominal size, alignment, line allowance, and minimum body gap come from deck design configuration. Image generation never creates the header or footer.
 
-Deck chrome is applied after reconstruction. A reasoning adapter may choose a configured variant such as content slide, section divider, title slide, or appendix. Geometry and visual treatment become deterministic after variant selection.
+Deck chrome is applied after reconstruction. The host Agent chooses a configured variant such as content slide, section divider, title slide, or appendix. Geometry and visual treatment become deterministic after that choice.
 
-## Semantic planning semantic planning
+## Semantic planning
 
 The semantic planner receives the slide objective, exact source content, and explicit human constraints. It produces the following package.
 
@@ -105,21 +105,21 @@ The semantic planner receives the slide objective, exact source content, and exp
 
 The planner can express sequence, comparison, hierarchy, grouping, parallelism, causality, contribution, dependency, and input-output logic. It does not normally choose coordinates, column widths, cards, or precise components. Image generation owns those design decisions unless the user explicitly constrains them.
 
-The current architecture sample uses a host-brain semantic plan through a generic provider-neutral contract. The planner builds semantic units, proposes multiple communication structures, scores them, selects one, and verifies exact-source traceability. A standalone managed-provider adapter can later call the same prompt and return the same schema.
+The current architecture uses a host-Agent semantic plan through a provider-neutral artifact contract. The Agent builds semantic units, considers plausible communication structures, selects the strongest structure, and verifies exact-source traceability.
 
-## Resource retrieval reference retrieval
+## Agent resource retrieval
 
 ### Visual references
 
-The current framework uses three fixed visual reference pages. They provide evidence about typography, information density, whitespace, alignment, hierarchy, color use, diagram language, component styling, and design sophistication. Their text and layouts cannot be reused as slide content.
+The starter collection includes three visual reference pages. They provide evidence about typography, information density, whitespace, alignment, hierarchy, color use, diagram language, component styling, and design sophistication. Their text and layouts cannot be reused as slide content.
 
-Scalable library deployments replace the starter set with `visual_reference_retriever_v1` backed by the Visual Reference Library.
+Library search returns metadata-ranked candidates from the Visual Reference Library. The Agent inspects those candidates in slide context and chooses up to three. Search ranking supports discovery and never authorizes final use.
 
 ### Icons and pictograms
 
-The current framework uses Tabler Icons Outline through `canonical_icon_retriever_v1`. Retrieval considers the semantic role of each icon and selects a coherent set with distinct roles and consistent visual language.
+The current framework searches Tabler Icons Outline by semantic metadata. The Agent considers the full icon-role set and chooses a coherent set with distinct meanings and consistent visual language.
 
-Selection follows this order.
+The Agent follows this order.
 
 1. Restore the exact upstream canonical asset when its identity is known.
 2. Select an individual library substitute when one role lacks an exact asset.
@@ -415,7 +415,7 @@ The following boundaries allow implementation upgrades without changing downstre
 | Versioned pipeline policy | [`framework_pipeline.json`](../src/slidecraft/defaults/framework_pipeline.json) |
 | Full-deck planning and structural routes | [`deck/`](../src/slidecraft/deck/) |
 | Generation preparation orchestration | [`pipeline.py`](../src/slidecraft/orchestration/pipeline.py) |
-| Tabler icon retrieval | [`icon_retrieval.py`](../src/slidecraft/orchestration/icon_retrieval.py) |
+| Tabler icon candidate search | [`icon_retrieval.py`](../src/slidecraft/orchestration/icon_retrieval.py) |
 | Reviewer configuration | [`review_prompt.py`](../src/slidecraft/orchestration/review_prompt.py) |
 | Edit prompt composition | [`edit_prompt.py`](../src/slidecraft/orchestration/edit_prompt.py) |
 | Slide understanding semantic compiler | [`compiler.py`](../src/slidecraft/semantic_mapping/compiler.py) |
@@ -431,14 +431,14 @@ The following boundaries allow implementation upgrades without changing downstre
 
 The policies above are explicit and versioned. Current coverage has these boundaries.
 
-- Semantic planning supports host results and an OpenAI-compatible structured provider.
-- Visual-reference retrieval uses local metadata and a maximum of three selected pages.
-- Icon retrieval uses a lightweight Tabler keyword matcher.
-- Semantic mapping accepts a host VLM result or an OpenAI-compatible structured vision provider.
+- Semantic planning is authored by the host Agent and validated through a structured artifact contract.
+- Visual-reference search uses local metadata. The Agent inspects candidates and selects no more than three pages.
+- Icon search uses Tabler metadata to produce candidates. The Agent resolves the final icon set in slide context.
+- Semantic mapping is authored by the host Agent's visual reasoning and validated through a structured artifact contract.
 - Native PowerPoint rendering exists as an optional explicitly authorized validation route. An automatic compare-and-refit loop is outside the certified direct-construction path.
 - Reusable component manifests and previews are supported. Direct editable component import stays disabled until that implementation route passes constructor conformance tests.
 
-Unsupported optional routes remain retrieval evidence and use a supported reconstruction path. They never publish partial output as successful.
+Unsupported optional routes remain search evidence. The Agent selects a supported reconstruction path before construction. Partial output is never published as successful.
 
 ## Acceptance definition
 

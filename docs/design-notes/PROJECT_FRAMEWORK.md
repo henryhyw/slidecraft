@@ -59,7 +59,7 @@ The normal path needs one initial interaction and no routine intervention.
 2. The user submits slide intent, exact content, optional constraints, and optional assets.
 3. The Agent resolves configuration and invokes the relevant capabilities.
 4. The Agent applies automatic gates, repair, retry, and escalation policies using recorded evidence.
-5. The user receives the PPTX, final render, reports, and editable run state.
+5. The user receives the PPTX, final render, reports, and reviewable project history.
 
 Optional checkpoints can be enabled at semantic plan approval, generated-image approval, or reconstruction approval. They are policies, not mandatory architecture stages.
 
@@ -165,13 +165,13 @@ The system needs three first-class maintained libraries and one runtime asset st
 
 Visual reference items contain a whole-slide preview, source deck reference, embedding, tags, slide role, information density, dominant structures, style profile, provenance, license, and version.
 
-The retriever searches by semantic intent, slide role, content density, relationship pattern, and style compatibility. Retrieved pages guide visual generation and review. They do not become content unless the slide explicitly requests reuse.
+The library search indexes semantic intent, slide role, content density, relationship pattern, and style compatibility. The Agent inspects the candidates and chooses the pages that guide visual generation and review. They do not become content unless the slide explicitly requests reuse.
 
 ### Pictogram and Icon Library
 
 Icon items contain a stable asset ID, SVG, semantic concepts, aliases, style family, stroke width, viewBox, protected-color policy, recoloring rules, provenance, license, and version.
 
-The retriever first looks for an upstream exact asset. It then scores semantic candidates and can optimize all substitutions jointly for coverage, distinction, and style consistency.
+Exact upstream identities resolve directly. Library search then returns semantic candidates. The Agent resolves substitutions jointly for coverage, distinction, and style consistency.
 
 ### Known Component Library
 
@@ -202,7 +202,7 @@ preview: previews/consulting_map_world_v2.png
 source: components/consulting_map_world_v2.pptx
 ```
 
-Slide understanding emits a semantic description and candidate component matches. Editable reconstruction restores the highest-confidence known component, applies measured placement and appearance, and configures its parameters from exact upstream content. Low-confidence matches use the ordinary primitive or fitted-geometry routes.
+Slide understanding emits a semantic description and candidate component matches. The Agent chooses a certified known component when it fits the authored object and required parameters are available. Editable reconstruction applies measured placement and appearance, then configures it from exact upstream content. Other cases use an Agent-selected native, fitted-geometry, or raster route.
 
 The known component library should store editable factories or source PowerPoint fragments. A preview image alone is insufficient.
 
@@ -362,7 +362,6 @@ POST   /v1/assets
 POST   /v1/runs
 GET    /v1/runs/{run_id}
 GET    /v1/runs/{run_id}/events
-POST   /v1/runs/{run_id}/approve
 GET    /v1/runs/{run_id}/artifacts
 POST   /v1/capabilities/{capability_name}
 POST   /v1/libraries/{library}/search

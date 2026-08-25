@@ -52,7 +52,7 @@ Commands that prepare or plan a run accept repeatable `--set KEY=VALUE` override
 
 ```bash
 slidecraft plan-deck --request request.json --design design.json --run-dir runs/demo --slide-count 12 --set density_profile=high_consulting
-slidecraft prepare-generation --design design.json --slide slide.json --output-dir runs/demo/slide_01 --set style.density=high
+slidecraft prepare-generation --design design.json --slide slide.json --output-dir runs/demo/slide_01 --resource-candidates candidates.json --resource-selection selection.json --set style.density=high
 ```
 
 An agent in chat uses the same interface. Phrases such as "use 12 slides this time" become runtime overrides. Phrases such as "make medium density my default" require an explicit persistent intent and become `slidecraft config set` operations. The agent should report the scope and file it changed.

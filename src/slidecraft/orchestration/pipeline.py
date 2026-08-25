@@ -11,15 +11,13 @@ from pathlib import Path
 from typing import Any
 
 from .asset_ingestion import apply_ingested_asset_manifest
-from .component_retrieval import retrieve_known_components
 from .guidance_profiles import resolve_guidance_profile
-from .icon_retrieval import retrieve_icons
 from .intake import normalize_intake
 from .naming import migrate_deck_and_slide
 from .preflight import build_generation_preflight
+from .resource_selection import resolve_resource_selection
 from .review_prompt import build_review_prompt
 from .semantic_planning import resolve_semantic_design
-from .visual_reference_retrieval import retrieve_visual_references
 
 DIMENSION_POLICIES = {
     "primary_stage_icon": {"height_fraction": 0.068, "max_width_fraction": 0.040},
@@ -471,6 +469,8 @@ def run_pipeline(
     output_dir: Path,
     *,
     overrides: list[str] | None = None,
+    resource_candidates: dict[str, Any],
+    resource_selection: dict[str, Any],
 ) -> dict[str, Any]:
     config_path = config_path.resolve()
     slide_path = slide_path.resolve()
@@ -511,26 +511,22 @@ def run_pipeline(
     plan = resolve_semantic_design(slide, slide_path.parent)
     if plan["guidance_profile_id"] != guidance_profile["profile_id"]:
         raise ValueError("Semantic design guidance profile does not match the selected deck guidance profile")
+    if resource_candidates.get("decision_owner") != "host_agent":
+        raise ValueError("Resource candidates must come from the Agent-invoked search_resources operation")
+    visual_reference_package = resource_candidates.get("visual_references", {})
+    icon_package = resource_candidates.get("icons", {})
+    component_package = resource_candidates.get("components", {})
     library_config = deck["local_libraries"]
-    visual_reference_package = retrieve_visual_references(
-        _resolve_from(config_root, library_config["visual_reference_manifest"]),
-        plan,
-        deck,
-        max_results=int(library_config["visual_reference_max_results_per_slide"]),
+    selected_resources = resolve_resource_selection(
+        resource_selection,
+        visual_search=visual_reference_package,
+        icon_search=icon_package,
+        component_search=component_package,
+        maximum_visual_references=int(library_config["visual_reference_max_results_per_slide"]),
     )
-    references = visual_reference_package["selected"]
-    exact_user_roles = {
-        asset["semantic_role"]
-        for asset in slide.get("user_provided_assets", [])
-        if asset.get("required_usage", False) and asset.get("canonical_file")
-    }
-    icon_package = retrieve_icons(
-        _resolve_from(config_root, library_config["icon_root"]),
-        plan.get("asset_needs"),
-        excluded_semantic_roles=exact_user_roles,
-    )
-    component_package = retrieve_known_components(_resolve_from(config_root, library_config["known_component_root"]), plan)
-    assets = normalized_assets(icon_package, slide.get("user_provided_assets", []), canvas, deck)
+    references = selected_resources["visual_references"]
+    icon_selection = {"assets": selected_resources["icons"]}
+    assets = normalized_assets(icon_selection, slide.get("user_provided_assets", []), canvas, deck)
     connector_qa = validate_connector_configuration(deck)
     prompt = assemble_prompt(deck, canvas, slide, intake, plan, guidance_profile, assets, references)
     preflight_config_path = _resolve_policy_file(config_root, deck.get("preflight_config"), "preflight_config.json")
@@ -564,7 +560,7 @@ def run_pipeline(
         review_config,
         None,
     )
-    state = {
+    generation_context = {
         "schema_version": "1.0.0",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "naming_migration_notices": naming_migration_notices,
@@ -581,9 +577,10 @@ def run_pipeline(
         "semantic_design": plan,
         "reference_retrieval": {
             "visual_references": references,
-            "visual_reference_retrieval": visual_reference_package,
-            "icon_retrieval": icon_package,
-            "known_component_retrieval": component_package,
+            "agent_resource_selection": selected_resources,
+            "visual_reference_search": visual_reference_package,
+            "icon_search": icon_package,
+            "known_component_search": component_package,
             "style_rules_source": "deck_design_configuration"
         },
         "normalized_available_assets": assets,
@@ -634,7 +631,8 @@ def run_pipeline(
         "connector_configuration_qa": connector_qa,
         "style_configuration": deck["style"],
         "visual_references": references,
-        "visual_reference_retrieval": visual_reference_package,
+        "resource_selection": selected_resources,
+        "visual_reference_search": visual_reference_package,
         "known_component_candidates": component_package,
         "slide_understanding_guidance": {
             "text": "Map rendered text regions to exact_source_content. OCR remains evidence only.",
@@ -648,13 +646,13 @@ def run_pipeline(
     }
     _write_json(output_dir / "semantic_design.json", plan)
     _write_json(output_dir / "intake_manifest.json", intake)
-    _write_json(output_dir / "reference_retrieval.json", state["reference_retrieval"])
+    _write_json(output_dir / "reference_retrieval.json", generation_context["reference_retrieval"])
     _write_json(output_dir / "normalized_assets.json", assets)
     _write_json(output_dir / "generation_preflight.json", preflight)
     _write_json(output_dir / "generation_package.json", generation_package)
     _write_json(output_dir / "connector_configuration_qa.json", connector_qa)
     _write_json(output_dir / "generation_review_contract.json", review)
-    _write_json(output_dir / "orchestration_state.json", state)
+    _write_json(output_dir / "generation_context.json", generation_context)
     _write_json(output_dir / "reconstruction_handoff.json", handoff)
     (output_dir / "imagegen_prompt.txt").write_text(prompt, encoding="utf-8")
     (output_dir / "generation_preflight.md").write_text(preflight_markdown, encoding="utf-8")
@@ -667,11 +665,11 @@ def run_pipeline(
 ## Result
 
 - Semantic planning is stored separately from exact authoritative content.
-- Three fixed visual reference pages are retained as identified visual precedents.
-- {len(assets['assets'])} canonical SVG candidates are selected and preserved with provenance and authoritative icon-slot dimensions.
+- {len(references)} Agent-selected visual reference pages are retained as identified visual precedents.
+- {len(assets['assets'])} canonical SVG assets selected or confirmed by the Agent are preserved with provenance and authoritative icon-slot dimensions.
 - User-provided canonical SVGs remain internal and are represented to Image 2 as mandatory semantic roles.
 - Connector style configuration passed automatic ratio and clarity checks.
-- Image generation remains blocked until the generation preflight fingerprint is approved.
+- Image generation follows the recorded preflight approval mode for this run.
 - Slide understanding receives the saved upstream package in addition to the generated pixels.
 
 ## Configured canvas
@@ -684,7 +682,7 @@ def run_pipeline(
 
 ## Next action
 
-Review `generation_preflight.md` and its detailed `generation_package.json`. Approve the matching fingerprint before using `imagegen_prompt.txt` with the three fixed visual references. Do not attach the OpenAI or OpenCV SVG files. After generation, register the saved image in `reconstruction_handoff.json`, then run slide understanding through the agent capability or CLI.
+Use `generation_preflight.md` and `generation_package.json` according to the user's requested review level. Generate from `imagegen_prompt.txt` with the Agent-selected visual references. Canonical logo files stay available for reconstruction under the configured description-only generation policy. After generation, register the saved image and continue with Agent-authored slide understanding.
 """
     (output_dir / "report.md").write_text(report, encoding="utf-8")
     return {

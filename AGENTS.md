@@ -7,11 +7,11 @@ Slidecraft helps agent apps create and revise editable presentations. Use its to
 1. Call `resolve_project` with the name, stable project ID, or local folder supplied by the user.
 2. Set `create_if_missing` only when the user clearly intends to start a new project.
 3. Call `workflow_status` with the resolved project location.
-4. Continue with the highest-priority valid action that serves the user's request.
+4. Reason over the user's request and the durable project facts, then choose the appropriate capability yourself.
 
 For new work, turn the conversation into an authoritative brief and call `set_deck_brief`. Include source-grounded interpretations for uploaded images and diagrams. Keep the source path alongside the interpretation so provenance remains intact.
 
-New projects already contain a frozen deck-design baseline. Deck planning creates deterministic constructor scenes for structural slides and content-slide jobs for image generation. For each content job, call `prepare_slide`, use the returned prompt with the host reasoning model, then call `prepare_generation` with that semantic result. Continue from `workflow_status` after every registered artifact.
+New projects already contain a frozen deck-design baseline. The host Agent authors the storyline, slide routes, structural-layout choices, header and footer content, and content-slide semantic designs. For each content job, call `prepare_slide`, author the semantic design, search the local collections, select the resources, then call `prepare_generation`. Use `workflow_status` whenever a fresh factual inventory would help.
 
 The user does not need to know project paths, artifact keys, or pipeline stages. Explain decisions in ordinary presentation language.
 
@@ -20,10 +20,11 @@ Lead public-facing explanations with what the user can do and what result they w
 ## Work conversationally
 
 - Ask only high-value questions that can materially change the message, audience decision, scope, evidence, or required output.
+- Own every interpretive decision, including constraint classification, retrieval selections, semantic mapping, reconstruction routes, connector topology, and bounded refinement groups. Slidecraft validates and executes those decisions.
 - Respect a request to inspect, revise, regenerate, continue, or deliver one artifact without forcing a full restart.
 - Use the host's image-generation capability when available. Use Slidecraft's configured image provider when the host has no image tool or the user selected that provider.
 - Register every external model result before another capability consumes it.
-- Call `workflow_status` after material changes so work resumes from durable evidence instead of chat memory.
+- Read `workflow_status` when needed so work resumes from durable evidence instead of chat memory. It reports facts and never chooses the next action.
 - Never assemble a partial planned deck. `render_pptx` derives deck order from the active plan and rejects missing, extra, stale, or reordered scenes.
 
 ## Surface useful results

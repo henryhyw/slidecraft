@@ -12,7 +12,6 @@ from typing import Any
 
 from slidecraft.providers.base import StructuredReasoningProvider
 from slidecraft.runtime.artifacts import ArtifactWorkspace
-from slidecraft.runtime.state import initialize_run_state
 
 from .planning import plan_deck
 from .slide_jobs import build_slide_request
@@ -46,19 +45,26 @@ class DeckManager:
             raise ValueError(f"Deck planning requires source-grounded interpretation for visual materials: {pending}")
         storage_dir = self.run_dir / ".slidecraft" if (self.run_dir / "slidecraft.project.json").exists() else self.run_dir
         storage_dir.mkdir(parents=True, exist_ok=True)
+        resolved_layouts_path = system_layouts_path or Path(
+            str(files("slidecraft.defaults").joinpath("system_slide_layouts.json"))
+        )
+        layouts = load_layouts(resolved_layouts_path)
+        routing_policy = json.loads(
+            files("slidecraft.defaults").joinpath("deck_planning_config.json").read_text(encoding="utf-8")
+        )
         plan, validation = plan_deck(
             self.reasoning_provider,
             request=request,
             intake=intake,
             design=design_system,
+            routing_policy=routing_policy,
+            system_layouts=layouts,
         )
         _write_json(storage_dir / "deck_request.json", request)
         _write_json(storage_dir / "intake_manifest.json", intake)
         _write_json(storage_dir / "design_system_snapshot.json", design_system)
         _write_json(storage_dir / "deck_plan.json", plan)
         jobs = []
-        resolved_layouts_path = system_layouts_path or Path(str(files("slidecraft.defaults").joinpath("system_slide_layouts.json")))
-        layouts = load_layouts(resolved_layouts_path)
         sections = {section["section_id"]: section for section in plan["sections"]}
         for slide in plan["slides"]:
             job = {
@@ -70,7 +76,6 @@ class DeckManager:
                 "role": slide["role"],
                 "route": slide["route"],
                 "system_layout_id": slide.get("system_layout_id"),
-                "status": "ready_for_system_render" if slide["route"] == "system_layout" else "ready_for_semantic_planning",
                 "communication_job": slide["communication_job"],
                 "message_title": slide["message_title"],
                 "source_atoms": [atom for atom in intake["source_atoms"] if atom["atom_id"] in slide["source_atom_ids"]],
@@ -79,6 +84,7 @@ class DeckManager:
                 "asset_ids": slide.get("asset_ids", []),
                 "terminology": slide.get("terminology", []),
                 "cross_slide_requirements": slide.get("cross_slide_requirements", []),
+                "chrome_content_proposal": slide.get("chrome_content_proposal", {}),
                 "design_system_snapshot": design_system,
             }
             job_path = storage_dir / "slides" / slide["slide_id"] / "job.json"
@@ -113,19 +119,17 @@ class DeckManager:
                     },
                 )
                 _write_json(storage_dir / "slides" / slide["slide_id"] / "system_scene.json", scene)
-            jobs.append({"slide_id": slide["slide_id"], "job": str(job_path), "status": job["status"]})
+            jobs.append({"slide_id": slide["slide_id"], "job": str(job_path), "route": job["route"]})
         fingerprint_source = json.dumps({"request": request, "plan": plan, "design": design_system}, sort_keys=True).encode()
         manifest = {
             "schema_version": "1.0.0",
             "deck_id": plan["deck_id"],
             "run_id": self.run_dir.name,
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "status": "planned",
             "manager_pattern": "agent_host_with_passive_artifact_ledger",
             "fingerprint": hashlib.sha256(fingerprint_source).hexdigest(),
             "validation": validation,
             "jobs": jobs,
-            "next_gate": "agent_slide_execution",
             "interaction_policy": {
                 "planning_confirmation": "conversational_and_optional",
                 "delegated_execution": bool(request.get("delegated_execution")),
@@ -133,7 +137,6 @@ class DeckManager:
             },
         }
         _write_json(storage_dir / "run_manifest.json", manifest)
-        initialize_run_state(manifest, storage_dir / "run_state.json")
         workspace = ArtifactWorkspace(self.run_dir)
         workspace.initialize(deck_id=plan["deck_id"], metadata={"run_id": manifest["run_id"]})
         workspace.register(logical_key="deck/request", kind="deck_request", path=storage_dir / "deck_request.json", producer="plan_deck")

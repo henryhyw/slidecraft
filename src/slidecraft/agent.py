@@ -154,7 +154,7 @@ CAPABILITIES = {
         "mutates": False,
     },
     "workflow_status": {
-        "description": "Show current project progress and the next useful actions.",
+        "description": "Show durable project facts, artifacts, validation attention, and deliverables for Agent interpretation.",
         "required": ["workspace"],
         "optional": ["include_history"],
         "mutates": False,
@@ -178,15 +178,21 @@ CAPABILITIES = {
         "mutates": True,
     },
     "prepare_generation": {
-        "description": "Prepare semantic intent, retrieve resources, assemble the visual-generation brief, and register the resulting artifacts.",
-        "required": ["workspace", "design", "slide", "output_dir"],
-        "optional": ["overrides", "slide_id", "semantic_design"],
+        "description": "Assemble the visual-generation brief from Agent-authored semantic design and resource selections.",
+        "required": ["workspace", "design", "slide", "output_dir", "slide_id", "resource_selection"],
+        "optional": ["overrides", "semantic_design"],
+        "mutates": True,
+    },
+    "search_resources": {
+        "description": "Search reusable collections and return candidates for the Agent to inspect and select.",
+        "required": ["workspace", "design", "slide", "semantic_design", "output"],
+        "optional": ["slide_id"],
         "mutates": True,
     },
     "prepare_clarifications": {
-        "description": "Select up to a few high-value questions that can materially improve the deck plan.",
-        "required": ["workspace", "request", "output"],
-        "optional": ["candidate_result", "policy"],
+        "description": "Validate and store zero to three final planning questions chosen by the Agent after reasoning over the request and materials.",
+        "required": ["workspace", "request", "output", "questions"],
+        "optional": ["policy"],
         "mutates": True,
     },
     "record_clarification_answers": {
@@ -196,9 +202,9 @@ CAPABILITIES = {
         "mutates": True,
     },
     "plan_deck": {
-        "description": "Plan the deck from the agreed brief, source material, and any clarification answers.",
-        "required": ["workspace", "request", "design"],
-        "optional": ["provider", "result", "model", "api_key", "base_url", "system_layouts"],
+        "description": "Validate and register the deck plan authored by the host Agent from the agreed brief and source material.",
+        "required": ["workspace", "request", "design", "result"],
+        "optional": ["system_layouts"],
         "mutates": True,
     },
     "prepare_slide": {
@@ -214,9 +220,9 @@ CAPABILITIES = {
         "mutates": True,
     },
     "semantic_map": {
-        "description": "Identify meaningful slide entities and relationships through a host result or configured OpenAI-compatible provider.",
-        "required": ["workspace", "image", "handoff", "output", "slide_id"],
-        "optional": ["provider", "result", "model", "api_key", "base_url", "segmentation"],
+        "description": "Validate and compile the semantic scene authored by the host Agent from the generated slide and handoff.",
+        "required": ["workspace", "image", "handoff", "output", "slide_id", "result"],
+        "optional": ["segmentation"],
         "mutates": True,
     },
     "measure_slide": {
@@ -232,8 +238,8 @@ CAPABILITIES = {
         "mutates": True,
     },
     "build_reconstruction_contract": {
-        "description": "Select reconstruction routes and canonical assets from the measured semantic scene.",
-        "required": ["workspace", "scene_evidence", "design", "slide_id", "output"],
+        "description": "Compile Agent-authored reconstruction and refinement decisions with measured scene evidence.",
+        "required": ["workspace", "scene_evidence", "design", "slide_id", "output", "refinement_plan"],
         "optional": [],
         "mutates": True,
     },
@@ -246,11 +252,56 @@ CAPABILITIES = {
 }
 
 
-def list_capabilities() -> dict[str, Any]:
-    return {
+WORKFLOWS = [
+    {
+        "name": "project",
+        "description": "Create, find, inspect, and continue presentation projects.",
+        "capabilities": ["resolve_project", "project_detail", "workflow_status"],
+    },
+    {
+        "name": "brief_and_sources",
+        "description": "Capture the agreed brief and add source materials or direct-use visual assets.",
+        "capabilities": ["set_deck_brief", "add_project_material", "add_project_asset", "update_project_asset"],
+    },
+    {
+        "name": "plan",
+        "description": "Record useful clarifications and author the deck storyline, slide jobs, routes, and chrome.",
+        "capabilities": ["prepare_clarifications", "record_clarification_answers", "plan_deck", "prepare_slide"],
+    },
+    {
+        "name": "resources_and_generation",
+        "description": "Search reusable collections, record Agent selections, assemble prompts, and generate slide images.",
+        "capabilities": ["search_resources", "prepare_generation", "generate_slide_image", "register_generated_image"],
+    },
+    {
+        "name": "understand_and_reconstruct",
+        "description": "Map slide meaning, measure pixels, author refinement decisions, and construct editable objects.",
+        "capabilities": [
+            "semantic_map",
+            "measure_slide",
+            "build_reconstruction_contract",
+            "compile_reconstruction_scene",
+        ],
+    },
+    {
+        "name": "deliver",
+        "description": "Assemble validated constructor scenes into the editable PowerPoint deliverable.",
+        "capabilities": ["render_pptx", "project_detail"],
+    },
+]
+
+
+def list_capabilities(
+    *, capability: str | None = None, workflow: str | None = None, include_internal: bool = False
+) -> dict[str, Any]:
+    workflow_summaries = [
+        {"name": item["name"], "description": item["description"]}
+        for item in WORKFLOWS
+    ]
+    result: dict[str, Any] = {
         "schema_version": "1.0.0",
         "control_model": "agent_host",
-        "capabilities": [{"name": name, **spec} for name, spec in CAPABILITIES.items()],
+        "workflows": workflow_summaries,
         "interaction": "The agent app chooses the tools that match the conversation. After a new session begins, inspect the project and continue from its current progress.",
         "recommended_entrypoint": {
             "existing_or_named_project": "resolve_project",
@@ -259,6 +310,28 @@ def list_capabilities() -> dict[str, Any]:
         },
         "artifact_policy": "Return deliverables, reviewable artifacts, and decisions that answer the user's request. Keep low-level evidence hidden unless requested.",
     }
+    if capability:
+        if capability not in CAPABILITIES:
+            raise KeyError(f"Unknown capability {capability}")
+        result["capability"] = {"name": capability, **CAPABILITIES[capability]}
+    elif workflow:
+        selected = next((item for item in WORKFLOWS if item["name"] == workflow), None)
+        if selected is None:
+            raise KeyError(f"Unknown workflow {workflow}")
+        result["workflow"] = {
+            **selected,
+            "capabilities": [
+                {"name": name, "description": CAPABILITIES[name]["description"]}
+                for name in selected["capabilities"]
+            ],
+        }
+    elif include_internal:
+        result["capabilities"] = [{"name": name, **spec} for name, spec in CAPABILITIES.items()]
+    else:
+        result["capability_discovery"] = (
+            "Inspect project facts, choose a workflow through your own reasoning, then expand only that workflow or capability."
+        )
+    return result
 
 
 def _workspace(value: str | Path) -> ArtifactWorkspace:
@@ -527,11 +600,7 @@ def inspect_workspace(**arguments: Any) -> dict[str, Any]:
 
 
 def workflow_status(**arguments: Any) -> dict[str, Any]:
-    """Derive the next safe actions from the artifact graph.
-
-    This is intentionally transport-neutral. MCP, CLI, and in-process Agents see
-    the same resumable state and never need user-facing pause or resume commands.
-    """
+    """Report durable project facts without choosing the Agent's next action."""
     inspection = inspect_workspace(**arguments)
     active = {item["logical_key"]: item for item in inspection["active_artifacts"]}
     workspace_root = Path(arguments["workspace"]).expanduser().resolve()
@@ -552,196 +621,54 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
             "provenance": {"source": "project_deliverables"},
             "validation": {"status": "restored_from_project"},
         }
-    actions: list[dict[str, Any]] = []
-
-    if (
-        (workspace_root / "slidecraft.project.json").is_file()
-        and "deck/request" not in active
-        and completed_output is None
-    ):
-        actions.append({
-            "priority": 20,
-            "action": "set_deck_brief",
-            "reason": "Translate the user's objective, audience, materials, constraints, and desired output into the authoritative presentation brief.",
-            "human_input_required": False,
-        })
-
-    for item in inspection["attention"]:
-        if item["type"] == "recompute_stale_artifact":
-            actions.append({
-                "priority": 10,
-                "action": "recompute_artifact",
-                "logical_key": item["logical_key"],
-                "producer": item["producer"],
-                "reason": "An upstream revision changed or the file changed on disk.",
-            })
-        elif item["type"] == "resolve_validation_failure":
-            actions.append({
-                "priority": 20,
-                "action": "repair_then_recompute",
-                "logical_key": item["logical_key"],
-                "validation": item["validation"],
-            })
-        elif item["type"] == "candidate_decision":
-            actions.append({
-                "priority": 30,
-                "action": "review_candidate",
-                "artifact_id": item["artifact_id"],
-                "logical_key": item["logical_key"],
-                "on_pass": "accept_artifact",
-                "on_fail": "reject_artifact_then_regenerate",
-                "human_input_required": False,
-            })
-
     planned_slides: list[dict[str, Any]] = []
     if "deck/plan" in active:
         planned_slides = json.loads(Path(active["deck/plan"]["path"]).read_text(encoding="utf-8")).get("slides", [])
-    elif "deck/request" in active:
-        request_path = active["deck/request"]["path"]
-        design_path = active.get("deck/design", {}).get("path")
-        questions_record = active.get("deck/clarification_questions")
-        answers_record = active.get("deck/clarification_answers")
-        if questions_record is None:
-            actions.append({
-                "priority": 25,
-                "action": "prepare_clarifications",
-                "request": request_path,
-                "reason": "Identify only the high-value questions that could materially change the deck plan.",
-                "human_input_required": False,
-            })
-        elif answers_record is None:
-            package = json.loads(Path(questions_record["path"]).read_text(encoding="utf-8"))
-            if int(package.get("question_count", 0)):
-                actions.append({
-                    "priority": 27,
-                    "action": "answer_or_delegate_clarifications",
-                    "question_package": questions_record["path"],
-                    "default_when_user_delegates": "record_clarification_answers with skipped_all=true",
-                    "reason": "The Agent may ask the concise questions or make documented assumptions when the user delegates.",
-                    "human_input_required": False,
-                })
-            else:
-                actions.append({
-                    "priority": 27,
-                    "action": "record_clarification_answers",
-                    "question_package": questions_record["path"],
-                    "skipped_all": True,
-                    "reason": "No material clarification question was selected.",
-                })
-        else:
-            actions.append({
-                "priority": 30,
-                "action": "plan_deck",
-                "request": request_path,
-                "design": design_path,
-                "reason": "Create and self-evaluate the storyline, section structure, slide jobs, source allocation, and routes.",
-            })
     slide_ids = [item["slide_id"] for item in sorted(planned_slides, key=lambda item: item["ordinal"])] or sorted({
         item["slide_id"] for item in inspection["active_artifacts"] if item.get("slide_id")
     })
+    artifact_suffixes = (
+        "job",
+        "request",
+        "semantic_design",
+        "resource_candidates",
+        "reconstruction_handoff",
+        "generated_image",
+        "semantic_scene",
+        "measured_scene",
+        "reconstruction_contract",
+        "constructor_scene",
+    )
+    slides = []
     for slide_id in slide_ids:
         prefix = f"slides/{slide_id}"
-        job_record = active.get(f"{prefix}/job")
-        if job_record and f"{prefix}/constructor_scene" not in active:
-            job = json.loads(Path(job_record["path"]).read_text(encoding="utf-8"))
-            if job.get("route") == "image_generation" and f"{prefix}/request" not in active:
-                actions.append({
-                    "priority": 35,
-                    "action": "prepare_slide",
-                    "slide_id": slide_id,
-                    "reason": "Compile the deck job into a slide request and semantic-planning prompt.",
-                })
-                continue
-            if (
-                job.get("route") == "image_generation"
-                and f"{prefix}/semantic_planning_prompt" in active
-                and f"{prefix}/reconstruction_handoff" not in active
-            ):
-                actions.append({
-                    "priority": 38,
-                    "action": "author_semantic_design_then_prepare_generation",
-                    "slide_id": slide_id,
-                    "request_key": f"{prefix}/request",
-                    "prompt_key": f"{prefix}/semantic_planning_prompt",
-                    "next_capability": "prepare_generation",
-                    "reason": "Use the host reasoning model, then compile the complete generation handoff.",
-                })
-                continue
-        if f"{prefix}/reconstruction_handoff" in active and f"{prefix}/generated_image" not in active:
-            actions.append({
-                "priority": 40,
-                "action": "generate_slide_image",
-                "slide_id": slide_id,
-                "handoff_key": f"{prefix}/reconstruction_handoff",
-                "fallback": "The project can use the image service selected in Slidecraft settings.",
-            })
-            continue
-        if f"{prefix}/generated_image" in active and f"{prefix}/semantic_scene" not in active:
-            actions.append({
-                "priority": 50,
-                "action": "semantic_map",
-                "slide_id": slide_id,
-                "input_key": f"{prefix}/generated_image",
-                "fallback": "Semantic mapping can come from the agent app or the project's selected vision service.",
-            })
-            continue
-        if f"{prefix}/semantic_scene" in active and f"{prefix}/measured_scene" not in active:
-            actions.append({
-                "priority": 60,
-                "action": "measure_slide",
-                "slide_id": slide_id,
-                "input_key": f"{prefix}/semantic_scene",
-                "fallback": "OpenCV measures the slide locally. SAM adds boundary detail for eligible irregular regions.",
-            })
-            continue
-        if f"{prefix}/measured_scene" in active and f"{prefix}/reconstruction_contract" not in active:
-            actions.append({
-                "priority": 70,
-                "action": "build_reconstruction_contract",
-                "slide_id": slide_id,
-                "input_key": f"{prefix}/measured_scene",
-            })
-            continue
-        if f"{prefix}/reconstruction_contract" in active and f"{prefix}/constructor_scene" not in active:
-            actions.append({
-                "priority": 75,
-                "action": "compile_reconstruction_scene",
-                "slide_id": slide_id,
-                "input_key": f"{prefix}/reconstruction_contract",
-            })
+        available = [suffix for suffix in artifact_suffixes if f"{prefix}/{suffix}" in active]
+        slides.append({"slide_id": slide_id, "available_artifacts": available})
 
-    expected_constructor_keys = [f"slides/{slide_id}/constructor_scene" for slide_id in slide_ids]
-    constructor_keys = [key for key in expected_constructor_keys if key in active]
-    if expected_constructor_keys and len(constructor_keys) == len(expected_constructor_keys) and "deck/editable_pptx" not in active:
-        actions.append({
-            "priority": 80,
-            "action": "render_pptx",
-            "scene_keys": constructor_keys,
-            "output_policy": "Write the editable deck under the project deliverables directory.",
-        })
-
-    actions.sort(key=lambda item: int(item["priority"]))
-    blocking = [item for item in actions if item["action"] in {"recompute_artifact", "repair_then_recompute"}]
-    if blocking:
-        status = "needs_repair"
-    elif actions:
-        status = "ready_for_agent_action"
-    elif completed_output:
+    if completed_output:
         status = "complete"
+    elif inspection["attention"]:
+        status = "attention_available"
+    elif active:
+        status = "in_progress"
     else:
-        status = "ready_for_input"
+        status = "empty"
     return {
         "schema_version": "1.0.0",
         "status": status,
         "workspace_id": inspection["workspace_id"],
-        "next_actions": actions,
         "completed_output": completed_output,
-        "inspection": inspection,
-        "interaction_policy": {
-            "permission_prompts_during_run": False,
-            "human_input_required": False,
-            "agent_may_stop_when": ["complete", "user_explicitly_stopped"],
+        "project_facts": {
+            "brief_recorded": "deck/request" in active,
+            "clarifications_recorded": "deck/clarification_questions" in active,
+            "clarification_answers_recorded": "deck/clarification_answers" in active,
+            "deck_plan_recorded": "deck/plan" in active,
+            "planned_slide_count": len(planned_slides),
+            "slides": slides,
         },
+        "attention": inspection["attention"],
+        "inspection": inspection,
+        "ownership": "The host Agent interprets these facts and chooses the next action from the user's request.",
     }
 
 
@@ -774,11 +701,26 @@ def prepare_generation(**arguments: Any) -> dict[str, Any]:
 
     workspace = _workspace(arguments["workspace"])
     workspace.initialize()
+    slide_id = arguments["slide_id"]
+    active = {item["logical_key"]: item for item in workspace.inspect()["active_artifacts"]}
+    candidates_key = f"slides/{slide_id}/resource_candidates"
+    candidates_record = active.get(candidates_key)
+    if candidates_record is None:
+        raise ValueError(f"No recorded resource candidates exist for {slide_id}. Call search_resources first.")
+    if not candidates_record["freshness"]["fresh"]:
+        raise ValueError(f"Recorded resource candidates for {slide_id} are stale. Call search_resources again.")
+    resource_candidates = json.loads(Path(candidates_record["path"]).read_text(encoding="utf-8"))
     output_dir = Path(arguments["output_dir"]).expanduser().resolve()
     slide_path = Path(arguments["slide"]).expanduser().resolve()
-    if arguments.get("semantic_design"):
+    if arguments.get("semantic_design") or arguments.get("resource_selection"):
         slide_value = json.loads(slide_path.read_text(encoding="utf-8"))
-        slide_value["semantic_design_path"] = str(Path(arguments["semantic_design"]).expanduser().resolve())
+        if arguments.get("semantic_design"):
+            slide_value["semantic_design_path"] = str(Path(arguments["semantic_design"]).expanduser().resolve())
+        selection = arguments["resource_selection"]
+        if isinstance(selection, dict):
+            slide_value["resource_selection"] = selection
+        else:
+            slide_value["resource_selection_path"] = str(Path(selection).expanduser().resolve())
         output_dir.mkdir(parents=True, exist_ok=True)
         slide_path = output_dir / "slide_request.json"
         slide_path.write_text(json.dumps(slide_value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -787,8 +729,9 @@ def prepare_generation(**arguments: Any) -> dict[str, Any]:
         slide_path,
         output_dir,
         overrides=arguments.get("overrides"),
+        resource_candidates=resource_candidates,
+        resource_selection=selection if isinstance(selection, dict) else json.loads(Path(selection).expanduser().read_text(encoding="utf-8")),
     )
-    slide_id = arguments.get("slide_id", "slide_01")
     prefix = f"slides/{slide_id}"
     registered = []
     design_record = workspace.register(
@@ -807,7 +750,7 @@ def prepare_generation(**arguments: Any) -> dict[str, Any]:
     outputs = [
         ("intake", "intake_manifest", "intake_manifest.json", [f"{prefix}/request"]),
         ("semantic_design", "semantic_design", "semantic_design.json", [f"{prefix}/intake", "deck/design"]),
-        ("retrieval", "reference_retrieval", "reference_retrieval.json", [f"{prefix}/semantic_design", "deck/design"]),
+        ("retrieval", "reference_retrieval", "reference_retrieval.json", [candidates_key, f"{prefix}/semantic_design", "deck/design"]),
         ("assets", "normalized_assets", "normalized_assets.json", [f"{prefix}/retrieval"]),
         ("generation_package", "generation_package", "generation_package.json", [f"{prefix}/semantic_design", f"{prefix}/assets", "deck/design"]),
         ("generation_prompt", "generation_prompt", "imagegen_prompt.txt", [f"{prefix}/generation_package"]),
@@ -837,6 +780,79 @@ def prepare_generation(**arguments: Any) -> dict[str, Any]:
             slide_id=slide_id,
         )
     return {"pipeline_result": result, "registered_artifacts": registered, "project_resources": project_resources, "workspace": workspace.inspect()}
+
+
+def search_resources(**arguments: Any) -> dict[str, Any]:
+    from slidecraft.orchestration.component_retrieval import search_known_components
+    from slidecraft.orchestration.icon_retrieval import search_icons
+    from slidecraft.orchestration.pipeline import _apply_user_defaults, _resolve_from
+    from slidecraft.orchestration.semantic_planning import resolve_semantic_design
+    from slidecraft.orchestration.visual_reference_retrieval import search_visual_references
+
+    workspace_path = Path(arguments["workspace"]).expanduser().resolve()
+    design_path = Path(arguments["design"]).expanduser().resolve()
+    slide_path = Path(arguments["slide"]).expanduser().resolve()
+    slide = json.loads(slide_path.read_text(encoding="utf-8"))
+    semantic_path = Path(arguments["semantic_design"]).expanduser().resolve()
+    slide["semantic_design_path"] = str(semantic_path)
+    plan = resolve_semantic_design(slide, slide_path.parent)
+    deck = _apply_user_defaults(json.loads(design_path.read_text(encoding="utf-8")), design_path.parent)
+    libraries = deck["local_libraries"]
+    exact_roles = {
+        asset.get("semantic_role")
+        for asset in slide.get("user_provided_assets", [])
+        if asset.get("required_usage") and asset.get("canonical_file") and asset.get("semantic_role")
+    }
+    result = {
+        "schema_version": "1.0.0",
+        "decision_owner": "host_agent",
+        "selection_instruction": (
+            "Inspect candidates in context, then author a resource_selection object with explicit rationales. "
+            "Candidate scores aid discovery and never make the final decision."
+        ),
+        "visual_references": search_visual_references(
+            _resolve_from(design_path.parent, libraries["visual_reference_manifest"]),
+            plan,
+            deck,
+            max_results=max(12, int(libraries["visual_reference_max_results_per_slide"]) * 4),
+        ),
+        "icons": search_icons(
+            _resolve_from(design_path.parent, libraries["icon_root"]),
+            plan.get("asset_needs"),
+            excluded_semantic_roles=exact_roles,
+        ),
+        "components": search_known_components(
+            _resolve_from(design_path.parent, libraries["known_component_root"]), plan
+        ),
+    }
+    output = Path(arguments["output"]).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    slide_id = arguments.get("slide_id", "slide_01")
+    workspace = _workspace(workspace_path)
+    semantic_record = workspace.register(
+        logical_key=f"slides/{slide_id}/semantic_design",
+        kind="semantic_design",
+        path=semantic_path,
+        dependencies=[f"slides/{slide_id}/request", "deck/design"],
+        producer="host_agent_reasoning",
+        slide_id=slide_id,
+        validation={"status": "passed", "decision_owner": "host_agent"},
+    )
+    record = workspace.register(
+        logical_key=f"slides/{slide_id}/resource_candidates",
+        kind="resource_candidates",
+        path=output,
+        dependencies=[f"slides/{slide_id}/semantic_design", "deck/design"],
+        producer="search_resources",
+        slide_id=slide_id,
+        validation={"status": "passed", "decision_owner": "host_agent"},
+    )
+    return {
+        "artifacts": [semantic_record, record],
+        "resource_candidates": str(output),
+        "result": result,
+    }
 
 
 def prepare_slide(**arguments: Any) -> dict[str, Any]:
@@ -891,15 +907,11 @@ def prepare_slide(**arguments: Any) -> dict[str, Any]:
 
 
 def prepare_clarifications(**arguments: Any) -> dict[str, Any]:
-    from slidecraft.orchestration.clarification import load_candidates, select_questions
+    from slidecraft.orchestration.clarification import package_agent_questions
 
     request_path = Path(arguments["request"]).expanduser().resolve()
     request = json.loads(request_path.read_text(encoding="utf-8"))
-    package = select_questions(
-        request,
-        candidates=load_candidates(arguments.get("candidate_result")),
-        policy=arguments.get("policy"),
-    )
+    package = package_agent_questions(arguments["questions"], policy=arguments.get("policy"))
     output = Path(arguments["output"]).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(package, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -972,19 +984,7 @@ def plan_deck(**arguments: Any) -> dict[str, Any]:
             "Use the host Agent's visual understanding and add its source-grounded interpretation as material content."
         )
     design = json.loads(Path(arguments["design"]).expanduser().read_text(encoding="utf-8"))
-    provider_name = arguments.get("provider", "host-file")
-    if provider_name == "host-file":
-        if not arguments.get("result"):
-            raise ValueError("result is required when provider is host-file")
-        provider = FileStructuredReasoningProvider(Path(arguments["result"]).expanduser().resolve())
-    else:
-        from slidecraft.providers.openai import OpenAIStructuredReasoningProvider
-
-        provider = OpenAIStructuredReasoningProvider(
-            arguments.get("model", "gpt-5.6-terra"),
-            api_key=arguments.get("api_key"),
-            base_url=arguments.get("base_url"),
-        )
+    provider = FileStructuredReasoningProvider(Path(arguments["result"]).expanduser().resolve())
     manifest = DeckManager(workspace_path, provider).initialize(
         request=request,
         intake=intake,
@@ -1013,19 +1013,7 @@ def semantic_map(**arguments: Any) -> dict[str, Any]:
     from slidecraft.providers.file import FileStructuredVisionProvider
     from slidecraft.semantic_mapping.compiler import compile_semantic_map
 
-    provider_name = arguments.get("provider", "host-file")
-    if provider_name == "host-file":
-        if not arguments.get("result"):
-            raise ValueError("result is required when provider is host-file")
-        provider = FileStructuredVisionProvider(Path(arguments["result"]).expanduser().resolve())
-    else:
-        from slidecraft.providers.openai import OpenAIStructuredVisionProvider
-
-        provider = OpenAIStructuredVisionProvider(
-            arguments.get("model", "gpt-5.6-terra"),
-            api_key=arguments.get("api_key"),
-            base_url=arguments.get("base_url"),
-        )
+    provider = FileStructuredVisionProvider(Path(arguments["result"]).expanduser().resolve())
     handoff_path = Path(arguments["handoff"]).expanduser().resolve()
     compiled = compile_semantic_map(
         provider=provider,
@@ -1043,9 +1031,9 @@ def semantic_map(**arguments: Any) -> dict[str, Any]:
         kind="semantic_scene",
         path=output,
         dependencies=[f"slides/{slide_id}/generated_image", f"slides/{slide_id}/reconstruction_handoff"],
-        producer=f"semantic_map:{provider_name}",
+        producer="semantic_map:host_agent",
         slide_id=slide_id,
-        provenance={"provider": provider_name, "model": arguments.get("model")},
+        provenance={"provider": "host_agent"},
     )
     return {"artifact": record, "entities": len(compiled["entities"]), "groups": len(compiled["groups"])}
 
@@ -1115,9 +1103,16 @@ def build_reconstruction_contract_capability(**arguments: Any) -> dict[str, Any]
 
     scene_path = Path(arguments["scene_evidence"]).expanduser().resolve()
     design_path = Path(arguments["design"]).expanduser().resolve()
+    plan_value = arguments["refinement_plan"]
+    refinement_plan = (
+        plan_value
+        if isinstance(plan_value, dict)
+        else json.loads(Path(plan_value).expanduser().resolve().read_text(encoding="utf-8"))
+    )
     contract = build_reconstruction_contract(
         json.loads(scene_path.read_text(encoding="utf-8")),
         json.loads(design_path.read_text(encoding="utf-8")),
+        refinement_plan,
     )
     output = Path(arguments["output"]).expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -1280,6 +1275,7 @@ _HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {
     "accept_artifact": accept_artifact,
     "reject_artifact": reject_artifact,
     "prepare_generation": prepare_generation,
+    "search_resources": search_resources,
     "prepare_clarifications": prepare_clarifications,
     "record_clarification_answers": record_clarification_answers,
     "plan_deck": plan_deck,

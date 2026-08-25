@@ -38,6 +38,20 @@ def test_windows_executable_paths() -> None:
     assert INSTALLER.executable(root, "slidecraft-mcp", "Windows") == root / "Scripts" / "slidecraft-mcp.exe"
 
 
+def test_agent_skill_is_installed_for_hosts_with_skill_support(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    source.mkdir()
+    (source / "SKILL.md").write_text("---\nname: slidecraft\n---\n", encoding="utf-8")
+
+    codex = INSTALLER.install_agent_skill("codex", source, home=tmp_path)
+    claude = INSTALLER.install_agent_skill("claude", source, home=tmp_path)
+    copilot = INSTALLER.install_agent_skill("copilot", source, home=tmp_path)
+
+    assert Path(codex["path"], "SKILL.md").is_file()
+    assert Path(claude["path"], "SKILL.md").is_file()
+    assert copilot["status"] == "mcp_instructions_only"
+
+
 def test_copilot_workspace_configuration_preserves_other_servers(tmp_path: Path) -> None:
     config = tmp_path / ".mcp.json"
     config.write_text('{"servers":{"existing":{"command":"existing-server"}}}\n', encoding="utf-8")
@@ -45,4 +59,4 @@ def test_copilot_workspace_configuration_preserves_other_servers(tmp_path: Path)
     payload = json.loads(config.read_text(encoding="utf-8"))
     assert result["status"] == "connected"
     assert payload["servers"]["existing"]["command"] == "existing-server"
-    assert payload["servers"]["slidecraft"]["command"] == "/managed/slidecraft-mcp"
+    assert payload["servers"]["slidecraft"]["command"] == str(Path("/managed/slidecraft-mcp"))

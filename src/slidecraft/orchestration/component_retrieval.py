@@ -13,7 +13,7 @@ def _tokens(value: str) -> set[str]:
     return set(re.findall(r"[a-z0-9]+", value.lower())) - stopwords
 
 
-def retrieve_known_components(library_root: Path, semantic_design: dict[str, Any], max_results: int = 5) -> dict[str, Any]:
+def search_known_components(library_root: Path, semantic_design: dict[str, Any], max_results: int = 12) -> dict[str, Any]:
     query = " ".join(
         [semantic_design["main_message"], semantic_design["communication_archetype"]]
         + [unit.get("meaning", "") + " " + unit["role"] for unit in semantic_design["semantic_units"]]
@@ -54,16 +54,15 @@ def retrieve_known_components(library_root: Path, semantic_design: dict[str, Any
             "minimum_confidence": item["recognition"]["minimum_confidence"],
             "matched_terms": overlap,
             "confidence_met": confidence_met,
-            "selected": confidence_met and implementation_available and runtime_supported,
-            "fallback_route": "standard_reconstruction" if confidence_met else None,
+            "eligible_for_agent_selection": confidence_met and implementation_available and runtime_supported,
         })
     candidates.sort(key=lambda item: (-item["semantic_score"], item["component_id"]))
     return {
         "schema_version": "1.0.0",
-        "provider_interface": "known_component_retriever_v1",
+        "provider_interface": "known_component_search_v1",
         "retrieval_mode": "semantic_metadata_first",
         "query": query,
-        "selected": [item for item in candidates if item["selected"]][:max_results],
+        "decision_owner": "host_agent",
         "candidates": candidates[:max_results],
         "scene_requery_policy": "Requery with entity-level semantic roles, parts, topology, text bindings, and measured aspect ratio after the generated image is understood.",
     }

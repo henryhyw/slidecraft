@@ -1,106 +1,14 @@
-"""OpenAI Responses API implementation of structured visual extraction."""
+"""OpenAI image-generation provider."""
 
 from __future__ import annotations
 
 import base64
 import io
-import mimetypes
 from pathlib import Path
 from typing import Any
 from urllib.request import urlopen
 
 from PIL import Image, ImageOps
-
-
-class OpenAIStructuredVisionProvider:
-    provider_id = "openai_responses"
-    supports_connector_audit = True
-
-    def __init__(self, model: str, *, api_key: str | None = None, base_url: str | None = None):
-        try:
-            from openai import OpenAI
-        except ImportError as exc:
-            raise RuntimeError("Install Slidecraft with the openai extra to use this provider") from exc
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        if base_url:
-            kwargs["base_url"] = base_url
-        self.client = OpenAI(**kwargs)
-        self.model = model
-
-    @staticmethod
-    def _data_url(path: Path) -> str:
-        mime = mimetypes.guess_type(path.name)[0] or "image/png"
-        encoded = base64.b64encode(path.read_bytes()).decode("ascii")
-        return f"data:{mime};base64,{encoded}"
-
-    def extract(
-        self,
-        *,
-        image_path: Path,
-        prompt: str,
-        schema: dict[str, Any],
-        operation: str,
-    ) -> dict[str, Any]:
-        response = self.client.responses.create(
-            model=self.model,
-            instructions=(
-                "You are a precise visual document compiler. Return only the requested structured artifact. "
-                "Every localized object must be grounded in visible evidence and upstream context."
-            ),
-            input=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "input_text", "text": prompt},
-                        {"type": "input_image", "image_url": self._data_url(image_path), "detail": "original"},
-                    ],
-                }
-            ],
-            text={
-                "format": {
-                    "type": "json_schema",
-                    "name": operation,
-                    "schema": schema,
-                    "strict": False,
-                }
-            },
-        )
-        if not response.output_text:
-            raise RuntimeError(f"Structured vision provider returned no text for {operation}")
-        return __import__("json").loads(response.output_text)
-
-
-class OpenAIStructuredReasoningProvider:
-    provider_id = "openai_responses"
-
-    def __init__(self, model: str, *, api_key: str | None = None, base_url: str | None = None):
-        try:
-            from openai import OpenAI
-        except ImportError as exc:
-            raise RuntimeError("Install Slidecraft with the openai extra to use this provider") from exc
-        kwargs: dict[str, Any] = {}
-        if api_key:
-            kwargs["api_key"] = api_key
-        if base_url:
-            kwargs["base_url"] = base_url
-        self.client = OpenAI(**kwargs)
-        self.model = model
-
-    def reason(self, *, prompt: str, schema: dict[str, Any], operation: str) -> dict[str, Any]:
-        response = self.client.responses.create(
-            model=self.model,
-            instructions=(
-                "You are the planning compiler inside a presentation system. Preserve authoritative source content, "
-                "obey hard constraints, and return the requested typed artifact."
-            ),
-            input=prompt,
-            text={"format": {"type": "json_schema", "name": operation, "schema": schema, "strict": False}},
-        )
-        if not response.output_text:
-            raise RuntimeError(f"Structured reasoning provider returned no text for {operation}")
-        return __import__("json").loads(response.output_text)
 
 
 class OpenAIImageGenerationProvider:

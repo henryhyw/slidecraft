@@ -50,8 +50,11 @@ SEMANTIC GRANULARITY
 7. Treat a meaningful photograph, illustration, screenshot, or embedded preview as one image entity.
 8. Use shape or novel_visual only for independently authored visual objects. Mark irregular filled silhouettes with an appropriate segmentation_role.
 
+RECONSTRUCTION ROUTING
+For every meaningful entity, select its intended editable reconstruction route. Use native textboxes, tables, and charts when their authored structure is recoverable. Use the exact selected canonical asset for icon slots. Use a known reusable element only when the upstream component identity is supported. Use standard PowerPoint primitives and connectors for ordinary shapes and relationships. Use custom fitted geometry only when standard primitives cannot express a meaningful designed object. Use raster fallback for genuine image content or when editability cannot preserve the visual meaning.
+
 SOURCE GROUNDING
-Map text entities to authoritative_source_path whenever upstream source contains the text. Preserve visible text separately so deterministic validation can compare them. Map icon slots to exact upstream asset IDs when the role is identifiable. List plausible candidate asset IDs when uncertain.
+Map text entities to authoritative_source_path whenever upstream source contains the text. Preserve visible text separately so deterministic validation can compare them. Map every icon slot to the exact upstream asset ID selected before generation. If the image implies a different role, record the uncertainty and keep candidate IDs, but do not invent a canonical substitution.
 
 RELATIONSHIPS AND STACKING
 Return containment through groups. Return explicit flow, contribution, comparison, sequence, branch, merge, overlap, and back-to-front relationships where visible or supported by upstream intent. Every connector endpoint must reference an existing entity or group.

@@ -8,22 +8,6 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-HARD_PREFIXES = (
-    "must ",
-    "use ",
-    "show ",
-    "keep ",
-    "include ",
-    "do not ",
-    "don't ",
-    "never ",
-    "require ",
-    "required ",
-    "i want ",
-    "we want ",
-)
-SOFT_MARKERS = ("prefer", "ideally", "if possible", "would like", "could", "maybe")
-
 
 def _walk(value: Any, path: str) -> Iterable[tuple[str, Any]]:
     if isinstance(value, dict):
@@ -34,32 +18,6 @@ def _walk(value: Any, path: str) -> Iterable[tuple[str, Any]]:
             yield from _walk(child, f"{path}[{index}]")
     else:
         yield path, value
-
-
-def _constraint_category(text: str) -> str:
-    lowered = text.lower()
-    categories = {
-        "content_form": ("table", "chart", "map", "timeline", "matrix", "diagram"),
-        "layout": ("layout", "left", "right", "column", "row", "position", "stage", "flow"),
-        "asset": ("asset", "icon", "logo", "image", "photo"),
-        "typography": ("font", "title", "text", "typeface"),
-        "style": ("style", "color", "brand", "pwc", "visual"),
-        "deck_chrome": ("header", "footer", "page number", "confidential"),
-        "content_fidelity": ("exact", "do not paraphrase", "wording", "content"),
-    }
-    for category, markers in categories.items():
-        if any(marker in lowered for marker in markers):
-            return category
-    return "general"
-
-
-def _constraint_strength(text: str) -> tuple[str, float]:
-    lowered = text.strip().lower()
-    if lowered.startswith(HARD_PREFIXES) or any(marker in lowered for marker in ("must", "mandatory", "required", "do not", "never")):
-        return "hard", 0.94
-    if any(marker in lowered for marker in SOFT_MARKERS):
-        return "preference", 0.82
-    return "soft", 0.72
 
 
 def _material_record(material: dict[str, Any], base_dir: Path) -> dict[str, Any]:
@@ -111,15 +69,15 @@ def normalize_intake(slide: dict[str, Any], base_dir: Path) -> dict[str, Any]:
     raw_constraints = slide.get("explicit_human_constraints", [])
     for index, raw in enumerate(raw_constraints, start=1):
         if isinstance(raw, str):
-            strength, confidence = _constraint_strength(raw)
             record = {
                 "constraint_id": f"CONSTRAINT_{index:03d}",
                 "text": raw,
-                "strength": strength,
-                "category": _constraint_category(raw),
+                "strength": "hard",
+                "category": "general",
                 "target": "slide",
                 "source": f"explicit_human_constraints[{index - 1}]",
-                "confidence": confidence,
+                "confidence": 1.0,
+                "classification_source": "typed_explicit_constraint_field",
                 "status": "active",
             }
         else:
@@ -127,11 +85,12 @@ def normalize_intake(slide: dict[str, Any], base_dir: Path) -> dict[str, Any]:
                 "constraint_id": raw.get("constraint_id", f"CONSTRAINT_{index:03d}"),
                 "text": raw["text"],
                 "strength": raw.get("strength", "hard"),
-                "category": raw.get("category", _constraint_category(raw["text"])),
+                "category": raw.get("category", "general"),
                 "target": raw.get("target", "slide"),
                 "source": raw.get("source", f"explicit_human_constraints[{index - 1}]"),
                 "confidence": float(raw.get("confidence", 1.0)),
                 "status": raw.get("status", "active"),
+                "classification_source": raw.get("classification_source", "agent_or_user_authored"),
             }
         constraints.append(record)
 

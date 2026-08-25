@@ -14,7 +14,7 @@ def main() -> None:
     parser.add_argument("--output-dir", default="outputs/architecture_generation_orchestration")
     args = parser.parse_args()
     output_dir = Path(args.output_dir).resolve()
-    state = json.loads((output_dir / "orchestration_state.json").read_text(encoding="utf-8"))
+    state = json.loads((output_dir / "generation_context.json").read_text(encoding="utf-8"))
     handoff = json.loads((output_dir / "reconstruction_handoff.json").read_text(encoding="utf-8"))
     prompt = (output_dir / "imagegen_prompt.txt").read_text(encoding="utf-8")
 

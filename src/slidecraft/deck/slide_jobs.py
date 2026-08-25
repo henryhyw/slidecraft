@@ -20,10 +20,10 @@ def build_slide_request(
             continue
         allocated_assets.append({
             "asset_id": asset["asset_id"],
-            "semantic_role": asset["semantic_role"],
-            "dimension_role": "technology_logo" if "logo" in asset["semantic_role"].lower() else "module_icon",
+            "semantic_role": asset.get("semantic_role"),
+            "dimension_role": asset.get("dimension_role", "module_icon"),
             "name": asset["name"],
-            "description": asset["semantic_role"],
+            "description": asset.get("description") or asset.get("semantic_role") or asset["name"],
             "canonical_file": asset["stored_path"],
             "required_usage": required_here,
             "mandatory": required_here,
@@ -56,7 +56,9 @@ def build_slide_request(
             "slide_number": job["ordinal"],
             "section_id": job.get("section_id"),
         },
-        "chrome_content_proposal": deck_request.get("chrome_content_proposal", {}),
+        "chrome_content_proposal": job.get(
+            "chrome_content_proposal", deck_request.get("chrome_content_proposal", {})
+        ),
         "deck_job": {
             "role": job.get("role"),
             "dependencies": job.get("dependencies", []),

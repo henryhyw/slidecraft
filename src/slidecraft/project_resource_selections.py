@@ -178,13 +178,13 @@ def _record(category: str, item: dict[str, Any], *, origin: str, source: str | N
         "used_by_slide_ids": [slide_id] if slide_id else list(item.get("used_by_slide_ids", [])),
     }
     if category == "icons":
-        roles = (matched or {}).get("semantic_roles") or [name]
         return {
             **common,
             "kind": "canonical_icon",
             "library_icon_id": item.get("library_icon_id"),
             "requested_role": item.get("prompt_name") or item.get("requested_role"),
-            "semantic_role": item.get("semantic_role") or roles[0],
+            "semantic_role": item.get("semantic_role"),
+            "semantic_metadata_status": "ready" if item.get("semantic_role") else "needs_agent_description",
         }
     if category == "components":
         return {**common, "kind": "known_component", "manifest_path": path, "semantic_score": item.get("semantic_score")}
@@ -198,11 +198,15 @@ def _record(category: str, item: dict[str, Any], *, origin: str, source: str | N
 
 def records_from_retrieval_payload(payload: dict[str, Any], *, source: str | None = None, slide_id: str | None = None) -> dict[str, list[dict[str, Any]]]:
     result = {"visual_references": [], "icons": [], "components": []}
-    for item in payload.get("visual_references", payload.get("template_references", [])):
+    selection = payload.get("agent_resource_selection", payload.get("resource_selection", {}))
+    visual_items = selection.get("visual_references", payload.get("visual_references", payload.get("template_references", [])))
+    for item in visual_items:
         result["visual_references"].append(_record("visual_references", item, origin="agent_retrieval", source=source, slide_id=slide_id))
-    for item in payload.get("icon_retrieval", {}).get("assets", []):
+    icon_items = selection.get("icons", payload.get("icon_retrieval", {}).get("assets", []))
+    for item in icon_items:
         result["icons"].append(_record("icons", item, origin="agent_retrieval", source=source, slide_id=slide_id))
-    for item in payload.get("known_component_retrieval", {}).get("selected", []):
+    component_items = selection.get("components", payload.get("known_component_retrieval", {}).get("selected", []))
+    for item in component_items:
         result["components"].append(_record("components", item, origin="agent_retrieval", source=source, slide_id=slide_id))
     return result
 

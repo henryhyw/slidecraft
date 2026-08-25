@@ -159,16 +159,22 @@
     "explicit_no_autofit_in_ooxml": true
   },
   "normalization": {
-    "inferred_component_rows": {
-      "enabled": true,
-      "semantic_scope": "siblings_in_same_parent_group",
-      "minimum_icon_peer_count": 2,
-      "center_y_inference_tolerance_px": 12,
-      "maximum_translation_px": 16,
-      "move_icon_slot_and_glyph_rigidly": true,
-      "include_nearby_technology_labels": true,
-      "preserve_parent_containment": true,
-      "preserve_object_dimensions": true
+    "decision_owner": "host_agent",
+    "constraints": {
+      "minimum_alignment_confidence": 0.82,
+      "alignment_tolerance_px": 2.0,
+      "maximum_translation_px": 16.0,
+      "maximum_translation_object_fraction": 0.2,
+      "minimum_useful_translation_px": 3.0,
+      "parent_inner_padding_px": 6.0,
+      "minimum_clearance_px": 4.0,
+      "minimum_error_improvement_ratio": 0.35,
+      "preserve_object_dimensions_by_default": true,
+      "move_semantic_groups_rigidly": true,
+      "reroute_attached_native_connectors_after_move": true,
+      "rollback_on_new_collision": true,
+      "rollback_on_parent_overflow": true,
+      "rollback_on_text_overflow": true
     }
   },
   "connectors": {

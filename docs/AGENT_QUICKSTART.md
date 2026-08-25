@@ -29,7 +29,7 @@ slidecraft-mcp
 The server introduces its tools and workflow when the agent app connects. Agent apps with reusable
 skill support can also install the bundled Slidecraft skill for richer presentation guidance.
 
-The guided installer registers detected Codex and Claude Code installations. The commands below are available when manual registration is useful.
+The guided installer registers detected Codex and Claude Code installations. It also installs the bundled Slidecraft workflow skill for those hosts. The commands below are available when manual registration is useful.
 
 For Codex CLI, register the installed MCP command once.
 
@@ -93,11 +93,11 @@ The Agent calls `resolve_image_generation_route` before generation.
 
 ## Full-deck execution
 
-The Agent normalizes project sources, offers optional high-value clarifications, and creates one deck plan. The plan freezes the storyline, source allocation, density, shared design system, page order, and route for each slide.
+The Agent interprets project sources, decides whether any high-value clarification is useful, and creates one deck plan. The plan freezes the storyline, source allocation, density, shared design system, page order, and route for each slide.
 
-Structural slides such as covers and section dividers use packaged deterministic layouts. Content slides become slide jobs. The Agent calls `prepare_slide`, creates the semantic-design result with its host reasoning model, and calls `prepare_generation`. Generated images then pass through semantic mapping, measurement, reconstruction-contract compilation, and constructor-scene compilation.
+Structural slides such as covers and section dividers use packaged deterministic layouts selected by the Agent. Content slides become slide jobs. The Agent calls `prepare_slide`, creates the semantic design, searches the local collections, chooses the resources, and calls `prepare_generation`. Generated images then pass through Agent-authored semantic mapping, deterministic measurement, Agent-authored reconstruction decisions, and constructor-scene compilation.
 
-`workflow_status` only proposes final PowerPoint assembly after every planned slide has a fresh constructor scene. Assembly uses deck-plan order and enforces the frozen design identity, canvas, background, repeated typography roles, canonical asset roles, connector minimums, and deterministic header and footer contract.
+`workflow_status` reports which planned slides have fresh constructor scenes. The Agent starts assembly when the deck is ready and the user's request calls for it. Assembly uses deck-plan order and enforces the frozen design identity, canvas, background, repeated typography roles, canonical asset roles, connector minimums, and deterministic header and footer contract.
 
 ## What the Agent returns
 

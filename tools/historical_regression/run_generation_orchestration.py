@@ -15,8 +15,16 @@ def main() -> None:
     parser.add_argument("--config", default="workspace/projects/ai-slide-drafting-architecture/config/deck_design_config.json")
     parser.add_argument("--slide", default="inputs/architecture_generation_input.json")
     parser.add_argument("--output-dir", default="outputs/architecture_generation_orchestration")
+    parser.add_argument("--resource-candidates", required=True)
+    parser.add_argument("--resource-selection", required=True)
     args = parser.parse_args()
-    result = run_pipeline(Path(args.config).resolve(), Path(args.slide).resolve(), Path(args.output_dir).resolve())
+    result = run_pipeline(
+        Path(args.config).resolve(),
+        Path(args.slide).resolve(),
+        Path(args.output_dir).resolve(),
+        resource_candidates=json.loads(Path(args.resource_candidates).read_text(encoding="utf-8")),
+        resource_selection=json.loads(Path(args.resource_selection).read_text(encoding="utf-8")),
+    )
     print(json.dumps(result, indent=2))
 
 

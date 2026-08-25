@@ -50,7 +50,7 @@
     "generation_route",
     "unresolved_assumptions"
   ],
-  "framework_may_propose": [
+  "host_agent_may_propose": [
     "title_text",
     "subtitle_text",
     "header_content",

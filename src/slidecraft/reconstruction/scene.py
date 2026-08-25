@@ -8,6 +8,7 @@ from typing import Any
 
 from slidecraft.reconstruction.conformance import validate_contract_consumption
 from slidecraft.reconstruction.text_fit import finalize_fitted_text_entities, fit_text_entities
+from slidecraft.refinement.constrained_normalization import solve_plan
 
 Z_BY_KIND = {"connector": 10, "shape": 20, "novel_visual": 30, "table": 35, "chart": 36, "image": 40, "icon": 50, "icon_slot": 50, "text": 60}
 
@@ -43,10 +44,14 @@ def _text_style(entity: dict[str, Any], fitted: dict[str, Any] | None, design: d
     measurement = entity.get("measurement", {}).get("text_geometry", {})
     role = entity.get("role", "body")
     defaults = design.get("style", {})
-    title_config = design.get("title", {})
-    family = hint.get("font_family") or (title_config.get("font_family") if role == "slide_title" else defaults.get("body_font", "Arial"))
+    role_policies = design.get("text_reconstruction", {}).get("semantic_role_policies", {})
+    role_policy = role_policies.get(role, role_policies.get("default", {}))
+    family = hint.get("font_family") or role_policy.get("font_family") or defaults.get("body_font", "Arial")
     estimated = measurement.get("estimated_font_size_pt")
-    size_px = float(fitted.get("font_size_px")) if fitted else (float(estimated) * 96 / 72 if estimated else (title_config.get("nominal_size_px", 48) if role == "slide_title" else 22))
+    size_range = role_policy.get("font_size_range_px", [10, 20])
+    size_px = float(fitted.get("font_size_px")) if fitted else (
+        float(estimated) * 96 / 72 if estimated else float(size_range[1])
+    )
     insets = fitted.get("insets_px", {}) if fitted else {}
     return {
         "font_family": fitted.get("font_family", family) if fitted else family,
@@ -65,98 +70,37 @@ def _text_style(entity: dict[str, Any], fitted: dict[str, Any] | None, design: d
     }
 
 
-def _center_y(box: list[float]) -> float:
-    return float(box[1]) + float(box[3]) / 2
-
-
-def _apply_inferred_component_row_alignment(
+def _apply_agent_alignment_plan(
     objects: list[dict[str, Any]],
-    measured_scene: dict[str, Any],
-    scale_xy: list[float],
-    offset_y: int,
+    refinement_plan: dict[str, Any],
     design: dict[str, Any],
+    scale_xy: list[float],
 ) -> dict[str, Any]:
-    """Align clear sibling icon rows while preserving containers and dimensions."""
+    """Apply an Agent-authored normalization plan through deterministic movement constraints."""
+    if refinement_plan.get("authored_by") != "agent_reasoning":
+        raise ValueError("Reconstruction refinement requires an Agent-authored plan")
+    config = design.get("normalization", {}).get("constraints", design.get("normalization", {}))
+    report = solve_plan(refinement_plan, config)
     by_id = {item["id"]: item for item in objects}
-    entities = {entity["id"]: entity for entity in measured_scene.get("entities", [])}
-    config = design.get("normalization", {}).get("inferred_component_rows", {})
-    if config.get("enabled", True) is False:
-        return {"policy": "disabled", "correction_count": 0, "corrections": []}
-    tolerance = float(config.get("center_y_inference_tolerance_px", 12.0)) * scale_xy[1]
-    maximum_translation = float(config.get("maximum_translation_px", 16.0)) * scale_xy[1]
-    corrections: list[dict[str, Any]] = []
-    for group in measured_scene.get("groups", []):
-        parent_box = _transform_box(group["bbox_hint"], scale_xy, offset_y)
-        tokens = []
-        for child_id in group.get("children", []):
-            entity = entities.get(child_id, {})
-            if entity.get("kind") not in {"icon", "icon_slot"} or child_id not in by_id:
-                continue
-            surface_id = f"{child_id}.icon_slot_surface"
-            anchor = by_id.get(surface_id, by_id[child_id])
-            member_ids = [identifier for identifier in (surface_id, child_id) if identifier in by_id]
-            tokens.append({"id": child_id, "bbox": anchor["bbox_px"], "member_ids": member_ids})
-        if len(tokens) < 2:
+    coordinate_space = refinement_plan.get("coordinate_space", "generation_region_px")
+    if coordinate_space not in {"generation_region_px", "full_slide_px"}:
+        raise ValueError(f"Unsupported refinement coordinate space {coordinate_space!r}")
+    applied = []
+    for decision in report["decisions"]:
+        if decision["status"] != "accepted":
             continue
-        remaining = set(range(len(tokens)))
-        while remaining:
-            seed = remaining.pop()
-            cluster = {seed}
-            changed = True
-            while changed:
-                changed = False
-                for index in list(remaining):
-                    if any(
-                        abs(_center_y(tokens[index]["bbox"]) - _center_y(tokens[peer]["bbox"]))
-                        <= max(tolerance, min(tokens[index]["bbox"][3], tokens[peer]["bbox"][3]) * 0.25)
-                        for peer in cluster
-                    ):
-                        cluster.add(index)
-                        remaining.remove(index)
-                        changed = True
-            if len(cluster) < 2:
-                continue
-            icon_tokens = [tokens[index] for index in sorted(cluster)]
-            target = sum(_center_y(token["bbox"]) for token in icon_tokens) / len(icon_tokens)
-            label_tokens = []
-            for child_id in group.get("children", []):
-                entity = entities.get(child_id, {})
-                if entity.get("role") not in {"technology_label", "model_label"} or child_id not in by_id:
-                    continue
-                if abs(_center_y(by_id[child_id]["bbox_px"]) - target) <= tolerance:
-                    label_tokens.append({"id": child_id, "bbox": by_id[child_id]["bbox_px"], "member_ids": [child_id]})
-            all_tokens = icon_tokens + label_tokens
-            target = sum(_center_y(token["bbox"]) for token in all_tokens) / len(all_tokens)
-            proposed = []
-            for token in all_tokens:
-                dy = target - _center_y(token["bbox"])
-                if abs(dy) > maximum_translation:
-                    proposed = []
-                    break
-                moved = [token["bbox"][0], token["bbox"][1] + dy, token["bbox"][2], token["bbox"][3]]
-                if moved[1] < parent_box[1] or moved[1] + moved[3] > parent_box[1] + parent_box[3]:
-                    proposed = []
-                    break
-                proposed.append((token, dy))
-            if not proposed:
-                continue
-            for token, dy in proposed:
-                if abs(dy) <= 0.01:
-                    continue
-                for member_id in token["member_ids"]:
-                    by_id[member_id]["bbox_px"][1] += dy
-                corrections.append({
-                    "parent_group_id": group["id"],
-                    "entity_id": token["id"],
-                    "delta_y_px": round(dy, 3),
-                    "target_center_y_px": round(target, 3),
-                    "reason": "inferred semantic peer row",
-                })
-    return {
-        "policy": "bounded sibling-row inference with rigid icon-slot movement",
-        "correction_count": len(corrections),
-        "corrections": corrections,
-    }
+        for correction in decision["corrections"]:
+            dx, dy = correction["delta_px"]
+            if coordinate_space == "generation_region_px":
+                dx *= scale_xy[0]
+                dy *= scale_xy[1]
+            for entity_id in correction["member_entity_ids"]:
+                if entity_id not in by_id:
+                    raise ValueError(f"Refinement plan refers to unknown constructor object {entity_id}")
+                by_id[entity_id]["bbox_px"][0] += dx
+                by_id[entity_id]["bbox_px"][1] += dy
+            applied.append(correction)
+    return {**report, "correction_count": len(applied), "corrections": applied}
 
 
 def _deck_chrome(contract: dict[str, Any], dimensions: list[int]) -> list[dict[str, Any]]:
@@ -217,6 +161,22 @@ def _deck_chrome(contract: dict[str, Any], dimensions: list[int]) -> list[dict[s
     right_text = str(footer.get("right_text", footer.get("right_text_template", "")))
     objects.append(text_object("CHROME_FOOTER.right", right_text, [width - outer - 460, footer_text_top, 460, footer_text_height], center_footer, "right"))
     return objects
+
+
+def _apply_explicit_z_order(objects: list[dict[str, Any]], relations: list[dict[str, Any]]) -> None:
+    by_id = {item["id"]: item for item in objects}
+    usable = [item for item in relations if item.get("back") in by_id and item.get("front") in by_id]
+    for _ in range(len(usable) + 1):
+        changed = False
+        for relation in usable:
+            back = by_id[relation["back"]]
+            front = by_id[relation["front"]]
+            if front["z"] <= back["z"]:
+                front["z"] = back["z"] + 1
+                changed = True
+        if not changed:
+            return
+    raise ValueError("Explicit stacking relationships contain a cycle")
 
 
 def build_reconstruction_scene(
@@ -348,6 +308,7 @@ def build_reconstruction_scene(
             else:
                 objects.append({"id": entity_id, "kind": "freeform", "bbox_px": box, "contours_px": entity["measurement"].get("contours_px", []), "style": entity.get("style_hint", {}), "z": z})
     objects.extend(_deck_chrome(contract, dimensions))
+    _apply_explicit_z_order(objects, contract.get("z_order_relations", []))
     source_by_entity = {
         entity["id"]: entity.get("authoritative_source_path")
         for entity in measured_scene.get("entities", [])
@@ -358,7 +319,12 @@ def build_reconstruction_scene(
         if source_path:
             item["source_references"] = [{"authoritative_source_path": source_path}]
     objects = sorted(objects, key=lambda item: item["z"])
-    normalization_report = _apply_inferred_component_row_alignment(objects, measured_scene, scale_xy, offset_y, design)
+    normalization_report = _apply_agent_alignment_plan(
+        objects,
+        contract.get("reasoned_refinement_plan", {}),
+        design,
+        scale_xy,
+    )
     conformance = validate_contract_consumption(
         measured_scene=measured_scene,
         contract=contract,

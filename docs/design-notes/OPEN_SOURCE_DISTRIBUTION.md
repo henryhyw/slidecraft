@@ -21,7 +21,7 @@ The core runtime should contain these capabilities.
 
 - Typed configuration and contracts
 - CLI
-- Local run state and artifact management
+- Local artifact history and dependency management
 - Local visual-reference, icon, component, and upload libraries
 - Prompt orchestration
 - Native PowerPoint construction
@@ -256,9 +256,9 @@ The package can expose a local MCP server.
 slidecraft mcp serve
 ```
 
-Codex or another agent host can call the slide pipeline through MCP tools while the Python process owns local files, libraries, OpenCV, segmentation, reconstruction, and run state.
+Codex or another agent host can call the slide pipeline through MCP tools while the Python process owns local files, libraries, OpenCV, segmentation, reconstruction, and the durable artifact ledger. The Agent owns workflow state.
 
-Host-agent mode can omit configured reasoning and VLM providers. Image generation remains a provider capability and can use the host when supported or a configured external adapter.
+The host Agent owns reasoning and visual understanding. Image generation remains the only configured model capability and can use the host or a configured external adapter.
 
 ## Automatic local compute
 

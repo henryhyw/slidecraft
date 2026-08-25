@@ -37,7 +37,7 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(preflight["approval"]["status"], "awaiting_user_confirmation")
         self.assertFalse(preflight["approval"]["generation_released"])
         self.assertTrue(preflight["quality"]["ready_for_approval"])
-        self.assertEqual(preflight["slides"][0]["chrome"]["header"]["left_text"]["source"], "framework_proposed")
+        self.assertEqual(preflight["slides"][0]["chrome"]["header"]["left_text"]["source"], "agent_proposed")
         self.assertEqual(package["resolved_chrome"]["geometry"]["header_height_px"], 41)
 
     def test_chat_attachment_is_copied_and_deduplicated(self) -> None:

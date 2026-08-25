@@ -3,6 +3,16 @@ from __future__ import annotations
 from slidecraft.reconstruction.contract import build_reconstruction_contract
 
 
+def _empty_refinement_plan() -> dict:
+    return {
+        "schema_version": "1.0.0",
+        "authored_by": "agent_reasoning",
+        "coordinate_space": "generation_region_px",
+        "decision_rationale": "No bounded normalization corrections are needed for this fixture.",
+        "alignment_groups": [],
+    }
+
+
 def test_contract_routes_semantic_entities_without_emitting_evidence() -> None:
     measured = {
         "source": {"width_px": 1000, "height_px": 500, "path": "/tmp/slide.png"},
@@ -15,6 +25,7 @@ def test_contract_routes_semantic_entities_without_emitting_evidence() -> None:
                 "id": "T1",
                 "kind": "text",
                 "role": "body",
+                "reconstruction_route": "native_textbox",
                 "reconstruction_significance": "independent_object",
                 "measurement": {"layout_bbox": {"px": [10, 10, 300, 50]}},
             },
@@ -22,12 +33,13 @@ def test_contract_routes_semantic_entities_without_emitting_evidence() -> None:
                 "id": "E1",
                 "kind": "shape",
                 "role": "edge_fragment",
+                "reconstruction_route": "standard_powerpoint_shape_connector_composition",
                 "reconstruction_significance": "measurement_evidence",
                 "measurement": {"layout_bbox": {"px": [1, 1, 2, 2]}},
             },
         ],
     }
-    contract = build_reconstruction_contract(measured, {})
+    contract = build_reconstruction_contract(measured, {}, _empty_refinement_plan())
     units = {item["id"]: item for item in contract["reconstruction_units"]}
     assert units["T1"]["selected_route"] == "native_textbox"
     assert units["T1"]["emits_ppt_object"] is True
@@ -62,7 +74,7 @@ def test_contract_merges_resolved_header_and_footer_content_into_chrome() -> Non
         "entities": [],
     }
 
-    contract = build_reconstruction_contract(measured, {})
+    contract = build_reconstruction_contract(measured, {}, _empty_refinement_plan())
 
     assert contract["deck_chrome_configuration"]["header"]["left_text"] == "PROJECT"
     assert contract["deck_chrome_configuration"]["header"]["right_text"] == "SLIDE TITLE"

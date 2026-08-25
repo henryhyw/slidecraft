@@ -19,6 +19,9 @@ class ReconstructionSceneTests(unittest.TestCase):
         contract_path = ROOT / "tests" / "fixtures" / "architecture" / "reconstruction_contract.json"
         measured_scene = json.loads(evidence_path.read_text())
         contract = json.loads(contract_path.read_text())
+        contract["reasoned_refinement_plan"] = json.loads(
+            (ROOT / "tests" / "fixtures" / "architecture" / "normalization_plan.json").read_text()
+        )
         fixture_root = ROOT / "tests" / "fixtures" / "architecture"
         starter_icons = ROOT / "src" / "slidecraft" / "starter_resources" / "icons"
         for mapping in contract["canonical_asset_mappings"]:
@@ -50,13 +53,11 @@ class ReconstructionSceneTests(unittest.TestCase):
         self.assertGreater(output_glyph[1], output_surface[1])
         self.assertLess(output_glyph[0] + output_glyph[2], output_surface[0] + output_surface[2])
         self.assertLess(output_glyph[1] + output_glyph[3], output_surface[1] + output_surface[3])
-        self.assertAlmostEqual(
-            by_id["I_stage3.icon_slot_surface"]["bbox_px"][1]
-            + by_id["I_stage3.icon_slot_surface"]["bbox_px"][3] / 2,
-            by_id["I_openai.icon_slot_surface"]["bbox_px"][1]
-            + by_id["I_openai.icon_slot_surface"]["bbox_px"][3] / 2,
-        )
         self.assertGreaterEqual(scene["compiler_report"]["alignment_normalization"]["correction_count"], 2)
+        self.assertEqual(
+            scene["compiler_report"]["alignment_normalization"]["decisions"][0]["semantic_basis"],
+            "The two objects are peer technology attribution badges placed at the bottom of adjacent stage containers.",
+        )
         for connector in (item for item in scene["objects"] if item["kind"] == "connector_graph"):
             self.assertGreaterEqual(connector["style"]["width_px"], 4)
             self.assertEqual(connector["arrowhead"]["powerpoint_size"], "lg")

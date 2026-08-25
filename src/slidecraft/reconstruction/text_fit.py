@@ -60,55 +60,6 @@ FONT_PATHS = {
     ),
 }
 
-ROLE_LIMITS_PX = {
-    "deck_title": (48.0, 88.0),
-    "deck_subtitle": (22.0, 34.0),
-    "section_number": (54.0, 96.0),
-    "section_title": (38.0, 68.0),
-    "section_subtitle": (20.0, 32.0),
-    "statement": (34.0, 62.0),
-    "metadata": (11.0, 19.0),
-    "body": (14.0, 26.0),
-    "slide_title": (36.0, 58.0),
-    "subtitle": (16.0, 24.0),
-    "stage_number": (18.0, 30.0),
-    "stage_title": (15.0, 23.0),
-    "stage_body": (13.0, 19.0),
-    "reference_label": (12.0, 18.0),
-    "card_title": (14.0, 20.0),
-    "card_body": (12.0, 17.0),
-    "module_title": (13.0, 20.0),
-    "module_body": (11.0, 17.0),
-    "technology_label": (12.0, 19.0),
-    "image_caption": (11.0, 18.0),
-    "model_label": (16.0, 27.0),
-    "output_label": (17.0, 31.0),
-    "page_number": (9.0, 15.0),
-}
-
-ROLE_LINE_HEIGHT = {
-    "deck_title": 1.02,
-    "deck_subtitle": 1.08,
-    "section_number": 1.0,
-    "section_title": 1.04,
-    "section_subtitle": 1.08,
-    "statement": 1.05,
-    "metadata": 1.05,
-    "body": 1.1,
-    "slide_title": 1.04,
-    "subtitle": 1.08,
-    "stage_number": 1.0,
-    "stage_title": 1.06,
-    "stage_body": 1.12,
-    "reference_label": 1.08,
-    "module_title": 1.06,
-    "module_body": 1.1,
-    "technology_label": 1.05,
-    "image_caption": 1.06,
-    "output_label": 1.05,
-}
-
-
 def _authored_text(entity: dict[str, Any]) -> str:
     text = str(entity.get("authored_text") or entity.get("source_text") or entity.get("text") or "")
     text = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -154,27 +105,33 @@ def _wrap(text: str, font: ImageFont.FreeTypeFont, width_px: float) -> list[str]
     return lines or [""]
 
 
+def _role_policy(entity: dict[str, Any], design: dict[str, Any]) -> dict[str, Any]:
+    role = entity.get("role", "body")
+    policies = design.get("text_reconstruction", {}).get("semantic_role_policies", {})
+    return policies.get(role, policies.get("default", {}))
+
+
 def _base_style(entity: dict[str, Any], design: dict[str, Any]) -> dict[str, Any]:
     hint = entity.get("style_hint", {})
-    role = entity.get("role", "body")
     style = design.get("style", {})
-    title = design.get("title", {})
-    family = hint.get("font_family") or (title.get("font_family") if role == "slide_title" else style.get("body_font", "Arial"))
-    weight = hint.get("font_weight", 400)
+    policy = _role_policy(entity, design)
+    family = hint.get("font_family") or policy.get("font_family") or style.get("body_font", "Arial")
+    weight = hint.get("font_weight", policy.get("font_weight", 400))
     return {
         "family": family or "Arial",
         "bold": weight == "bold" or (isinstance(weight, (int, float)) and weight >= 600),
         "italic": bool(hint.get("italic", False)),
-        "color": hint.get("color", "#111111"),
-        "alignment": hint.get("alignment", "left"),
-        "vertical_alignment": hint.get("vertical_alignment", "top"),
+        "color": hint.get("color", policy.get("color", "#111111")),
+        "alignment": hint.get("alignment", policy.get("alignment", "left")),
+        "vertical_alignment": hint.get("vertical_alignment", policy.get("vertical_alignment", "top")),
+        "role_policy": policy,
     }
 
 
 def _fits(entity: dict[str, Any], style: dict[str, Any], size_px: float) -> dict[str, Any] | None:
     _, _, width, height = entity["measurement"]["layout_bbox"]["px"]
-    role = entity.get("role", "body")
-    inset = 0 if role in {"slide_title", "stage_number"} else 2
+    policy = style.get("role_policy", {})
+    inset = float(policy.get("inset_px", 2))
     usable_width = max(1.0, width - 2 * inset)
     usable_height = max(1.0, height - 2 * inset)
     scaled = max(4, round(size_px * 4))
@@ -185,7 +142,7 @@ def _fits(entity: dict[str, Any], style: dict[str, Any], size_px: float) -> dict
         authored = "\n".join(f"•  {paragraph}" if paragraph else "" for paragraph in authored.split("\n"))
     lines = _wrap(authored, font, office_width)
     widths = [font.getlength(line or " ") / 4 for line in lines]
-    line_height = float(style.get("line_spacing", ROLE_LINE_HEIGHT.get(role, 1.1)))
+    line_height = float(style.get("line_spacing", policy.get("line_spacing", 1.1)))
     block_height = len(lines) * size_px * line_height
     if max(widths, default=0) > usable_width * 0.91 or block_height > usable_height * 0.90:
         return None
@@ -213,6 +170,7 @@ def finalize_fitted_text_entities(
     """Revalidate every text contract and emit Office-safe half-point sizes."""
     text_entities = [entity for entity in entities if entity.get("kind") == "text"]
     styles = {entity["id"]: _base_style(entity, design) for entity in text_entities}
+    role_policies = design.get("text_reconstruction", {}).get("semantic_role_policies", {})
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for entity in text_entities:
         groups[entity.get("role", "body")].append(entity)
@@ -226,7 +184,7 @@ def finalize_fitted_text_entities(
             available = [fitted.get(member["id"], generated[member["id"]]) for member in members]
         for member, source in zip(members, available):
             styles[member["id"]]["line_spacing"] = float(
-                source.get("line_spacing", ROLE_LINE_HEIGHT.get(role, 1.1))
+                source.get("line_spacing", role_policies.get(role, role_policies.get("default", {})).get("line_spacing", 1.1))
             )
         individual: list[dict[str, Any]] = []
         for member, source in zip(members, available):
@@ -319,13 +277,15 @@ def fit_text_entities(entities: list[dict[str, Any]], design: dict[str, Any]) ->
     """Fit authored text jointly by semantic role with Office-safe metrics."""
     text_entities = [entity for entity in entities if entity.get("kind") == "text"]
     styles = {entity["id"]: _base_style(entity, design) for entity in text_entities}
+    role_policies = design.get("text_reconstruction", {}).get("semantic_role_policies", {})
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for entity in text_entities:
         groups[entity.get("role", "body")].append(entity)
     fitted: dict[str, dict[str, Any]] = {}
     report_groups: list[dict[str, Any]] = []
     for role, members in groups.items():
-        minimum, maximum = ROLE_LIMITS_PX.get(role, (10.0, 20.0))
+        policy = role_policies.get(role, role_policies.get("default", {}))
+        minimum, maximum = policy.get("font_size_range_px", [10.0, 20.0])
         estimated = []
         for member in members:
             value = member.get("measurement", {}).get("text_geometry", {}).get("estimated_font_size_pt")
@@ -347,7 +307,7 @@ def fit_text_entities(entities: list[dict[str, Any]], design: dict[str, Any]) ->
                 "color": style["color"],
                 "alignment": style["alignment"],
                 "vertical_alignment": style["vertical_alignment"],
-                "line_spacing": ROLE_LINE_HEIGHT.get(role, 1.1),
+                "line_spacing": policy.get("line_spacing", 1.1),
                 "paragraph_space_after_px": 0,
                 "insets_px": {side: item_evidence.get("inset_px", 0) for side in ("left", "top", "right", "bottom")},
                 "predicted_native_wrap_lines": item_evidence.get("lines", []),

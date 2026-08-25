@@ -13,7 +13,7 @@ from slidecraft.orchestration.review_prompt import build_review_prompt
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", help="Generated candidate image. It may be attached later when omitted.")
-    parser.add_argument("--state", default="outputs/architecture_generation_orchestration/orchestration_state.json")
+    parser.add_argument("--state", default="outputs/architecture_generation_orchestration/generation_context.json")
     parser.add_argument("--review-config", default="config/generation_review_config.json")
     parser.add_argument("--output-dir", default="outputs/architecture_generation_orchestration/review")
     args = parser.parse_args()

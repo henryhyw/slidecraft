@@ -38,6 +38,7 @@
         "additionalProperties": false,
         "required": [
           "id", "kind", "role", "bbox_norm", "confidence", "reconstruction_significance",
+          "reconstruction_route",
           "visible_text", "authoritative_source_path", "semantic_icon_intent", "candidate_asset_ids",
           "upstream_asset_id", "slot_bbox_norm", "generated_glyph_bbox_norm", "shape", "style_hint",
           "table_structure", "chart_structure", "connector_intent", "visual_constraints", "segmentation_role"
@@ -45,6 +46,13 @@
         "properties": {
           "id": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9_]+$"},
           "kind": {"enum": ["text", "shape", "connector", "table", "chart", "icon_slot", "image", "novel_visual"]},
+          "reconstruction_route": {
+            "enum": [
+              "native_textbox", "native_table", "native_editable_chart", "canonical_icon_or_image_asset",
+              "known_reusable_element", "standard_powerpoint_shape_connector_composition",
+              "custom_fitted_geometry", "raster_fallback"
+            ]
+          },
           "role": {"type": "string"},
           "bbox_norm": {"$ref": "#/$defs/box"},
           "confidence": {"type": "number", "minimum": 0, "maximum": 1},

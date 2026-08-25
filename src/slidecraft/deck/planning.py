@@ -10,8 +10,6 @@ from jsonschema import Draft202012Validator
 
 from slidecraft.providers.base import StructuredReasoningProvider
 
-STRUCTURAL_ROLES = {"title_slide", "agenda", "section_divider", "quote_or_statement", "closing", "appendix_divider"}
-
 
 def load_deck_plan_schema() -> dict[str, Any]:
     return json.loads(files("slidecraft.schemas").joinpath("deck_plan_minimal.schema.json").read_text(encoding="utf-8"))
@@ -43,24 +41,51 @@ PLANNING METHOD
 6. Use deterministic system layouts only for low-information structural slides. Use image generation for every information-bearing slide so the image model can choose its visual form.
 7. Record dependencies, terminology obligations, repeated component roles, and cross-slide data consistency requirements.
 8. Consider project assets by semantic role. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. Record chosen asset IDs on their assigned slides and in asset_allocation.
-9. {count_instruction}
-10. Self-evaluate storyline coherence, source coverage, slide-job clarity, route fidelity, and cross-slide coherence. Return the requested JSON object only when these checks pass.
+9. Author the slide-specific header and footer content proposal for each slide when deck chrome is enabled. Choose its configured variant from the slide role and deck context. Empty text is valid only when intentional and must still be present as an explicit value.
+10. {count_instruction}
+11. Self-evaluate storyline coherence, source coverage, slide-job clarity, route fidelity, and cross-slide coherence. Return the requested JSON object only when these checks pass.
 """
 
 
-def _route(slide: dict[str, Any]) -> tuple[str, str | None]:
+def _load_routing_policy() -> dict[str, Any]:
+    return json.loads(files("slidecraft.defaults").joinpath("deck_planning_config.json").read_text(encoding="utf-8"))
+
+
+def _load_system_layouts() -> dict[str, dict[str, Any]]:
+    payload = json.loads(files("slidecraft.defaults").joinpath("system_slide_layouts.json").read_text(encoding="utf-8"))
+    return {item["system_layout_id"]: item for item in payload["layouts"]}
+
+
+def _validate_agent_route(
+    slide: dict[str, Any],
+    *,
+    routing_policy: dict[str, Any],
+    system_layouts: dict[str, dict[str, Any]],
+) -> None:
     role = slide["role"]
-    if role in STRUCTURAL_ROLES:
-        defaults = {
-            "title_slide": "title_slide_minimal_v1",
-            "agenda": "agenda_clean_v1",
-            "section_divider": "section_divider_slanted_blocks_v1",
-            "quote_or_statement": "statement_slide_v1",
-            "closing": "closing_next_steps_v1",
-            "appendix_divider": "section_divider_slanted_blocks_v1",
-        }
-        return "system_layout", slide.get("system_layout_id") or defaults[role]
-    return "image_generation", None
+    route = slide["route"]
+    role_policy = routing_policy.get("slide_roles", {}).get(role)
+    if role_policy is None:
+        raise ValueError(f"Slide {slide['slide_id']} uses an unconfigured role {role!r}")
+    allowed_routes = {role_policy["default_route"]}
+    if role_policy.get("image_generation_allowed"):
+        allowed_routes.add("image_generation")
+    if route not in allowed_routes:
+        raise ValueError(
+            f"Slide {slide['slide_id']} uses route {route!r}, which is incompatible with role {role!r}"
+        )
+    layout_id = slide.get("system_layout_id")
+    if route == "image_generation":
+        if layout_id:
+            raise ValueError(f"Generated slide {slide['slide_id']} must not name a system layout")
+        return
+    if not layout_id:
+        raise ValueError(f"System slide {slide['slide_id']} must include an agent-selected system_layout_id")
+    layout = system_layouts.get(layout_id)
+    if layout is None:
+        raise ValueError(f"System layout {layout_id!r} is unavailable")
+    if role not in layout.get("slide_roles", []):
+        raise ValueError(f"System layout {layout_id!r} does not support slide role {role!r}")
 
 
 def _validate_requested_slide_count(request: dict[str, Any], actual: int) -> dict[str, Any]:
@@ -88,6 +113,9 @@ def validate_and_normalize_plan(
     plan: dict[str, Any],
     intake: dict[str, Any],
     request: dict[str, Any] | None = None,
+    routing_policy: dict[str, Any] | None = None,
+    system_layouts: dict[str, dict[str, Any]] | None = None,
+    deck_design: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     schema = load_deck_plan_schema()
     errors = sorted(Draft202012Validator(schema).iter_errors(plan), key=lambda error: list(error.path))
@@ -102,6 +130,8 @@ def validate_and_normalize_plan(
         raise ValueError("Deck slide ordinals must be contiguous")
     known_sections = {section["section_id"] for section in plan["sections"]}
     known_atoms = {atom["atom_id"] for atom in intake.get("source_atoms", [])}
+    policy = routing_policy or _load_routing_policy()
+    layouts = system_layouts or _load_system_layouts()
     normalized = []
     for slide in slides:
         if slide["section_id"] not in known_sections:
@@ -112,8 +142,23 @@ def validate_and_normalize_plan(
         unknown_dependencies = sorted(set(slide.get("dependencies", [])) - set(ids))
         if unknown_dependencies:
             raise ValueError(f"Slide {slide['slide_id']} has unknown dependencies {unknown_dependencies}")
-        route, layout = _route(slide)
-        normalized.append({**slide, "route": route, "system_layout_id": layout})
+        _validate_agent_route(slide, routing_policy=policy, system_layouts=layouts)
+        if (deck_design or {}).get("deck_chrome", {}).get("enabled"):
+            proposal = slide.get("chrome_content_proposal")
+            required_paths = (
+                ("variant", proposal),
+                ("header.left_text", (proposal or {}).get("header")),
+                ("header.right_text", (proposal or {}).get("header")),
+                ("footer.left_text", (proposal or {}).get("footer")),
+                ("footer.center_text", (proposal or {}).get("footer")),
+                ("footer.right_text_format", (proposal or {}).get("footer")),
+            )
+            missing_chrome = [path for path, container in required_paths if path.split(".")[-1] not in (container or {})]
+            if missing_chrome:
+                raise ValueError(
+                    f"Slide {slide['slide_id']} is missing Agent-authored chrome fields: {missing_chrome}"
+                )
+        normalized.append(slide)
     if not plan["quality_evaluation"]["passed"]:
         raise ValueError("Deck planner marked its own result as failed")
     used_atoms = {atom for slide in normalized for atom in slide["source_atom_ids"]}
@@ -151,10 +196,19 @@ def plan_deck(
     request: dict[str, Any],
     intake: dict[str, Any],
     design: dict[str, Any],
+    routing_policy: dict[str, Any] | None = None,
+    system_layouts: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     plan = provider.reason(
         prompt=build_deck_prompt(request, intake, design),
         schema=load_deck_plan_schema(),
         operation="slidecraft_deck_plan",
     )
-    return validate_and_normalize_plan(plan, intake, request)
+    return validate_and_normalize_plan(
+        plan,
+        intake,
+        request,
+        routing_policy=routing_policy,
+        system_layouts=system_layouts,
+        deck_design=design,
+    )

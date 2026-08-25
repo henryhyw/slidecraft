@@ -36,7 +36,6 @@ from slidecraft.runtime.powerpoint import (
     authorize_powerpoint,
     require_powerpoint_authorization,
 )
-from slidecraft.runtime.state import RunStateStore
 from slidecraft.semantic_mapping.compiler import compile_semantic_map
 
 
@@ -106,18 +105,7 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _semantic_map(args: argparse.Namespace) -> int:
-    if args.provider == "host-file":
-        if not args.result:
-            raise ValueError("--result is required for the host-file provider")
-        provider = FileStructuredVisionProvider(Path(args.result))
-    else:
-        from slidecraft.providers.openai import OpenAIStructuredVisionProvider
-
-        provider = OpenAIStructuredVisionProvider(
-            args.model,
-            api_key=os.environ.get(args.api_key_env),
-            base_url=args.base_url,
-        )
+    provider = FileStructuredVisionProvider(Path(args.result))
     compiled = compile_semantic_map(
         provider=provider,
         image_path=Path(args.image),
@@ -178,7 +166,14 @@ def _config(args: argparse.Namespace) -> int:
 def _prepare_generation(args: argparse.Namespace) -> int:
     from slidecraft.orchestration import run_pipeline
 
-    result = run_pipeline(Path(args.design), Path(args.slide), Path(args.output_dir), overrides=args.set)
+    result = run_pipeline(
+        Path(args.design),
+        Path(args.slide),
+        Path(args.output_dir),
+        overrides=args.set,
+        resource_candidates=_read_json(Path(args.resource_candidates)),
+        resource_selection=_read_json(Path(args.resource_selection)),
+    )
     print(json.dumps({"status": "ok", **result}, indent=2))
     return 0
 
@@ -259,16 +254,9 @@ def _plan_deck(args: argparse.Namespace) -> int:
     request = apply_dotted_overrides(request, args.set)
     intake = normalize_deck_intake(request, request_path.parent)
     design = _read_json(Path(args.design).resolve())
-    if args.provider == "host-file":
-        if not args.result:
-            raise ValueError("--result is required for the host-file provider")
-        from slidecraft.providers.file import FileStructuredReasoningProvider
+    from slidecraft.providers.file import FileStructuredReasoningProvider
 
-        provider = FileStructuredReasoningProvider(Path(args.result))
-    else:
-        from slidecraft.providers.openai import OpenAIStructuredReasoningProvider
-
-        provider = OpenAIStructuredReasoningProvider(args.model, api_key=os.environ.get(args.api_key_env), base_url=args.base_url)
+    provider = FileStructuredReasoningProvider(Path(args.result))
     manifest = DeckManager(Path(args.run_dir), provider).initialize(
         request=request,
         intake=intake,
@@ -276,12 +264,6 @@ def _plan_deck(args: argparse.Namespace) -> int:
         system_layouts_path=Path(args.system_layouts).resolve() if args.system_layouts else None,
     )
     print(json.dumps(manifest, indent=2))
-    return 0
-
-
-def _approve(args: argparse.Namespace) -> int:
-    state = RunStateStore(Path(args.run_dir).resolve() / "run_state.json").approve(args.fingerprint, approved_by=args.approved_by)
-    print(json.dumps({"status": state["status"], "approval": state["approval"]}, indent=2))
     return 0
 
 
@@ -388,7 +370,7 @@ def build_parser() -> argparse.ArgumentParser:
     agent_call.add_argument("--arguments", help="JSON object used with --capability", default="{}")
     agent_call.set_defaults(handler=_agent_call)
 
-    workflow = commands.add_parser("workflow-status", help="Show project progress and recommended next actions")
+    workflow = commands.add_parser("workflow-status", help="Show durable project facts for Agent interpretation")
     workflow.add_argument("--workspace", required=True)
     workflow.add_argument("--include-history", action="store_true")
     workflow.set_defaults(handler=_workflow_status)
@@ -431,11 +413,7 @@ def build_parser() -> argparse.ArgumentParser:
     semantic.add_argument("--image", required=True)
     semantic.add_argument("--handoff", required=True)
     semantic.add_argument("--output", required=True)
-    semantic.add_argument("--provider", choices=["host-file", "openai"], default="host-file")
-    semantic.add_argument("--result", help="Strict JSON result produced by a host VLM")
-    semantic.add_argument("--model", default="gpt-5.6-terra")
-    semantic.add_argument("--api-key-env", default="OPENAI_API_KEY")
-    semantic.add_argument("--base-url")
+    semantic.add_argument("--result", required=True, help="Strict JSON result authored by the host Agent")
     semantic.add_argument("--segmentation", choices=["auto", "off"], default="auto")
     semantic.set_defaults(handler=_semantic_map)
 
@@ -447,27 +425,19 @@ def build_parser() -> argparse.ArgumentParser:
         "--system-layouts",
         default=str(files("slidecraft.defaults").joinpath("system_slide_layouts.json")),
     )
-    plan.add_argument("--provider", choices=["host-file", "openai"], default="host-file")
-    plan.add_argument("--result", help="Strict deck-plan JSON produced by a host reasoning model")
-    plan.add_argument("--model", default="gpt-5.6-terra")
-    plan.add_argument("--api-key-env", default="OPENAI_API_KEY")
-    plan.add_argument("--base-url")
+    plan.add_argument("--result", required=True, help="Strict deck-plan JSON authored by the host Agent")
     plan.add_argument("--slide-count", type=int, help="Exact total deck length for this run")
     plan.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="Repeatable deck-request override for this run")
     plan.set_defaults(handler=_plan_deck)
 
-    generation = commands.add_parser("prepare-generation", help="Run intake, semantic package validation, retrieval, prompt assembly, and preflight")
+    generation = commands.add_parser("prepare-generation", help="Assemble generation from Agent-authored semantics and resource choices")
     generation.add_argument("--design", required=True)
     generation.add_argument("--slide", required=True)
     generation.add_argument("--output-dir", required=True)
+    generation.add_argument("--resource-candidates", required=True, help="Candidate set recorded by search-resources")
+    generation.add_argument("--resource-selection", required=True, help="Agent-authored resource selection JSON")
     generation.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", help="Repeatable deck-design override for this run")
     generation.set_defaults(handler=_prepare_generation)
-
-    approve = commands.add_parser("approve", help="Release the exact current deck plan for execution")
-    approve.add_argument("--run-dir", required=True)
-    approve.add_argument("--fingerprint", required=True)
-    approve.add_argument("--approved-by", default="user")
-    approve.set_defaults(handler=_approve)
 
     scene = commands.add_parser("compile-scene", help="Compile measured evidence and the reconstruction contract into a constructor scene")
     scene.add_argument("--scene-evidence", required=True, help="Measured and semantically mapped slide scene")

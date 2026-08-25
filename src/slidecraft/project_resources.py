@@ -104,7 +104,9 @@ def _retrieved_resources(active: dict[str, dict[str, Any]]) -> dict[str, list[di
         value = _read_json(artifact["path"])
         if not value:
             continue
-        for item in value.get("visual_references", value.get("template_references", [])):
+        selection = value.get("agent_resource_selection", value.get("resource_selection", {}))
+        visual_items = selection.get("visual_references", value.get("visual_references", value.get("template_references", [])))
+        for item in visual_items:
             resource_id = item.get("reference_id")
             if resource_id and resource_id not in seen["visual_references"]:
                 result["visual_references"].append({
@@ -118,8 +120,8 @@ def _retrieved_resources(active: dict[str, dict[str, Any]]) -> dict[str, list[di
                     "provenance": "visual_reference_library_retrieval",
                 })
                 seen["visual_references"].add(resource_id)
-        icon_package = value.get("icon_retrieval", {})
-        for item in icon_package.get("assets", []):
+        icon_items = selection.get("icons", value.get("icon_retrieval", {}).get("assets", []))
+        for item in icon_items:
             resource_id = item.get("asset_id")
             if resource_id and resource_id not in seen["icons"]:
                 result["icons"].append({
@@ -134,8 +136,8 @@ def _retrieved_resources(active: dict[str, dict[str, Any]]) -> dict[str, list[di
                     "provenance": item.get("library", "icon_library_retrieval"),
                 })
                 seen["icons"].add(resource_id)
-        component_package = value.get("known_component_retrieval", {})
-        for item in component_package.get("selected", []):
+        component_items = selection.get("components", value.get("known_component_retrieval", {}).get("selected", []))
+        for item in component_items:
             resource_id = item.get("component_id")
             if resource_id and resource_id not in seen["components"]:
                 result["components"].append({

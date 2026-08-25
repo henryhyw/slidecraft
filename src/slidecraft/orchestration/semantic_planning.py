@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import json
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
+
+from jsonschema import Draft202012Validator
 
 
 def build_semantic_planning_prompt(
@@ -67,29 +70,13 @@ def _source_paths(slide: dict[str, Any]) -> set[str]:
 
 
 def validate_semantic_design(plan: dict[str, Any], slide: dict[str, Any]) -> dict[str, Any]:
-    required_top_level = {
-        "schema_version",
-        "planner",
-        "guidance_profile_id",
-        "main_message",
-        "communication_archetype",
-        "semantic_units",
-        "semantic_relationships",
-        "hierarchy",
-        "reading_logic",
-        "visual_intent",
-        "candidate_structures",
-        "selected_structure_id",
-        "source_traceability",
-        "asset_needs",
-        "quality_evaluation",
-        "exact_content_is_authoritative",
-    }
-    missing = sorted(required_top_level - set(plan))
-    if missing:
-        raise ValueError(f"Semantic design is missing required fields: {missing}")
-    if plan["schema_version"] != "1.0.0":
-        raise ValueError("Unsupported semantic design schema version")
+    schema = json.loads(
+        files("slidecraft.schemas").joinpath("semantic_design.schema.json").read_text(encoding="utf-8")
+    )
+    errors = sorted(Draft202012Validator(schema).iter_errors(plan), key=lambda error: list(error.path))
+    if errors:
+        summary = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:8])
+        raise ValueError(f"Agent semantic design failed schema validation: {summary}")
     if plan["exact_content_is_authoritative"] is not True:
         raise ValueError("Semantic design must preserve exact source authority")
     if plan["visual_intent"].get("layout_agnostic") is not True:
@@ -137,8 +124,8 @@ def resolve_semantic_design(slide: dict[str, Any], base_dir: Path | None = None)
         plan = json.loads(path.read_text(encoding="utf-8"))
     else:
         raise ValueError(
-            "No semantic design is available. Run a configured reasoning provider with "
-            "build_semantic_planning_prompt(), or supply semantic_design_path from a host agent."
+            "No semantic design is available. Use build_semantic_planning_prompt() with the host Agent, "
+            "then supply its semantic_design_path."
         )
     validation = validate_semantic_design(plan, slide)
     return {**plan, "contract_validation": validation}

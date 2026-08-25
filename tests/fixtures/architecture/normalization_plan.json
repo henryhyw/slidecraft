@@ -1,4 +1,8 @@
 {
+  "schema_version": "1.0.0",
+  "authored_by": "agent_reasoning",
+  "coordinate_space": "generation_region_px",
+  "decision_rationale": "Align the two peer technology badges while preserving their stage containers.",
   "alignment_groups": [
     {
       "id": "technology_badges_stage_3_and_4",
@@ -9,14 +13,14 @@
       "members": [
         {
           "id": "G_stage3_technology_badge",
-          "member_entity_ids": ["I_openai", "T_stage3_model", "S_stage3_technology_badge"],
+          "member_entity_ids": ["I_openai", "I_openai.icon_slot_surface", "T_stage3_model"],
           "bbox_px": [688, 729, 222, 94],
           "parent_bbox_px": [680, 209, 240, 633],
           "maximum_translation_px": 16
         },
         {
           "id": "G_stage4_technology_badge",
-          "member_entity_ids": ["I_opencv", "T_pixel_model", "S_stage4_technology_badge"],
+          "member_entity_ids": ["I_opencv", "I_opencv.icon_slot_surface", "T_pixel_model"],
           "bbox_px": [970, 741, 244, 93],
           "parent_bbox_px": [960, 209, 264, 633],
           "maximum_translation_px": 16

@@ -140,7 +140,7 @@ def validate_cross_slide_artifacts(slides: list[dict[str, Any]]) -> dict[str, An
     statuses = {slide["slide_id"]: slide.get("status") for slide in slides}
     incomplete = sorted(slide_id for slide_id, status in statuses.items() if status not in {"validated", "ready_for_assembly"})
     if incomplete:
-        issues.append({"category": "run_state", "severity": "high", "message": f"Slides are incomplete: {incomplete}"})
+        issues.append({"category": "missing_constructor_scenes", "severity": "high", "message": f"Slides are incomplete: {incomplete}"})
     return {
         "slide_count": len(slides),
         "style_config_ids": sorted(style_ids),

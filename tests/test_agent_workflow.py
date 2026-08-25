@@ -42,8 +42,9 @@ def test_workflow_status_is_derived_from_artifacts() -> None:
         assert registered["status"] == "ok"
         status = safe_call_capability("workflow_status", {"workspace": str(root)})
         assert status["status"] == "ok"
-        assert status["result"]["status"] == "ready_for_input"
-        assert status["result"]["interaction_policy"]["permission_prompts_during_run"] is False
+        assert status["result"]["status"] == "in_progress"
+        assert status["result"]["project_facts"]["slides"][0]["available_artifacts"] == ["request"]
+        assert "next_actions" not in status["result"]
 
 
 def test_workflow_status_restores_completion_from_project_deliverables() -> None:
@@ -62,7 +63,7 @@ def test_workflow_status_restores_completion_from_project_deliverables() -> None
         assert status["result"]["completed_output"]["provenance"]["source"] == "project_deliverables"
 
 
-def test_workflow_status_guides_an_unplanned_deck_into_clarification() -> None:
+def test_workflow_status_reports_an_unplanned_deck_without_choosing_an_action() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
         request = root / "request.json"
@@ -82,8 +83,10 @@ def test_workflow_status_guides_an_unplanned_deck_into_clarification() -> None:
         status = safe_call_capability("workflow_status", {"workspace": str(root)})
 
         assert status["status"] == "ok"
-        assert status["result"]["next_actions"][0]["action"] == "prepare_clarifications"
-        assert status["result"]["next_actions"][0]["human_input_required"] is False
+        assert status["result"]["project_facts"]["brief_recorded"] is True
+        assert status["result"]["project_facts"]["clarifications_recorded"] is False
+        assert status["result"]["project_facts"]["deck_plan_recorded"] is False
+        assert "next_actions" not in status["result"]
 
 
 def test_agent_resolves_named_project_before_workflow_actions() -> None:
@@ -96,12 +99,13 @@ def test_agent_resolves_named_project_before_workflow_actions() -> None:
     assert resolved["result"]["project"]["project_id"] == created["result"]["project_id"]
 
 
-def test_new_project_status_requests_a_conversational_deck_brief() -> None:
+def test_new_project_status_reports_an_empty_project() -> None:
     with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}):
         project = safe_call_capability("create_project", {"name": "New Deck", "location": str(Path(directory) / "project")})["result"]
         status = safe_call_capability("workflow_status", {"workspace": project["workspace_path"]})
 
-    assert status["result"]["next_actions"][0]["action"] == "set_deck_brief"
+    assert status["result"]["status"] == "in_progress"
+    assert status["result"]["project_facts"]["brief_recorded"] is False
 
 
 def test_agent_can_start_a_deck_without_direct_filesystem_authoring() -> None:
@@ -123,10 +127,11 @@ def test_agent_can_start_a_deck_without_direct_filesystem_authoring() -> None:
     assert started["status"] == "ok"
     assert started["result"]["brief"]["project_name"] == "Agent Native"
     assert started["result"]["brief"]["materials"][0]["material_id"] == "MATERIAL_001"
-    assert status["result"]["next_actions"][0]["action"] == "prepare_clarifications"
+    assert status["result"]["project_facts"]["brief_recorded"] is True
+    assert status["result"]["project_facts"]["clarifications_recorded"] is False
 
 
-def test_planned_deck_prepares_content_before_full_assembly() -> None:
+def test_planned_deck_status_reports_slide_artifacts_without_orchestrating() -> None:
     request = {
         "schema_version": "1.0.0",
         "deck_id": "demo_deck",
@@ -145,10 +150,10 @@ def test_planned_deck_prepares_content_before_full_assembly() -> None:
         )
 
         status = safe_call_capability("workflow_status", {"workspace": str(root)})
-        actions = status["result"]["next_actions"]
-
-        assert any(item["action"] == "prepare_slide" and item["slide_id"] == "content_1" for item in actions)
-        assert not any(item["action"] == "render_pptx" for item in actions)
+        slide_facts = {item["slide_id"]: item for item in status["result"]["project_facts"]["slides"]}
+        assert "job" in slide_facts["content_1"]["available_artifacts"]
+        assert "request" not in slide_facts["content_1"]["available_artifacts"]
+        assert "next_actions" not in status["result"]
 
         prepared = safe_call_capability(
             "prepare_slide",

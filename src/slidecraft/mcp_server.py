@@ -14,10 +14,13 @@ decisions, generated work, editable reconstruction, validation, and deliverables
 
 When a user names a project, call slidecraft_resolve_project and then slidecraft_workflow_status.
 Create the project when they are starting new work. Record a new presentation brief with
-slidecraft_set_deck_brief. After each substantial action, call slidecraft_workflow_status and use
-the highest-priority action that serves the user's request. Register model results before using
-them in later operations. Use slidecraft_project_detail to return the final PowerPoint, previews,
-plans, or reports requested by the user. Technical reconstruction evidence is available on request.
+slidecraft_set_deck_brief. The host agent owns clarifications, planning, retrieval choices, semantic
+mapping, reconstruction routes, connector intent, and refinement decisions. Slidecraft supplies
+search evidence, typed storage, deterministic processing, validation, and PowerPoint construction.
+Use slidecraft_workflow_status to inspect durable facts. Choose the next operation through your own
+reasoning over those facts and the user's current request. Register model results before using them
+in later operations. Use slidecraft_project_detail to return the final PowerPoint, previews, plans,
+or reports requested by the user. Technical reconstruction evidence is available on request.
 
 Call slidecraft_capabilities when an operation or its arguments are unknown. Use slidecraft_call
 for capabilities that do not have a dedicated MCP tool.
@@ -39,14 +42,12 @@ def build_server() -> Any:
     )
 
     @server.tool()
-    def slidecraft_capabilities() -> dict[str, Any]:
-        """List Slidecraft presentation tools and their arguments."""
-        return list_capabilities()
-
-    @server.tool()
-    def slidecraft_create_workspace(workspace: str, deck_id: str | None = None) -> dict[str, Any]:
-        """Create or reopen the working folder for a presentation."""
-        return safe_call_capability("create_workspace", {"workspace": workspace, "deck_id": deck_id})
+    def slidecraft_capabilities(
+        workflow: str | None = None,
+        capability: str | None = None,
+    ) -> dict[str, Any]:
+        """Show compact workflows, expand one workflow, or inspect one capability."""
+        return list_capabilities(workflow=workflow, capability=capability)
 
     @server.tool()
     def slidecraft_resolve_project(
@@ -78,13 +79,8 @@ def build_server() -> Any:
         return safe_call_capability("set_deck_brief", {"workspace": workspace, "brief": brief})
 
     @server.tool()
-    def slidecraft_inspect_workspace(workspace: str, include_history: bool = False) -> dict[str, Any]:
-        """Inspect current artifacts, candidates, freshness, validation, and history."""
-        return safe_call_capability("inspect_workspace", {"workspace": workspace, "include_history": include_history})
-
-    @server.tool()
     def slidecraft_workflow_status(workspace: str, include_history: bool = False) -> dict[str, Any]:
-        """Show project progress and the next useful actions."""
+        """Show durable project facts and artifacts for Agent interpretation."""
         return safe_call_capability("workflow_status", {"workspace": workspace, "include_history": include_history})
 
     @server.tool()

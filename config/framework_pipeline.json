@@ -8,11 +8,11 @@
       "id": "semantic_planning",
       "inputs": ["slide_objective", "exact_source_content", "multimodal_materials", "user_notes", "explicit_human_constraints", "user_assets", "guidance_profile"],
       "outputs": ["intake_manifest", "constraint_register", "source_atoms", "semantic_design"],
-      "owner": "reasoning_model_adapter",
+      "owner": "host_agent_reasoning",
       "rules": [
         "Exact source content remains authoritative.",
         "Documents, images, data files, user notes, and assets are normalized into source atoms with provenance and locators.",
-        "Instructions are classified as hard constraints, soft constraints, or preferences. Active hard constraints remain mandatory downstream.",
+        "The host Agent classifies instructions as hard constraints, soft constraints, or preferences and records the source basis for each decision. Active hard constraints remain mandatory downstream.",
         "Conflicting or ambiguous hard constraints trigger user resolution instead of silent weakening.",
         "The plan describes message, hierarchy, relationships, reading logic, supporting information, and layout-agnostic visual intent.",
         "Coordinates and component layouts are omitted unless explicitly requested by the user."
@@ -21,12 +21,14 @@
     {
       "id": "resource_retrieval",
       "inputs": ["semantic_design", "deck_design_configuration", "slide_assets"],
-      "outputs": ["visual_references", "canonical_icon_candidates", "canonical_user_assets", "style_rules"],
-      "owner": "retrieval_adapters",
+      "outputs": ["resource_candidates", "agent_resource_selection", "canonical_user_assets", "style_rules"],
+      "owner": "host_agent_reasoning_with_library_search",
       "rules": [
         "Visual references are whole-page visual precedents and are never layouts to copy.",
-        "Exact upstream canonical assets take priority.",
-        "Fallback pictograms are selected as a coherent semantic set.",
+        "Search adapters return candidates and evidence without making final selections.",
+        "The host Agent chooses the final resources in context and records a rationale for each selection.",
+        "Exact upstream canonical assets resolve directly when their identity is known.",
+        "The host Agent selects icon substitutions as a coherent semantic set when exact assets are unavailable.",
         "Asset IDs, provenance, canonical paths, descriptions, and intrinsic geometry are retained."
       ]
     },
@@ -60,7 +62,7 @@
       "id": "generation_review",
       "inputs": ["generated_candidate", "semantic_design", "exact_source_content", "visual_references", "deck_design_configuration", "asset_manifest"],
       "outputs": ["pass_or_edit_decision", "material_issue_list", "delta_only_edit_instruction"],
-      "owner": "vlm_review_adapter",
+      "owner": "host_agent_visual_reasoning",
       "rules": [
         "Only material failures are reported.",
         "The reviewer returns the smallest preservation-first edit delta.",
@@ -71,9 +73,9 @@
       "id": "slide_understanding",
       "inputs": ["final_target_image", "generation_to_reconstruction_handoff"],
       "outputs": ["semantic_scene", "measurement_evidence", "reconstruction_oriented_scene"],
-      "owner": "semantic_mapping_and_measurement_adapters",
+      "owner": "host_agent_semantic_mapping_and_deterministic_measurement",
       "rules": [
-        "Semantic mapping identifies meaningful authored entities, hierarchy, relationships, grouping, and likely z-order.",
+        "The host Agent authors the semantic mapping of meaningful entities, hierarchy, relationships, grouping, reconstruction routes, and likely z-order.",
         "OpenCV performs deterministic measurement and SAM 2 is used selectively for irregular filled boundaries.",
         "OCR words, masks, contours, edge fragments, and generated icon glyphs remain evidence unless they represent an independently authored object.",
         "Exact upstream text and asset candidates are used to resolve ambiguous pixels."
@@ -81,14 +83,14 @@
     },
     {
       "id": "editable_reconstruction",
-      "inputs": ["reconstruction_oriented_scene", "exact_source_content", "canonical_assets", "deck_design_configuration"],
+      "inputs": ["reconstruction_oriented_scene", "agent_reconstruction_decisions", "exact_source_content", "canonical_assets", "deck_design_configuration"],
       "outputs": ["editable_pptx", "reconstruction_report"],
       "owner": "powerpoint_constructor",
       "rules": [
         "Known elements use native PowerPoint objects, exact source content, canonical assets, and maintained reusable elements.",
         "New or redesigned elements use semantic decomposition, PowerPoint primitives and connectors, fitted geometry when needed, and raster fallback only when necessary.",
         "Deck chrome is applied deterministically after reconstruction.",
-        "A bounded reasoning-guided normalization pass improves repeated alignment, spacing, icon placement, connector routing, and peer typography without redesigning the slide."
+        "The host Agent identifies peer groups and intended relationships. Deterministic bounded solvers apply safe alignment, spacing, icon placement, connector routing, and peer typography corrections."
       ]
     },
     {
@@ -121,12 +123,12 @@
       "traceability_policy": "content-bearing semantic units and reconstructed objects cite source atoms"
     },
     "retrieval": {
-      "visual_reference_mode": "metadata-first semantic retrieval with visual loading after ranking",
+      "visual_reference_mode": "metadata-first candidate search followed by host-Agent selection",
       "visual_reference_max_results": 3,
-      "visual_reference_diversity": "penalize duplicate structural families",
-      "icon_mode": "semantic metadata retrieval with exact upstream assets first and coherent set-level substitution",
-      "known_component_mode": "semantic metadata retrieval before generation and entity-level requery after Slide understanding",
-      "visual_inspection_scope": "selected candidates only"
+      "candidate_ordering": "search evidence only and never a final-use decision",
+      "icon_mode": "candidate search with exact upstream identity resolution and host-Agent coherent set selection",
+      "known_component_mode": "candidate search before generation and optional Agent requery after slide understanding",
+      "visual_inspection_scope": "chosen by the host Agent from the returned candidate set"
     },
     "text": {
       "content_authority": "exact upstream source",
@@ -208,7 +210,7 @@
     "hard_constraints_are_resolved_and_preserved",
     "selected_guidance_profile_is_resolved_and_applied",
     "selected_visual_reference_count_is_at_most_three",
-    "visual_reference_selection_is_metadata_ranked_and_structurally_diverse",
+    "visual_reference_selection_is_agent_authored_with_rationale",
     "semantic_relationships_complete",
     "visual_reference_content_not_reused",
     "mandatory_assets_mapped",
@@ -253,22 +255,22 @@
     "slide role and section metadata"
   ],
   "replaceable_adapters": [
-    "reasoning_model_adapter",
+    "host_agent_reasoning",
     "header_footer_exclusion_resolver_v1",
-    "deck_chrome_variant_selector_v1",
-    "visual_reference_retriever_v1",
-    "canonical_icon_retriever_v1",
+    "configured_deck_chrome_constructor",
+    "visual_reference_candidate_search_v1",
+    "canonical_icon_candidate_search_v1",
     "image_generation_adapter",
-    "vlm_review_adapter",
-    "semantic_mapping_adapter",
+    "host_agent_visual_review",
+    "host_agent_semantic_mapping",
     "pixel_measurement_adapter",
     "powerpoint_constructor",
     "powerpoint_native_renderer"
   ],
   "certification_boundaries": {
-    "reasoning_and_vision": "The Agent host supplies semantic reasoning and vision by default. OpenAI-compatible structured providers remain available where configured.",
-    "visual_reference_retrieval": "The package seeds three reference pages and supports larger metadata-indexed local collections.",
-    "icon_retrieval": "The package seeds a licensed Tabler subset and supports additional indexed SVG collections.",
+    "reasoning_and_vision": "The Agent host supplies all semantic reasoning and visual understanding through typed result artifacts.",
+    "visual_reference_retrieval": "The package searches metadata-indexed local collections. The host Agent makes every final selection.",
+    "icon_retrieval": "The package searches a licensed Tabler subset and additional indexed SVG collections. The host Agent resolves the final icon set.",
     "known_components": "Only components with a supported editable implementation may be selected. Unsupported candidates remain retrieval evidence and use another reconstruction route.",
     "constructor": "PptxGenJS is the single certified portable constructor backend.",
     "native_validation": "Microsoft PowerPoint rendering is an optional explicit validation capability on macOS."

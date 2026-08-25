@@ -5,18 +5,18 @@
 | Area | Current state |
 | --- | --- |
 | Exact-content authority | Exact source fields become 27 traceable source atoms for the architecture slide |
-| Constraint register | Explicit instructions are classified as hard, soft, or preference with category, source, confidence, and status |
+| Constraint register | The host Agent classifies explicit instructions and records category, source, confidence, and status. Typed hard-constraint fields remain hard by contract |
 | User assets | Canonical files, semantic roles, hashes, provenance, and mandatory status are retained |
-| Semantic planning | Multiple structures are proposed, scored, selected, and audited for exact-source traceability |
-| Visual-reference retrieval | Local metadata-first ranking with a maximum of three results and structural-family diversity |
-| Icon retrieval | Local semantic metadata ranking, exact upstream asset priority, coherent set selection, and alternative candidates |
-| Known-component retrieval | Local manifest search with confidence thresholds, implementation availability checks, and a Slide understanding entity-level requery policy |
+| Semantic planning | The host Agent considers plausible structures, selects the strongest one, and records exact-source traceability |
+| Visual-reference retrieval | Local metadata search returns candidates. The host Agent selects up to three and records rationales |
+| Icon retrieval | Local semantic search returns candidates. Exact identities resolve directly and the host Agent selects coherent substitutions |
+| Known-component retrieval | Local manifest search returns candidates and implementation status for host-Agent selection |
 | Generation handoff | Intake, constraints, source atoms, retrieved candidates, exact content, style, assets, and policy reach Slide understanding |
 | Evidence separation | OCR, contours, masks, edge fragments, and generated glyphs remain reconstruction evidence |
 | Reconstruction policies | Authored text, canonical icon slots, semantic connector graphs, known components, images, and fitted geometry have explicit routes |
-| Automatic semantic mapping | Provider-neutral structured VLM mapping compiles meaningful entities, source mappings, canonical assets, connector graphs, groups, z-order, and SAM eligibility into Semantic mapping |
+| Agent semantic mapping | Provider-neutral structured visual reasoning authors meaningful entities, source mappings, canonical assets, connector graphs, groups, z-order, reconstruction routes, and SAM eligibility |
 | General constructor scene | Slide understanding and Editable reconstruction contracts compile into a reusable scene IR with Office-scaled native text, canonical assets, shapes, and native connector graphs |
-| Agent-native workflow | Typed deck plans, deterministic structural-slide routing, passive artifact persistence, derived next actions, and cross-slide coherence checks are implemented |
+| Agent-native workflow | Typed Agent decisions, deterministic execution, passive artifact persistence, factual progress inspection, and cross-slide conformance checks are implemented |
 | Portable constructor routes | Native text, tables, editable charts, SVG assets, semantic connector graphs, standard shapes, fitted freeforms, raster images, z-order, and source notes are implemented |
 | Distribution | Wheel build, starter collections, MCP adapter, explicit constructor dependency setup, and isolated-install rendering are verified |
 | Capability safety | Normal runs never invoke permission dialogs. PowerPoint automation is explicit setup-only and time bounded |
@@ -31,21 +31,19 @@ Each adapter must produce source atoms with stable locators such as page, paragr
 
 ### Constraint reasoning
 
-Explicit constraint classification has a deterministic baseline. A managed reasoning adapter still needs to detect implied hard constraints, conflicts across materials, superseded instructions, conditional requirements, and missing decisions.
-
-The gate policy is settled. An unresolved hard constraint pauses the run and asks the user. Soft constraints can be balanced by semantic planning. Preferences can yield when they conflict with hard requirements or legibility.
+The host Agent owns implied constraints, conflicts across materials, superseded instructions, conditional requirements, and missing decisions. Slidecraft stores the resulting register and enforces typed hard constraints downstream. It does not use keyword rules to recreate the Agent's judgment.
 
 ### Managed semantic planner
 
-The schema, prompt, candidate comparison, traceability audit, host execution, and OpenAI-compatible structured reasoning provider work. Additional provider families can implement the same interface.
+The schema, prompt, candidate comparison, traceability audit, and host-Agent execution path work through one structured artifact contract.
 
 ### Visual-reference indexing
 
-The three current pages have complete metadata and retrieve correctly. A scalable indexer still needs to extract previews and propose metadata from PPTX files, allow human correction, validate licenses, compute embeddings when enabled, and update the local index.
+The three starter pages have complete metadata and search correctly. Larger collections can add previews, corrected metadata, license records, and optional embeddings without changing the Agent selection contract.
 
 ### Icon indexing
 
-The current Tabler subset has semantic metadata and retrieves correctly. A production local index should cover the full installed library, aliases, style families, stroke policies, license metadata, and optional embeddings.
+The current Tabler subset has semantic metadata and searches correctly. Larger collections can add aliases, style families, stroke policies, license metadata, and optional embeddings without changing the Agent selection contract.
 
 ### Known components
 
@@ -65,7 +63,7 @@ The handoff preserves source atoms and semantic traceability. Constructor scenes
 | P2 | Evaluation suite | Gold slides, semantic coverage, retrieval relevance, editability, and Office-render fidelity benchmarks |
 | P2 | Library governance | Versions, provenance, licenses, deprecation, compatibility, and migration |
 
-These items expand coverage and reusable resources. They do not block the supported Agent-host flow. Unavailable or uncertified known components stay as retrieval evidence and automatically use a supported reconstruction route.
+These items expand coverage and reusable resources. They do not block the supported Agent-host flow. Unavailable or uncertified known components stay as search evidence. The Agent chooses another supported reconstruction route.
 
 ## Retrieval contracts
 
@@ -73,17 +71,17 @@ These items expand coverage and reusable resources. They do not block the suppor
 
 The visual-reference query combines slide objective, selected communication archetype, relationship types, density, visual conventions, diagram conventions, and deck style.
 
-Ranking uses semantic metadata. A diversity correction penalizes repeated structural families. The final result contains at most three pages. Only selected files are attached to generation or opened for VLM verification.
+Search ordering uses semantic metadata as discovery evidence. The Agent chooses at most three pages and records why they fit. Only Agent-selected files are attached to generation or opened for visual inspection.
 
 ### Icon query
 
-Each asset need contains semantic role, purpose, concepts, requirement status, and semantic size role. Retrieval ranks local icon metadata. Exact user or upstream assets bypass substitution. Remaining roles are selected jointly to maintain distinction and one coherent style family.
+Each asset need contains semantic role, purpose, concepts, requirement status, and semantic size role. Search ranks local icon metadata. Exact user or upstream assets bypass substitution. The Agent selects remaining roles jointly to maintain distinction and one coherent style family.
 
 ### Known-component query
 
-Before generation, the query uses semantic units, concepts, relationships, and required parts. After Slide understanding, the framework requeries using the identified entity's role, internal parts, topology, text or data bindings, measured aspect ratio, and visual family.
+Before generation, the search query uses semantic units, concepts, relationships, and required parts. After slide understanding, the Agent can search again using the identified entity's role, internal parts, topology, text or data bindings, measured aspect ratio, and visual family.
 
-The component route activates only when confidence exceeds the component's declared threshold and required parameters can be resolved.
+The Agent may choose the component route only when the candidate is certified and required parameters can be resolved.
 
 ## Multimodal source model
 

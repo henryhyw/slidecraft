@@ -5,7 +5,17 @@ description: Create, revise, reconstruct, validate, and resume traceable editabl
 
 # Slidecraft
 
-Use Slidecraft as a composable capability system. Interpret the user's intent and choose the smallest useful operations. Do not force a fixed sequence when the user asks to inspect, revise, regenerate, or continue selected work.
+Slidecraft gives the host agent reliable presentation operations. The agent supplies the intelligence. Slidecraft stores evidence and decisions, searches local collections, measures images, constructs editable PowerPoint objects, and validates outputs.
+
+## Ownership boundary
+
+The host agent owns every decision that requires interpretation or design judgment. This includes clarifications, source interpretation, constraint classification, storyline, slide allocation, slide roles, header and footer content, semantic structure, reusable-resource selection, visual review, semantic mapping, reconstruction routes, canonical asset mapping, connector intent, and refinement groups.
+
+Slidecraft owns mechanical work. This includes file ingestion, source locators, candidate search, schemas, provenance, artifact freshness, pixel measurement, bounded geometry changes, Office-safe text fitting, PowerPoint construction, package validation, and deterministic quality gates.
+
+Never let a lexical score, filename, keyword, nearest object, raster contour, or first search result make a semantic decision. Search scores are discovery evidence. The agent inspects candidates in context and records the final choice with a rationale. Exact upstream asset IDs resolve directly.
+
+Do not recreate reasoning inside Python or ask Slidecraft to infer a decision that the host agent can make from the conversation and artifacts.
 
 ## Start or continue
 
@@ -18,13 +28,23 @@ Use Slidecraft as a composable capability system. Interpret the user's intent an
 
 ## Clarify before planning
 
-Before deck planning, prepare optional high-value clarifications. Ask only questions whose answers can materially change the audience decision, desired action, governing answer, complication, scope, baseline, proof requirement, stakeholder sensitivity, or success criterion.
+Reason over the complete request and materials. Decide whether any unanswered question could materially change the deck. If so, author up to three concise questions and pass them to `prepare_clarifications` for validation and storage. Passing an empty question list is valid.
 
 Keep the set small. Avoid visual-style questions, details already answered by source material, and questions the Agent can safely decide. Make every question easy to answer and offer delegation to the Agent. If the user skips, record the delegation and continue using best judgment.
 
 Use a host-native structured input surface when one is available. Ordinary conversational questions are a valid fallback.
 
-## Operate the pipeline
+## Plan and retrieve
+
+- Author the deck plan with the host reasoning model. Slidecraft validates IDs, source coverage, route compatibility, available system layouts, asset policies, and deck length.
+- Choose low-information structural slide roles when a stable system layout serves the communication job. Choose image generation for information-bearing slides. Supply the compatible route and layout ID in the plan.
+- Author slide-specific header and footer content when deck chrome is enabled. Geometry and style come from configuration.
+- For each generated slide, author the semantic design using the prepared prompt.
+- Call `search_resources` to obtain visual-reference, icon, and reusable-component candidates. Inspect their metadata and previews when useful.
+- Author `resource_selection` with `authored_by: agent_reasoning`, stable candidate IDs, and a concise rationale for each choice. Select no more than the configured visual-reference limit.
+- Use exact user or upstream assets when their identity is known. Choose canonical icon substitutions only through agent reasoning over the full affected set.
+
+## Generate, understand, and reconstruct
 
 - Preserve exact source content, provenance, constraints, and canonical assets.
 - Inspect uploaded images and diagrams with the host's visual understanding before planning. Store the source-grounded interpretation as material content while retaining the original path. Path-only visual materials remain pending and cannot be silently reduced to file metadata.
@@ -32,13 +52,16 @@ Use a host-native structured input surface when one is available. Ordinary conve
 - Keep candidate revisions separate until the applicable acceptance policy passes.
 - Recompute stale descendants before publishing.
 - Let image generation own informative slide composition. Use deterministic system layouts for covers and section dividers.
-- After deck planning, call `prepare_slide` for each information-bearing job. Use its semantic-planning prompt with the host reasoning model, then call `prepare_generation` with the resulting structured semantic design.
+- After deck planning, call `prepare_slide` for each information-bearing job. Use its semantic-planning prompt with the host reasoning model. Search and select resources, then call `prepare_generation` with both structured decisions.
 - Assemble only when every planned slide has a fresh constructor scene. Let `render_pptx` derive and validate deck-plan order.
+- During semantic mapping, identify authored objects and groups at PowerPoint granularity. Select a reconstruction route for every entity. Map icon slots to the exact Agent-selected upstream asset. Audit connector ownership, topology, direction, and clean native routing from relationship meaning and layout feasibility.
+- After measurement, reason over the slide as a designed system. Author a refinement plan with `authored_by: agent_reasoning`. Name only peer groups that should align or normalize. An empty `alignment_groups` list is correct when no movement is warranted.
+- Call `build_reconstruction_contract` with that plan. Slidecraft will reject movements that break containment, clearance, text fit, z-order, semantic order, or connector topology.
 - Preserve the slide-understanding and editable-reconstruction contracts for text, canonical assets, icon slots, connectors, grouping, measurement evidence, native reconstruction, and validation.
 - Return editable PowerPoint files and user-relevant reports under `deliverables/`.
-- Call `workflow_status` after each material capability completes. Execute its highest-priority next action until the status is `complete` or the user explicitly stops.
-- Treat external model boundaries as Agent work. Use a host-native model when available and use the configured provider fallback otherwise. Register the result, then continue from `workflow_status`.
-- Review generated-image candidates autonomously against content, design, and reconstruction contracts. Accept passing candidates. Reject and regenerate failed candidates with a preservation-first correction.
+- Call `workflow_status` when you need durable project facts. Interpret its artifact inventory and validation attention yourself. It never chooses the next action.
+- Treat semantic reasoning and visual understanding as host-Agent work. The only configurable model connection in the current product is image generation. Register every Agent-authored result, inspect project facts when useful, and continue through your own reasoning.
+- Review generated-image candidates autonomously against content, design, and reconstruction contracts. Accept strong candidates. When a material failure exists, reject the candidate and regenerate with a focused preservation-first correction.
 - Never request operating-system authorization, credentials, or downloads during an active run. Report a structured capability state and use an available fallback.
 
 ## Project assets

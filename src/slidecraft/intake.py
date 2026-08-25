@@ -128,7 +128,7 @@ def normalize_deck_intake(request: dict[str, Any], base_dir: Path) -> dict[str, 
     for index, value in enumerate(request.get("constraints", []), start=1):
         if isinstance(value, str):
             text = value
-            strength = "hard" if any(token in value.lower() for token in ("must", "required", "do not", "never")) else "soft"
+            strength = "hard"
             record = {}
         else:
             text = value["text"]
@@ -140,6 +140,10 @@ def normalize_deck_intake(request: dict[str, Any], base_dir: Path) -> dict[str, 
             "strength": strength,
             "target": record.get("target", "deck"),
             "status": record.get("status", "active"),
+            "classification_source": record.get(
+                "classification_source",
+                "typed_explicit_constraint_field" if isinstance(value, str) else "agent_or_user_authored",
+            ),
         })
     pending_material_ids = [item["material_id"] for item in materials if item["extraction_status"] != "ready"]
     return {

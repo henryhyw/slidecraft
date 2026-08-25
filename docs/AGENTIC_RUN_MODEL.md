@@ -16,7 +16,7 @@ Typical deck artifacts include the request, clarification decisions, intake, dec
 
 ## Agent operation
 
-The Agent calls `workflow_status` after material changes and selects the highest-priority action that fits the user's intent. A full autonomous run continues until the editable deck is complete. A user may ask to inspect, revise, regenerate, or stop at any point. Continuation begins from another workspace inspection and needs no pause or resume command.
+The Agent calls `workflow_status` when it needs a current artifact inventory. It reasons over the user's request, the workflow skill, and those durable facts to choose its next action. A full autonomous run continues until the editable deck is complete. A user may ask to inspect, revise, regenerate, or stop at any point. Continuation begins from another workspace inspection and needs no pause or resume command.
 
 The agent registers reasoning, visual interpretations, and generated images with the project before construction begins. Image generation can come from the agent app or from the image service selected in Slidecraft settings.
 

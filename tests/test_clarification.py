@@ -1,47 +1,49 @@
 from __future__ import annotations
 
-import sys
-import unittest
-from pathlib import Path
+import pytest
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
-
-from slidecraft.orchestration.clarification import normalize_answers, select_questions
+from slidecraft.orchestration.clarification import normalize_answers, package_agent_questions
 
 
-class ClarificationTests(unittest.TestCase):
-    def test_questions_are_small_optional_and_storyline_relevant(self) -> None:
-        package = select_questions({"deck_id": "D1", "objective": "Assess the market", "materials": []})
-        dimensions = {item["impact_dimension"] for item in package["questions"]}
-        self.assertLessEqual(package["question_count"], 3)
-        self.assertTrue(package["interaction"]["allow_skip_all"])
-        self.assertTrue(package["can_proceed_without_answers"])
-        self.assertIn("audience_decision", dimensions)
-        self.assertIn("governing_answer", dimensions)
-        for question in package["questions"]:
-            self.assertIn("请使用你的最佳判断", question["options"])
-
-    def test_already_known_dimensions_are_not_asked_again(self) -> None:
-        package = select_questions({
-            "deck_id": "D1",
-            "objective": "Recommend a path",
-            "audience": {"description": "Board making an investment decision"},
-            "desired_action": "Approve option A",
-            "recommendation": "Choose option A",
-            "materials": [],
-        })
-        dimensions = {item["impact_dimension"] for item in package["questions"]}
-        self.assertNotIn("audience_decision", dimensions)
-        self.assertNotIn("desired_action", dimensions)
-        self.assertNotIn("governing_answer", dimensions)
-
-    def test_skip_all_records_agent_delegation_and_allows_planning(self) -> None:
-        package = select_questions({"deck_id": "D1", "objective": "Explain a change", "materials": []})
-        result = normalize_answers(package, None, skipped_all=True)
-        self.assertTrue(result["planning_may_proceed"])
-        self.assertTrue(all(item["resolution"] == "delegated_to_agent" for item in result["answers"]))
+def question(identifier: str = "clarify_decision") -> dict:
+    return {
+        "question_id": identifier,
+        "impact_dimension": "decision context inferred by the Agent",
+        "prompt": "Which decision should this presentation enable?",
+        "why_it_matters": "The answer changes the governing message and evidence order.",
+        "planning_decisions_affected": ["governing message", "storyline order"],
+        "source_basis": ["The request names an audience but no decision."],
+        "response_type": "single_choice_or_free_text",
+        "options": ["Approve a recommendation", "Align on next steps"],
+    }
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_agent_questions_are_packaged_without_framework_selection() -> None:
+    supplied = [question()]
+    package = package_agent_questions(supplied)
+    assert package["question_count"] == 1
+    assert package["questions"][0]["prompt"] == supplied[0]["prompt"]
+    assert package["questions"][0]["authored_by"] == "agent_reasoning"
+    assert package["reasoning_ownership"]["question_selection"] == "host_agent"
+
+
+def test_zero_questions_is_a_valid_agent_decision() -> None:
+    package = package_agent_questions([])
+    assert package["questions"] == []
+    assert package["can_proceed_without_answers"]
+
+
+def test_framework_rejects_excess_or_ungrounded_questions() -> None:
+    with pytest.raises(ValueError, match="configured maximum"):
+        package_agent_questions([question(f"q{index}") for index in range(4)])
+    invalid = question()
+    invalid["source_basis"] = []
+    with pytest.raises(ValueError, match="evidence or uncertainty"):
+        package_agent_questions([invalid])
+
+
+def test_skip_all_records_agent_delegation_and_allows_planning() -> None:
+    package = package_agent_questions([question()])
+    result = normalize_answers(package, None, skipped_all=True)
+    assert result["planning_may_proceed"]
+    assert result["answers"][0]["resolution"] == "delegated_to_agent"

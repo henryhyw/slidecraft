@@ -207,10 +207,10 @@ class SemanticMapCompiler:
                 candidates = [candidate for candidate in raw.get("candidate_asset_ids", []) if candidate in assets]
                 if requested and requested in assets:
                     entity["upstream_asset_id"] = requested
-                    entity["asset_mapping_status"] = "exact_upstream_candidate"
+                    entity["asset_mapping_status"] = "exact_agent_selected_asset"
                 elif candidates:
-                    entity["upstream_asset_id"] = candidates[0]
-                    entity["asset_mapping_status"] = "candidate_substitution"
+                    entity["asset_mapping_status"] = "agent_resolution_required"
+                    entity["available_upstream_candidate_ids"] = candidates
                 else:
                     entity["asset_mapping_status"] = "unresolved_canonical_asset"
             if raw["kind"] == "connector":

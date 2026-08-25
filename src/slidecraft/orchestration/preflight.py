@@ -20,9 +20,21 @@ def _resolved_field(value: Any, source: str) -> dict[str, Any]:
 
 def resolve_slide_chrome(deck: dict[str, Any], slide: dict[str, Any]) -> dict[str, Any]:
     configured = deck.get("deck_chrome", {})
+    if not configured.get("enabled", False):
+        empty = _resolved_field("", "deck_chrome_disabled")
+        return {
+            "enabled": False,
+            "variant": _resolved_field("none", "deck_chrome_disabled"),
+            "geometry": {
+                "header_height_px": deck["exclusions_px"]["header"],
+                "footer_height_px": deck["exclusions_px"]["footer"],
+                "source": "deck_design_configuration",
+            },
+            "header": {"left_text": empty, "right_text": empty},
+            "footer": {"left_text": empty, "center_text": empty, "right_text_format": empty},
+        }
     explicit = slide.get("chrome_content", {})
     proposed = slide.get("chrome_content_proposal", {})
-    context = slide.get("run_context", {})
     configured_header = configured.get("header", {})
     configured_footer = configured.get("footer", {})
     explicit_header = explicit.get("header", {})
@@ -30,33 +42,30 @@ def resolve_slide_chrome(deck: dict[str, Any], slide: dict[str, Any]) -> dict[st
     proposed_header = proposed.get("header", {})
     proposed_footer = proposed.get("footer", {})
 
-    project_name = context.get("project_name", slide.get("objective", "Project"))
-    organization = context.get("organization", "")
-    confidentiality = context.get("confidentiality", "")
-    date = context.get("date", "")
-    slide_number = context.get("slide_number", "{slide_number}")
-    exact_title = slide.get("exact_content", {}).get("title", "")
-    fallbacks = {
-        "header.left_text": str(project_name).upper(),
-        "header.right_text": str(exact_title).upper(),
-        "footer.left_text": " | ".join(value for value in (organization, confidentiality) if value),
-        "footer.center_text": str(project_name),
-        "footer.right_text_format": " | ".join(value for value in (str(date), str(slide_number)) if value),
-    }
-
-    def choose(explicit_values: dict[str, Any], proposed_values: dict[str, Any], configured_values: dict[str, Any], key: str, path: str) -> dict[str, Any]:
+    def choose(
+        explicit_values: dict[str, Any],
+        proposed_values: dict[str, Any],
+        configured_values: dict[str, Any],
+        key: str,
+        path: str,
+    ) -> dict[str, Any]:
         if key in explicit_values:
             return _resolved_field(explicit_values[key], "user_provided")
         if key in proposed_values:
-            return _resolved_field(proposed_values[key], "framework_proposed")
+            return _resolved_field(proposed_values[key], "agent_proposed")
         if key in configured_values:
-            return _resolved_field(configured_values[key], "legacy_configured_default")
-        return _resolved_field(fallbacks[path], "framework_derived_fallback")
+            return _resolved_field(configured_values[key], "configured_default")
+        raise ValueError(
+            f"Enabled deck chrome requires {path}. The host Agent must propose it or the user must configure it."
+        )
+
+    if "variant" not in explicit and "variant" not in proposed:
+        raise ValueError("Enabled deck chrome requires an Agent-authored or user-provided slide variant")
 
     return {
         "variant": _resolved_field(
-            explicit.get("variant", proposed.get("variant", configured.get("current_slide_variant", "content_slide"))),
-            "user_provided" if "variant" in explicit else "framework_proposed" if "variant" in proposed else "framework_derived_fallback",
+            explicit.get("variant", proposed.get("variant")),
+            "user_provided" if "variant" in explicit else "agent_proposed",
         ),
         "geometry": {
             "header_height_px": deck["exclusions_px"]["header"],

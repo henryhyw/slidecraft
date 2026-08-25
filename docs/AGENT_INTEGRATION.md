@@ -4,7 +4,7 @@
 
 Slidecraft gives an agent app a complete set of presentation tools. The agent interprets the conversation and chooses each action. Slidecraft manages project files, versioned results, validation, and editable PowerPoint construction.
 
-The project folder is the shared memory between sessions. It records inputs, decisions, completed work, and deliverables. `workflow_status` reads that record and recommends the next useful action. The dashboard and MCP connection show the same project state.
+The project folder is the shared memory between sessions. It records inputs, decisions, completed work, and deliverables. `workflow_status` reports that record as facts. The Agent interprets those facts and chooses its own next action. The dashboard and MCP connection show the same project state.
 
 In a fresh session, call `resolve_project` with the project name, stable ID, or folder. The result provides the workspace location. Set `create_if_missing` when the user starts a new presentation.
 
@@ -34,8 +34,7 @@ Connect Codex, Claude Code, Copilot, or another compatible agent app to this MCP
 /absolute/path/to/slidecraft/.venv/bin/slidecraft-mcp
 ```
 
-The server introduces its tools and workflow when the agent app connects. The bundled skill adds
-deeper presentation guidance in agent apps that support reusable skills.
+The server introduces its compact tool surface when the agent app connects. The guided installer also places the bundled skill into supported Agent hosts so the host owns the presentation reasoning workflow.
 
 The repository also includes an agent skill under `integrations/skills/slidecraft`. It teaches an agent how to inspect project progress, ask useful planning questions, and compose the capabilities below. MCP provides the primary typed connection. Python and JSON CLI integrations expose the same operations.
 
@@ -47,7 +46,7 @@ An agent app launches it as a local stdio MCP server. The connection exposes foc
 - `slidecraft_project_detail` returns user-facing progress, outputs, sources, and reviewable artifacts.
 - `slidecraft_set_deck_brief` records the agreed presentation brief from the conversation.
 - `slidecraft_inspect_workspace` reports active artifacts, candidates, freshness, and validation.
-- `slidecraft_workflow_status` derives exact resumable next actions from current project evidence.
+- `slidecraft_workflow_status` reports durable progress, artifact availability, validation attention, and deliverables.
 - `slidecraft_call` invokes a discovered capability.
 
 Python applications can call the same capabilities directly.
@@ -83,7 +82,14 @@ Example request:
     "design": "/absolute/path/to/deck-design.json",
     "slide": "/absolute/path/to/slide-request.json",
     "output_dir": "/absolute/path/to/my-deck/slides/slide_01/generation",
-    "slide_id": "slide_01"
+    "slide_id": "slide_01",
+    "resource_selection": {
+      "schema_version": "1.0.0",
+      "authored_by": "agent_reasoning",
+      "visual_references": [],
+      "icons": [],
+      "components": []
+    }
   }
 }
 ```
@@ -101,7 +107,7 @@ The constructor checks that each scene matches the current image, semantic map, 
 An integrating Agent should follow these rules.
 
 1. Call `slidecraft_capabilities` once when tool availability is unknown.
-2. Call `workflow_status` before continuing existing work and after each material capability.
+2. Call `workflow_status` when project facts are needed, then choose the next action through host reasoning.
 3. Translate user intent into the smallest relevant capability calls.
 4. Stop calling capabilities when the user asks to inspect or interrupt work.
 5. Register external model outputs before using them downstream.
@@ -113,7 +119,7 @@ The Agent can revise one slide, regenerate one image, change a plan, or reconstr
 
 ## Clarification and native host interaction
 
-The `prepare_clarifications` capability returns a small structured package before deck planning. The host should use its native structured-input component when one exists. Otherwise it can render the same questions in normal chat. Users may answer any subset, skip all questions, or delegate individual choices. `record_clarification_answers` preserves the resulting decisions and assumptions as an authoritative planning input.
+The Agent decides whether any clarification is useful and authors zero to three final questions. `prepare_clarifications` validates and stores that decision. The host can use its native structured-input component or ordinary conversation. Users may answer any subset, skip all questions, or delegate individual choices. `record_clarification_answers` preserves the resulting decisions and assumptions as an authoritative planning input.
 
 The skill avoids questions that merely shift visual taste. It asks only when the answer can materially change communication strategy. The maximum count is configurable and defaults to three.
 

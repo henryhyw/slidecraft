@@ -51,11 +51,6 @@ def _write(root: Path, manifest: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
-def _semantic_role(filename: str) -> str:
-    value = Path(filename).stem.lower().replace("_", " ").replace("-", " ")
-    return re.sub(r"\s+", " ", value).strip() or "user supplied asset"
-
-
 def add_project_asset(
     location: str | Path,
     source: str | Path,
@@ -89,7 +84,8 @@ def add_project_asset(
         "stored_path": str(destination),
         "sha256": digest,
         "media_type": mimetypes.guess_type(source_path.name)[0] or "application/octet-stream",
-        "semantic_role": semantic_role or _semantic_role(source_path.name),
+        "semantic_role": semantic_role,
+        "semantic_metadata_status": "ready" if semantic_role else "needs_agent_description",
         "usage_policy": usage_policy,
         "slide_ids": slide_ids or [],
         "preserve_aspect_ratio": True,
@@ -178,6 +174,7 @@ def update_project_asset(
         changes["usage_policy"] = usage_policy
     if semantic_role is not None:
         record["semantic_role"] = semantic_role
+        record["semantic_metadata_status"] = "ready"
         changes["semantic_role"] = semantic_role
     if slide_ids is not None:
         record["slide_ids"] = slide_ids

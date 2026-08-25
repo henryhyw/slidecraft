@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from slidecraft.orchestration.component_retrieval import retrieve_known_components
+from slidecraft.orchestration.component_retrieval import search_known_components
 
 
 class ComponentRetrievalTests(unittest.TestCase):
@@ -35,12 +35,12 @@ class ComponentRetrievalTests(unittest.TestCase):
             }
             (root / "world.component.json").write_text(json.dumps(manifest), encoding="utf-8")
 
-            result = retrieve_known_components(root, semantic_design)
+            result = search_known_components(root, semantic_design)
 
-            self.assertEqual(result["selected"], [])
+            self.assertEqual(result["decision_owner"], "host_agent")
             self.assertTrue(result["candidates"][0]["confidence_met"])
             self.assertFalse(result["candidates"][0]["implementation_available"])
-            self.assertEqual(result["candidates"][0]["fallback_route"], "standard_reconstruction")
+            self.assertFalse(result["candidates"][0]["eligible_for_agent_selection"])
 
 
 if __name__ == "__main__":

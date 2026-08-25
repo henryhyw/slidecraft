@@ -132,6 +132,43 @@ def create_launchers(install_root: Path, venv: Path, dry_run: bool = False) -> d
     return launchers
 
 
+def install_agent_skill(
+    agent: str,
+    source: Path,
+    *,
+    dry_run: bool = False,
+    home: Path | None = None,
+) -> dict[str, Any]:
+    """Install the reasoning workflow for hosts with a local skill convention."""
+    roots = {
+        "codex": ".codex/skills/slidecraft",
+        "claude": ".claude/skills/slidecraft",
+    }
+    if agent not in roots:
+        return {"host": agent, "status": "mcp_instructions_only"}
+    target = (home or Path.home()) / roots[agent]
+    if dry_run:
+        print(f"    install agent skill in {_quote(str(target))}")
+        return {"host": agent, "status": "installed", "path": str(target)}
+    if not (source / "SKILL.md").is_file():
+        raise InstallError(f"The packaged Slidecraft skill is missing from {source}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, target, dirs_exist_ok=True)
+    return {"host": agent, "status": "installed", "path": str(target)}
+
+
+def packaged_skill_source(python: Path, runner: Runner, venv: Path) -> Path:
+    if runner.dry_run:
+        data_root = venv
+    else:
+        result = runner.run(
+            [python, "-c", "import sysconfig; print(sysconfig.get_path('data'))"],
+            capture=True,
+        )
+        data_root = Path(result.stdout.strip()).expanduser().resolve()
+    return data_root / "share" / "slidecraft" / "integrations" / "skills" / "slidecraft"
+
+
 def _configured(command: str, name: str, runner: Runner) -> bool:
     result = runner.run([command, "mcp", "get", name], capture=True, check=False)
     return result.returncode == 0
@@ -231,18 +268,27 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
 
     print("5 of 5  Connecting agent apps")
     connections: list[dict[str, Any]] = []
+    skill_installations: list[dict[str, Any]] = []
     agents = choose_agents(args.agent, Path(args.copilot_workspace) if args.copilot_workspace else None)
+    skill_source = packaged_skill_source(python, runner, venv)
     for agent in agents:
         if agent in {"codex", "claude"}:
             connections.append(connect_cli_agent(agent, mcp, runner, args.yes, args.refresh_agent_connections))
+            skill_installations.append(
+                install_agent_skill(agent, skill_source, dry_run=args.dry_run)
+            )
         elif agent == "copilot":
             workspace = Path(args.copilot_workspace) if args.copilot_workspace else None
             connections.append(connect_copilot(workspace, mcp, args.dry_run))
+            skill_installations.append(install_agent_skill(agent, skill_source, dry_run=args.dry_run))
     if not connections:
         print("    No supported agent app was selected. The MCP command is available for manual connection.")
     for connection in connections:
         status = connection["status"].replace("_", " ")
         print(f"    {connection['host']}  {status}")
+    for skill in skill_installations:
+        if skill["status"] == "installed":
+            print(f"    {skill['host']} reasoning skill  installed")
 
     receipt = {
         "status": "ready" if not args.dry_run else "dry_run",
@@ -251,6 +297,7 @@ def install(args: argparse.Namespace) -> dict[str, Any]:
         "commands": launchers,
         "mcp_command": str(mcp),
         "connections": connections,
+        "skills": skill_installations,
         "source": source,
     }
     if not args.dry_run:

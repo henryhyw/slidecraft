@@ -5,7 +5,7 @@ The framework separates visual evidence, governing configuration, deterministic 
 | Canonical term | Meaning | Excluded meaning |
 | --- | --- | --- |
 | Visual reference page | A whole-slide image or preview used as a visual precedent for typography, density, whitespace, hierarchy, color, diagram language, and polish | An editable layout source or PowerPoint master |
-| Visual Reference Library | The indexed collection from which up to three visual reference pages are retrieved | A PowerPoint template gallery |
+| Visual Reference Library | The indexed collection searched for visual reference candidates | A PowerPoint template gallery |
 | Deck design configuration | Authoritative dimensions, excluded regions, chrome, title rules, typography, color roles, density, icon treatment, connector style, and visual conventions | A retrieved reference image |
 | Guidance profile | Communication and reasoning guidance for a deck type, such as consulting, academic, or investor communication | Brand geometry or slide styling |
 | System layout | A deterministic editable construction used for low-information structural slides such as covers and section dividers | A visual reference page |
@@ -15,8 +15,8 @@ The framework separates visual evidence, governing configuration, deterministic 
 ## Canonical machine names
 
 - `visual_references`
-- `visual_reference_retrieval`
-- `visual_reference_retriever_v1`
+- `visual_reference_candidates`
+- `visual_reference_candidate_search_v1`
 - `visual_reference_manifest`
 - `deck_design_configuration`
 - `system_layout`
