@@ -1,0 +1,98 @@
+{
+  "provider": "Tabler Icons",
+  "version": "v3.46.0",
+  "style": "outline",
+  "license": "MIT",
+  "license_url": "https://tabler.io/license",
+  "source_repository": "https://github.com/tabler/tabler-icons",
+  "assets": [
+    {
+      "icon_id": "hierarchy-3",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/hierarchy-3.svg",
+      "canonical_file": "vendor/tabler-icons/hierarchy-3.svg",
+      "sha256": "71c1f1c35c974f759ec233b4f932379149f838a8890dc5858da4660936ad0d11"
+    },
+    {
+      "icon_id": "template",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/template.svg",
+      "canonical_file": "vendor/tabler-icons/template.svg",
+      "sha256": "183ff6aee4349fc07e586b9757b7ac17d337d5c848eb4024f14211ef9c2b3939"
+    },
+    {
+      "icon_id": "icons",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/icons.svg",
+      "canonical_file": "vendor/tabler-icons/icons.svg",
+      "sha256": "084dd5d900289e3effe8434f42ce3cdf5fdca42c54e0f1518437415e92b6eae8"
+    },
+    {
+      "icon_id": "cloud-upload",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/cloud-upload.svg",
+      "canonical_file": "vendor/tabler-icons/cloud-upload.svg",
+      "sha256": "fabaf470eea961151fa6f041912a0d7d1c8fb6877c51fb13c727817fdd7b057b"
+    },
+    {
+      "icon_id": "palette",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/palette.svg",
+      "canonical_file": "vendor/tabler-icons/palette.svg",
+      "sha256": "27a5a19ae4b0f73ff4089b7f5a6c8fdf17f19ecc853e19fa04494f083943e778"
+    },
+    {
+      "icon_id": "photo-spark",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/photo-spark.svg",
+      "canonical_file": "vendor/tabler-icons/photo-spark.svg",
+      "sha256": "c944539009fa247f4ea2688e463d30bcc1f049b16c099aa4f4fd8722dd8e72b2"
+    },
+    {
+      "icon_id": "affiliate",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/affiliate.svg",
+      "canonical_file": "vendor/tabler-icons/affiliate.svg",
+      "sha256": "568c8e60fccb8f8f1b3e8d71cb5b691f111f52a5b66a8e9ce3744ddd25d25acc"
+    },
+    {
+      "icon_id": "ruler-measure",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/ruler-measure.svg",
+      "canonical_file": "vendor/tabler-icons/ruler-measure.svg",
+      "sha256": "30cc2a46425acced8d57198435065ad020cc024a51d1d762ac6a0d249d74ebe7"
+    },
+    {
+      "icon_id": "layout-dashboard",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/layout-dashboard.svg",
+      "canonical_file": "vendor/tabler-icons/layout-dashboard.svg",
+      "sha256": "fa525ddc80d1df3411fe44685eeb3bd03d1b285581049931efe648450486eaf7"
+    },
+    {
+      "icon_id": "vector-bezier-2",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/vector-bezier-2.svg",
+      "canonical_file": "vendor/tabler-icons/vector-bezier-2.svg",
+      "sha256": "0cc4d0a59b4bafec5acf1367e33d436f27cba859f72606ae45d386cb6e0d61a6"
+    },
+    {
+      "icon_id": "file-type-ppt",
+      "style": "outline",
+      "version": "v3.46.0",
+      "source_url": "https://raw.githubusercontent.com/tabler/tabler-icons/v3.46.0/icons/outline/file-type-ppt.svg",
+      "canonical_file": "vendor/tabler-icons/file-type-ppt.svg",
+      "sha256": "52aa9fba2273161feab6ec3a1a6b3b63edbeb29458ca306eb53671c1568c2bbf"
+    }
+  ]
+}

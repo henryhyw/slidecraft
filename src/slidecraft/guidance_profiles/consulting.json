@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "profile_id": "consulting",
+  "name": "Consulting-style communication",
+  "version": "1.0.0",
+  "description": "Conclusion-led, evidence-bound communication for executive decisions and structured problem solving.",
+  "extends": "base",
+  "applicability": {
+    "deck_types": ["strategy", "diagnostic", "recommendation", "proposal", "status", "architecture"],
+    "audiences": ["executive", "client", "steering committee", "internal leadership"]
+  },
+  "deck_reasoning": {
+    "principles": [
+      "Organize the deck around the audience's question or decision.",
+      "Establish a governing answer or conclusion where the evidence supports one.",
+      "Build a coherent argument spine in which each slide advances the reasoning.",
+      "A reader should be able to recover the core argument from slide messages alone.",
+      "Avoid slides that repeat information without advancing the argument."
+    ],
+    "diagnostics": [
+      "Does every section advance a distinct phase of the argument?",
+      "Does the message chain recover the governing answer?",
+      "Are claims sequenced according to audience decision needs?"
+    ],
+    "storyline_archetypes": {
+      "recommendation": ["executive_answer", "context", "evidence", "recommendation", "implementation", "decision_or_next_steps"],
+      "diagnostic": ["executive_answer", "context", "key_findings", "root_causes", "implications", "actions"],
+      "proposal": ["opportunity", "understanding", "proposed_approach", "solution", "delivery_plan", "proof_and_ask"],
+      "status_update": ["executive_summary", "progress", "outcomes", "issues_and_risks", "decisions", "next_steps"],
+      "architecture": ["executive_promise", "design_principles", "system_overview", "component_detail", "operating_flow", "implementation_path"]
+    },
+    "recommended_outputs": ["audience_question", "governing_answer", "argument_spine", "slide_roles", "message_chain"]
+  },
+  "slide_reasoning": {
+    "principles": [
+      "Treat each slide as an argument unit instead of a content container.",
+      "Give each slide one dominant audience takeaway supported by several concepts and evidence units.",
+      "Distinguish claims, evidence, context, qualification, and recommendation.",
+      "Make explicit what evidence supports which claim.",
+      "Preserve comparison, sequence, contribution, hierarchy, causality, dependency, and parallelism when supported.",
+      "Use MECE as a diagnostic when a set is intended as a complete decomposition."
+    ],
+    "diagnostics": [
+      "What should the audience believe, understand, or decide after this slide?",
+      "Which evidence supports the dominant claim?",
+      "Does every element advance or qualify the takeaway?"
+    ],
+    "recommended_outputs": ["audience_question", "dominant_claim", "role_in_deck_argument", "argument_structure", "evidence_bindings", "visual_obligations"]
+  },
+  "semantic_output_guidance": {
+    "deck_fields": ["audience_question", "governing_answer", "argument_spine", "slide_roles", "message_chain"],
+    "slide_fields": ["audience_question", "dominant_claim", "role_in_deck_argument", "required_content", "argument_structure", "evidence_bindings", "semantic_relationships", "hierarchy", "reading_logic", "visual_obligations", "visual_intent"],
+    "optional_fields_are_contextual": true
+  },
+  "visual_communication": {
+    "principles": [
+      "Let semantic relationships drive visual relationships.",
+      "Semantically parallel elements should normally read as visual peers.",
+      "Hierarchical or dependent elements should not receive equal visual status.",
+      "Emphasis should follow argumentative importance.",
+      "Prefer a visual explanation of relationships over disconnected containers.",
+      "Use exhibits because they prove or explain something.",
+      "Preserve design freedom and avoid prescribing a chart, matrix, column count, or component unless analytically required."
+    ],
+    "diagnostics": [
+      "Are claims, evidence, qualifications, and recommendations visually distinguishable?",
+      "Are parallel, dependent, and causal relationships visually apparent?",
+      "Is anything visually prominent without corresponding argumentative importance?"
+    ]
+  },
+  "writing": {
+    "principles": [
+      "Prefer conclusion-led and specific slide messages over topic labels where appropriate.",
+      "Keep language economical and decision-relevant.",
+      "Avoid generic framing, redundant exposition, and unsupported certainty.",
+      "Supporting copy should earn its space by advancing or qualifying the message."
+    ],
+    "title_policy": "Use conclusion-led message titles for information-bearing slides when evidence supports a conclusion. Use concise structural labels for covers and section dividers."
+  },
+  "review": {
+    "questions": [
+      "Can the audience identify the main takeaway quickly?",
+      "Does every major element contribute to that takeaway?",
+      "Is the claim supported by the evidence shown?",
+      "Are the semantic relationships visually obvious?",
+      "Does the slide advance the deck's argument?",
+      "Is important information emphasized appropriately?",
+      "Is anything visually prominent without corresponding argumentative importance?"
+    ],
+    "deck_diagnostics": [
+      "Can the core argument be recovered by reading only slide messages?",
+      "Does every slide advance the argument spine?",
+      "Are evidence and recommendations linked explicitly?",
+      "Are repeated slides or redundant argument moves present?"
+    ]
+  },
+  "anti_patterns": [
+    "content dump without a governing message",
+    "several unrelated conclusions on one slide",
+    "visual equality for semantically unequal information",
+    "arbitrary boxes or cards with no relationship logic",
+    "exhibit chosen because it is familiar instead of because it communicates the relationship",
+    "repetitive slides that do not advance the storyline"
+  ],
+  "design_freedom": [
+    "Do not force conventional consulting archetypes when another visual structure communicates the semantic relationships more effectively.",
+    "The argument spine controls why each slide exists and does not prescribe its visual archetype."
+  ],
+  "exclusions": []
+}

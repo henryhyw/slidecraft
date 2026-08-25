@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "items": {
+    "affiliate.svg": {"name": "Connected network", "description": "Tabler outline pictogram for linked entities, networks and relationships.", "tags": ["network", "relationships", "semantic mapping"]},
+    "cloud-upload.svg": {"name": "Upload", "description": "Tabler outline pictogram for uploading files and user-provided assets.", "tags": ["upload", "assets", "cloud"]},
+    "file-type-ppt.svg": {"name": "PowerPoint file", "description": "Tabler outline pictogram for an editable PowerPoint deliverable.", "tags": ["powerpoint", "presentation", "deliverable"]},
+    "hierarchy-3.svg": {"name": "Hierarchy", "description": "Tabler outline pictogram for structured planning, hierarchy and decomposition.", "tags": ["hierarchy", "planning", "structure"]},
+    "icons.svg": {"name": "Icon collection", "description": "Tabler outline pictogram for a canonical icon or pictogram library.", "tags": ["icons", "pictograms", "library"]},
+    "layout-dashboard.svg": {"name": "Layout reference", "description": "Tabler outline pictogram for page layouts and visual reference slides.", "tags": ["layout", "reference", "slides"]},
+    "palette.svg": {"name": "Visual language", "description": "Tabler outline pictogram for color, typography and visual conventions.", "tags": ["palette", "style", "design"]},
+    "photo-spark.svg": {"name": "Image generation", "description": "Tabler outline pictogram for generating a designed slide image.", "tags": ["image generation", "visual design", "AI"]},
+    "ruler-measure.svg": {"name": "Visual measurement", "description": "Tabler outline pictogram for dimensions, boundaries and pixel measurement.", "tags": ["measurement", "geometry", "pixels"]},
+    "share-3.svg": {"name": "Shared junction", "description": "Tabler outline pictogram for branching, merging and connected flow.", "tags": ["branch", "merge", "connector"]},
+    "template.svg": {"name": "Reusable page", "description": "Tabler outline pictogram for a reusable page-level visual resource.", "tags": ["page", "reference", "resource"]},
+    "vector-bezier-2.svg": {"name": "Editable geometry", "description": "Tabler outline pictogram for fitted vector geometry and editable freeforms.", "tags": ["vector", "bezier", "geometry"]}
+  }
+}

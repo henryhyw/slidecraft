@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0.0",
+  "policy_id": "deck_planning_runtime_v1",
+  "planning_principles": [
+    "resolve the selected guidance profile before storyline planning",
+    "resolve density before slide count and evidence allocation",
+    "complete source allocation with no silent omission",
+    "image generation for every information-bearing slide",
+    "deterministic construction only for low-information structural slides",
+    "deck-level visual language with slide-level compositional freedom"
+  ],
+  "density": {
+    "default_profile": "high_consulting",
+    "profiles": {
+      "high_consulting": {
+        "description": "Dense, executive consulting communication with one governing message supported by multiple evidence units, relationships, and visual modules.",
+        "target_semantic_units_per_content_slide": [4, 8],
+        "target_supporting_evidence_items": [3, 7],
+        "target_relationships": [2, 5],
+        "target_body_word_range": [90, 190],
+        "sparse_content_slides_allowed": false
+      },
+      "medium": {
+        "description": "Balanced business communication with moderate evidence and whitespace.",
+        "target_semantic_units_per_content_slide": [3, 6],
+        "target_supporting_evidence_items": [2, 5],
+        "target_relationships": [1, 4],
+        "target_body_word_range": [60, 140],
+        "sparse_content_slides_allowed": false
+      },
+      "light": {
+        "description": "Presentation-oriented communication with fewer evidence units and more whitespace.",
+        "target_semantic_units_per_content_slide": [2, 4],
+        "target_supporting_evidence_items": [1, 3],
+        "target_relationships": [1, 3],
+        "target_body_word_range": [35, 100],
+        "sparse_content_slides_allowed": true
+      }
+    },
+    "planning_order": [
+      "resolve density profile",
+      "estimate total semantic and evidence volume",
+      "derive content-slide count range",
+      "build storyline and sections",
+      "allocate evidence into dense but legible slide jobs",
+      "insert structural pages only where narratively useful"
+    ],
+    "density_is_a_planning_prior_not_a_word_quota": true
+  },
+  "storyline_archetypes": {},
+  "slide_roles": {
+    "title_slide": {"default_route": "system_layout", "image_generation_allowed": false},
+    "agenda": {"default_route": "system_layout", "image_generation_allowed": false},
+    "executive_summary": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
+    "section_divider": {"default_route": "system_layout", "image_generation_allowed": false},
+    "content": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
+    "quote_or_statement": {"default_route": "system_layout", "image_generation_allowed": false},
+    "closing": {"default_route": "system_layout", "image_generation_allowed": false},
+    "appendix_divider": {"default_route": "system_layout", "image_generation_allowed": false},
+    "appendix_content": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true}
+  },
+  "routing": {
+    "quality_precedes_cost": true,
+    "pre_generation_routes": ["system_layout", "image_generation"],
+    "system_layout_roles": ["title_slide", "agenda", "section_divider", "quote_or_statement", "closing", "appendix_divider"],
+    "information_bearing_route": "image_generation",
+    "image_model_owns_visual_form": true,
+    "forbidden_pre_generation_form_assumptions": [
+      "table",
+      "chart",
+      "matrix",
+      "map",
+      "timeline",
+      "known component",
+      "native composition"
+    ],
+    "post_generation_route_selection": [
+      "native textbox",
+      "native table",
+      "native editable chart",
+      "canonical asset",
+      "known component",
+      "standard PowerPoint composition",
+      "custom fitted geometry",
+      "raster fallback"
+    ]
+  },
+  "section_policy": {
+    "divider_minimum_section_length": 3,
+    "divider_use": "Use a divider when it materially clarifies a new argument phase. Avoid dividers for very short decks or minor topic changes.",
+    "default_divider_layout": "section_divider_slanted_blocks_v1",
+    "section_numbering": "configured"
+  },
+  "coherence": {
+    "freeze_before_slide_generation": [
+      "canvas and chrome",
+      "title system",
+      "typography roles",
+      "color roles and section accents",
+      "icon family and slot treatment",
+      "connector presets",
+      "table and chart styling",
+      "image treatment",
+      "citation and source-note treatment"
+    ],
+    "cross_slide_checks": [
+      "terminology consistency",
+      "number and data consistency",
+      "title hierarchy",
+      "section progression",
+      "repeated component consistency",
+      "density rhythm",
+      "palette discipline",
+      "header and footer consistency",
+      "source coverage",
+      "duplicate-message detection",
+      "sparse information-bearing slide detection"
+    ]
+  }
+}

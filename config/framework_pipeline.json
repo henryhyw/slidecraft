@@ -1,0 +1,276 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_id": "slidecraft_framework_1",
+  "status": "supported_contract",
+  "purpose": "Generate a visually designed slide region, preserve generation knowledge, understand the result, and reconstruct a clean editable PowerPoint slide.",
+  "stages": [
+    {
+      "id": "semantic_planning",
+      "inputs": ["slide_objective", "exact_source_content", "multimodal_materials", "user_notes", "explicit_human_constraints", "user_assets", "guidance_profile"],
+      "outputs": ["intake_manifest", "constraint_register", "source_atoms", "semantic_design"],
+      "owner": "reasoning_model_adapter",
+      "rules": [
+        "Exact source content remains authoritative.",
+        "Documents, images, data files, user notes, and assets are normalized into source atoms with provenance and locators.",
+        "Instructions are classified as hard constraints, soft constraints, or preferences. Active hard constraints remain mandatory downstream.",
+        "Conflicting or ambiguous hard constraints trigger user resolution instead of silent weakening.",
+        "The plan describes message, hierarchy, relationships, reading logic, supporting information, and layout-agnostic visual intent.",
+        "Coordinates and component layouts are omitted unless explicitly requested by the user."
+      ]
+    },
+    {
+      "id": "resource_retrieval",
+      "inputs": ["semantic_design", "deck_design_configuration", "slide_assets"],
+      "outputs": ["visual_references", "canonical_icon_candidates", "canonical_user_assets", "style_rules"],
+      "owner": "retrieval_adapters",
+      "rules": [
+        "Visual references are whole-page visual precedents and are never layouts to copy.",
+        "Exact upstream canonical assets take priority.",
+        "Fallback pictograms are selected as a coherent semantic set.",
+        "Asset IDs, provenance, canonical paths, descriptions, and intrinsic geometry are retained."
+      ]
+    },
+    {
+      "id": "generation_preflight",
+      "inputs": ["semantic_design", "intake_manifest", "deck_design_configuration", "resolved_slide_chrome", "normalized_assets", "visual_references", "draft_generation_prompt"],
+      "outputs": ["generation_preflight_summary", "generation_package", "approval_fingerprint", "generation_approval"],
+      "owner": "preflight_and_approval_gate",
+      "rules": [
+        "Long-term system settings and run-resolved decisions are shown separately.",
+        "Framework-proposed values are distinguished from user-provided values.",
+        "Header and footer geometry comes from deck design configuration while slide-specific chrome content is resolved for the current run.",
+        "Mandatory assets, source coverage, hard constraints, unresolved assumptions, and route decisions are visible before approval.",
+        "External image generation is released only for an approved package fingerprint."
+      ]
+    },
+    {
+      "id": "visual_generation",
+      "inputs": ["approved_generation_package", "derived_generation_canvas", "title_configuration", "semantic_design", "exact_source_content", "normalized_assets", "visual_references", "style_configuration", "explicit_human_constraints"],
+      "outputs": ["generated_candidate", "generation_manifest"],
+      "owner": "image_generation_adapter",
+      "rules": [
+        "Header and footer regions are excluded from generation.",
+        "The title remains inside the generation region and follows configured treatment.",
+        "The image model owns the visual composition of the body.",
+        "Slide understanding and Editable reconstruction implementation details are excluded from the image prompt.",
+        "Replaceable icons are rendered as semantic placeholders inside authoritative rectangular slots."
+      ]
+    },
+    {
+      "id": "generation_review",
+      "inputs": ["generated_candidate", "semantic_design", "exact_source_content", "visual_references", "deck_design_configuration", "asset_manifest"],
+      "outputs": ["pass_or_edit_decision", "material_issue_list", "delta_only_edit_instruction"],
+      "owner": "vlm_review_adapter",
+      "rules": [
+        "Only material failures are reported.",
+        "The reviewer returns the smallest preservation-first edit delta.",
+        "The main orchestrator appends authoritative canvas, title, content, style, relationship, and asset invariants."
+      ]
+    },
+    {
+      "id": "slide_understanding",
+      "inputs": ["final_target_image", "generation_to_reconstruction_handoff"],
+      "outputs": ["semantic_scene", "measurement_evidence", "reconstruction_oriented_scene"],
+      "owner": "semantic_mapping_and_measurement_adapters",
+      "rules": [
+        "Semantic mapping identifies meaningful authored entities, hierarchy, relationships, grouping, and likely z-order.",
+        "OpenCV performs deterministic measurement and SAM 2 is used selectively for irregular filled boundaries.",
+        "OCR words, masks, contours, edge fragments, and generated icon glyphs remain evidence unless they represent an independently authored object.",
+        "Exact upstream text and asset candidates are used to resolve ambiguous pixels."
+      ]
+    },
+    {
+      "id": "editable_reconstruction",
+      "inputs": ["reconstruction_oriented_scene", "exact_source_content", "canonical_assets", "deck_design_configuration"],
+      "outputs": ["editable_pptx", "reconstruction_report"],
+      "owner": "powerpoint_constructor",
+      "rules": [
+        "Known elements use native PowerPoint objects, exact source content, canonical assets, and maintained reusable elements.",
+        "New or redesigned elements use semantic decomposition, PowerPoint primitives and connectors, fitted geometry when needed, and raster fallback only when necessary.",
+        "Deck chrome is applied deterministically after reconstruction.",
+        "A bounded reasoning-guided normalization pass improves repeated alignment, spacing, icon placement, connector routing, and peer typography without redesigning the slide."
+      ]
+    },
+    {
+      "id": "native_powerpoint_validation",
+      "inputs": ["editable_pptx", "target_image", "reconstruction_report"],
+      "outputs": ["validation_report", "powerpoint_native_render"],
+      "owner": "validation_tools",
+      "rules": [
+        "Microsoft PowerPoint for Mac is the canonical renderer for typography and final compatibility.",
+        "Every emitted object must map to a reconstruction unit.",
+        "Evidence records never emit independent PowerPoint objects."
+      ]
+    }
+  ],
+  "automatic_policies": {
+    "guidance_profiles": {
+      "purpose": "Define how a selected deck type reasons and communicates without owning its deck design system or reconstruction mechanics.",
+      "selection_scope": "deck with optional explicit slide override",
+      "inheritance": "base profile plus selected profile through recursive configuration merge",
+      "influences": ["deck storyline planning", "slide semantic planning", "image-generation communication guidance", "generation review", "cross-slide review"],
+      "does_not_own": ["fonts", "colors", "dimensions", "header and footer", "density", "libraries", "assets", "reconstruction mechanics"],
+      "design_freedom_required": true
+    },
+    "intake": {
+      "supported_modalities": ["text", "document", "pdf", "spreadsheet", "image", "diagram", "canonical asset", "audio", "url"],
+      "normalization_output": "source atoms with material ID, locator, authority, provenance, and extraction confidence",
+      "constraint_classes": ["hard", "soft", "preference"],
+      "hard_constraint_policy": "mandatory through semantic planning, generation, review, reconstruction, and validation",
+      "conflict_policy": "resolve through explicit precedence or request user direction",
+      "traceability_policy": "content-bearing semantic units and reconstructed objects cite source atoms"
+    },
+    "retrieval": {
+      "visual_reference_mode": "metadata-first semantic retrieval with visual loading after ranking",
+      "visual_reference_max_results": 3,
+      "visual_reference_diversity": "penalize duplicate structural families",
+      "icon_mode": "semantic metadata retrieval with exact upstream assets first and coherent set-level substitution",
+      "known_component_mode": "semantic metadata retrieval before generation and entity-level requery after Slide understanding",
+      "visual_inspection_scope": "selected candidates only"
+    },
+    "text": {
+      "content_authority": "exact upstream source",
+      "default_object": "one native textbox per logical authored block",
+      "outer_geometry": "measured hard constraint",
+      "raster_line_segmentation": "soft fitting evidence",
+      "explicit_properties": ["font family", "font size", "weight", "color", "margins", "wrapping", "autofit", "line spacing", "paragraph spacing", "vertical anchoring"],
+      "fit_objective": "largest readable size that fits without overflow and preserves hierarchy",
+      "peer_normalization": "jointly solve common size and style by semantic role",
+      "canonical_renderer": "Microsoft PowerPoint for Mac"
+    },
+    "icons": {
+      "placement_authority": "icon slot",
+      "generated_glyph": "semantic evidence only",
+      "selection_order": ["exact upstream canonical asset", "individual library substitution", "coherent set-level substitution"],
+      "fit": "proportional contain",
+      "alignment": "center",
+      "stretching_allowed": false,
+      "cropping_allowed": false,
+      "aspect_ratio_tolerance": 0.001,
+      "slot_surface_policy": "retain when visibly designed, remove when temporary placement scaffolding"
+    },
+    "connectors": {
+      "authority": "relationship intent and spatial anchors",
+      "required_semantics": ["all source entities", "all target entities", "relationship type", "directionality", "topology cardinality", "branch merge or shared-junction membership"],
+      "measurement_evidence": ["approximate anchors", "junctions", "routing corridor", "orientation", "stroke", "corner treatment", "arrowhead treatment"],
+      "output": "native PowerPoint connector graph",
+      "allowed_routes": ["straight", "elbow", "curved", "branch", "merge", "shared junction"],
+      "raster_path_authoritative": false,
+      "arrowhead_shapes_separate_from_connectors": false,
+      "prefer_axis_alignment": true,
+      "terminal_segment": "straight when the final junction and destination anchor share an axis",
+      "ordinary_bend_limit": 2,
+      "peer_normalization": true,
+      "routing_ports": "nonrendering implementation aids only"
+    },
+    "images": {
+      "semantic_unit": "one meaningful image region",
+      "preferred_source": "exact upstream image asset",
+      "fallback": "one Slide understanding screenshot crop embedded as one picture object",
+      "internal_pixels_emit_objects": false
+    },
+    "tables": {
+      "preferred_route": "native PowerPoint table",
+      "required_structure": ["rows", "columns", "merged regions", "subrows", "cell ownership", "cell margins", "fills", "borders", "text settings"],
+      "fallback": "aligned native shapes and textboxes when native table limitations prevent faithful output"
+    },
+    "charts": {
+      "preferred_route": "native editable chart from authoritative upstream data",
+      "fallback": "editable shape composition when no authoritative chart data exists"
+    },
+    "novel_geometry": {
+      "route_order": ["standard PowerPoint primitive", "native connector composition", "fitted freeform or Bezier", "raster fallback"],
+      "sam_primary_use": "irregular filled-object boundaries",
+      "thin_line_art_primary_use": "OpenCV line and edge evidence"
+    },
+    "z_order_and_grouping": {
+      "source": "semantic ownership plus measured overlap evidence",
+      "grouping_rule": "create meaningful PowerPoint groups only when they improve editability or preserve repeated structures",
+      "evidence_records_emit_objects": false
+    },
+    "normalization": {
+      "scope": "bounded and explainable",
+      "allowed": ["center intended children", "normalize peer anchors", "normalize repeated insets", "normalize icon sizing", "simplify connector routing", "jointly normalize peer typography"],
+      "forbidden": ["new conceptual layout", "new semantic content", "unrequested visual redesign", "outer textbox expansion to solve overflow"],
+      "geometry_source": "generated geometry is a strong initial condition that may receive small validated translations",
+      "peer_detection_inputs": ["semantic role", "repeated parent structure", "parent-relative anchors", "near-alignment evidence", "reading order"],
+      "supported_alignment_intents": ["shared top", "shared bottom", "shared horizontal center", "shared vertical center", "shared parent-relative inset", "shared text baseline", "equal peer spacing"],
+      "movement_policy": "translate the complete semantic group while preserving width, height, internal geometry, and z-order",
+      "hard_constraints": ["parent containment", "minimum clearance", "no new collision", "no text overflow", "preserved semantic order", "preserved connector topology"],
+      "acceptance_policy": "apply only high-confidence proposals that materially reduce alignment error within movement bounds and pass post-change validation",
+      "rollback_policy": "reject or roll back any proposal that violates a hard constraint"
+    }
+  },
+  "quality_gates": [
+    "generation_preflight_is_approved_for_current_fingerprint",
+    "exact_content_complete",
+    "multimodal_sources_have_provenance_and_locators",
+    "hard_constraints_are_resolved_and_preserved",
+    "selected_guidance_profile_is_resolved_and_applied",
+    "selected_visual_reference_count_is_at_most_three",
+    "visual_reference_selection_is_metadata_ranked_and_structurally_diverse",
+    "semantic_relationships_complete",
+    "visual_reference_content_not_reused",
+    "mandatory_assets_mapped",
+    "icon_slots_detected_or_uncertainty_recorded",
+    "canonical_icons_preserve_aspect_ratio",
+    "text_has_no_overflow_in_powerpoint",
+    "peer_typography_is_consistent",
+    "connector_topology_matches_semantic_graph",
+    "ordinary_connectors_are_native_powerpoint_connectors",
+    "arrowheads_are_legible",
+    "unnecessary_connector_bends_are_removed",
+    "groups_and_z_order_are_complete",
+    "every_powerpoint_object_maps_to_a_reconstruction_unit",
+    "measurement_evidence_emits_no_powerpoint_objects",
+    "powerpoint_native_render_is_produced"
+  ],
+  "maintained_resources": [
+    "visual reference page library",
+    "pictogram and icon library",
+    "known element library",
+    "style presets",
+    "canonical identity assets"
+  ],
+  "configurable_resources": [
+    "slide dimensions",
+    "header and footer exclusions",
+    "deck chrome variants",
+    "title treatment",
+    "typography",
+    "color roles",
+    "density and visual conventions",
+    "icon slot policy",
+    "connector style and clarity thresholds",
+    "asset requirement policy",
+    "validation tolerances"
+  ],
+  "per_slide_inputs": [
+    "slide objective",
+    "exact source content",
+    "explicit human constraints",
+    "optional canonical assets",
+    "slide role and section metadata"
+  ],
+  "replaceable_adapters": [
+    "reasoning_model_adapter",
+    "header_footer_exclusion_resolver_v1",
+    "deck_chrome_variant_selector_v1",
+    "visual_reference_retriever_v1",
+    "canonical_icon_retriever_v1",
+    "image_generation_adapter",
+    "vlm_review_adapter",
+    "semantic_mapping_adapter",
+    "pixel_measurement_adapter",
+    "powerpoint_constructor",
+    "powerpoint_native_renderer"
+  ],
+  "certification_boundaries": {
+    "reasoning_and_vision": "The Agent host supplies semantic reasoning and vision by default. OpenAI-compatible structured providers remain available where configured.",
+    "visual_reference_retrieval": "The package seeds three reference pages and supports larger metadata-indexed local collections.",
+    "icon_retrieval": "The package seeds a licensed Tabler subset and supports additional indexed SVG collections.",
+    "known_components": "Only components with a supported editable implementation may be selected. Unsupported candidates remain retrieval evidence and use another reconstruction route.",
+    "constructor": "PptxGenJS is the single certified portable constructor backend.",
+    "native_validation": "Microsoft PowerPoint rendering is an optional explicit validation capability on macOS."
+  }
+}

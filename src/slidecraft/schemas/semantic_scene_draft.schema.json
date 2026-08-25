@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slidecraft.dev/schemas/semantic-scene-draft-1.0.0.json",
+  "title": "Slidecraft Semantic Scene Draft",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "slide", "groups", "entities", "relationships", "quality"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "slide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "reading_order"],
+      "properties": {
+        "intent": {"type": "string"},
+        "reading_order": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "role", "bbox_norm", "children", "confidence"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^G_[A-Za-z0-9_]+$"},
+          "role": {"type": "string"},
+          "bbox_norm": {"$ref": "#/$defs/box"},
+          "children": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "kind", "role", "bbox_norm", "confidence", "reconstruction_significance",
+          "visible_text", "authoritative_source_path", "semantic_icon_intent", "candidate_asset_ids",
+          "upstream_asset_id", "slot_bbox_norm", "generated_glyph_bbox_norm", "shape", "style_hint",
+          "table_structure", "chart_structure", "connector_intent", "visual_constraints", "segmentation_role"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Z][A-Za-z0-9_]+$"},
+          "kind": {"enum": ["text", "shape", "connector", "table", "chart", "icon_slot", "image", "novel_visual"]},
+          "role": {"type": "string"},
+          "bbox_norm": {"$ref": "#/$defs/box"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "reconstruction_significance": {"enum": ["independent_object", "owned_child", "measurement_evidence"]},
+          "visible_text": {"type": ["string", "null"]},
+          "authoritative_source_path": {"type": ["string", "null"]},
+          "semantic_icon_intent": {"type": ["string", "null"]},
+          "candidate_asset_ids": {"type": "array", "items": {"type": "string"}},
+          "upstream_asset_id": {"type": ["string", "null"]},
+          "slot_bbox_norm": {"oneOf": [{"$ref": "#/$defs/box"}, {"type": "null"}]},
+          "generated_glyph_bbox_norm": {"oneOf": [{"$ref": "#/$defs/box"}, {"type": "null"}]},
+          "shape": {"type": ["string", "null"]},
+          "style_hint": {"type": "object"},
+          "table_structure": {"type": ["object", "null"]},
+          "chart_structure": {"type": ["object", "null"]},
+          "connector_intent": {"oneOf": [{"$ref": "#/$defs/connectorIntent"}, {"type": "null"}]},
+          "visual_constraints": {"oneOf": [{"$ref": "#/$defs/connectorVisualConstraints"}, {"type": "null"}]},
+          "segmentation_role": {"enum": ["none", "irregular_filled_boundary", "photo_subject", "overlapping_filled_object"]}
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "from", "to", "back", "front", "confidence"],
+        "properties": {
+          "type": {"type": "string"},
+          "from": {"type": ["string", "array", "null"], "items": {"type": "string"}},
+          "to": {"type": ["string", "array", "null"], "items": {"type": "string"}},
+          "back": {"type": ["string", "null"]},
+          "front": {"type": ["string", "null"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["meaningful_granularity", "source_coverage", "relationship_completeness", "uncertainties"],
+      "properties": {
+        "meaningful_granularity": {"type": "number", "minimum": 0, "maximum": 1},
+        "source_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "relationship_completeness": {"type": "number", "minimum": 0, "maximum": 1},
+        "uncertainties": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "$defs": {
+    "box": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0, "maximum": 1000},
+        {"type": "integer", "minimum": 0, "maximum": 1000},
+        {"type": "integer", "minimum": 1, "maximum": 1000},
+        {"type": "integer", "minimum": 1, "maximum": 1000}
+      ],
+      "items": false
+    },
+    "point": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "integer", "minimum": 0, "maximum": 1000},
+        {"type": "integer", "minimum": 0, "maximum": 1000}
+      ],
+      "items": false
+    },
+    "connectorIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_entities", "target_entities", "relationship_type", "directionality", "structure_membership", "endpoint_ownership_reasoning", "layout_feasibility", "audit_confidence"],
+      "properties": {
+        "source_entities": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "target_entities": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "relationship_type": {"type": "string"},
+        "directionality": {"enum": ["forward", "reverse", "bidirectional", "undirected"]},
+        "structure_membership": {"enum": ["single", "branch_shared_junction", "merge_shared_junction", "many_to_many_shared_junction"]},
+        "endpoint_ownership_reasoning": {"type": "string", "minLength": 12},
+        "layout_feasibility": {"enum": ["feasible_as_observed", "feasible_with_normalized_route"]},
+        "audit_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "junction_semantic_role": {"type": ["string", "null"]}
+      }
+    },
+    "connectorVisualConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_anchors_norm", "end_anchors_norm", "junctions_norm", "routing_orientation", "routing_type", "stroke_style", "junction_treatment", "arrowhead_treatment", "routing_corridor_norm"],
+      "properties": {
+        "start_anchors_norm": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+        "end_anchors_norm": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+        "junctions_norm": {"type": "array", "items": {"$ref": "#/$defs/point"}},
+        "routing_orientation": {"type": "string"},
+        "routing_type": {"enum": ["straight", "elbow", "curved", "elbow_branch", "elbow_merge", "elbow_shared_junction", "curved_shared_junction"]},
+        "stroke_style": {"type": "object"},
+        "junction_treatment": {"type": "object"},
+        "arrowhead_treatment": {"type": "string"},
+        "routing_corridor_norm": {"$ref": "#/$defs/box"}
+      }
+    }
+  }
+}

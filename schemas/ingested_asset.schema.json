@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slidecraft.dev/schemas/ingested-asset-1.0.0.json",
+  "title": "Ingested User Asset",
+  "type": "object",
+  "required": ["asset_id", "original_name", "stored_path", "sha256", "size_bytes", "usage_class", "semantic_role", "provenance"],
+  "properties": {
+    "asset_id": {"type": "string"},
+    "original_name": {"type": "string"},
+    "stored_path": {"type": "string"},
+    "source_locator": {"type": "string"},
+    "sha256": {"type": "string"},
+    "size_bytes": {"type": "integer", "minimum": 0},
+    "media_type": {"type": "string"},
+    "usage_class": {"enum": ["mandatory", "optional", "reference_only", "do_not_use"]},
+    "semantic_role": {"type": "string"},
+    "description": {"type": "string"},
+    "allowed_transformations": {"type": "array", "items": {"type": "string"}},
+    "provenance": {"type": "string"}
+  }
+}

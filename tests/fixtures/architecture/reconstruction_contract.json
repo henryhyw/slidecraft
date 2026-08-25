@@ -1,0 +1,4259 @@
+{
+  "schema_version": "0.3.0",
+  "source_step4": "fixture://architecture/outputs/generated_slide_reconstruction/step4/slide_entities.json",
+  "source_handoff": "fixture://architecture/outputs/generated_slide_reconstruction/orchestration_handoff.json",
+  "full_slide_dimensions_px": [
+    2048,
+    1152
+  ],
+  "generation_region": {
+    "offset_y_px": 41,
+    "dimensions_px": [
+      2048,
+      1070
+    ],
+    "configured_dimensions_px": [
+      2048,
+      1070
+    ],
+    "source_dimensions_px": [
+      1735,
+      906
+    ]
+  },
+  "deck_chrome_configuration": {
+    "enabled": true,
+    "generation_excluded": true,
+    "application_stage": "post_reconstruction",
+    "geometry_source": "configured_header_footer_exclusions",
+    "variant_selection": {
+      "mode": "configured_with_reasoning_adapter",
+      "default_variant": "content_slide",
+      "allowed_variants": [
+        "content_slide",
+        "section_divider",
+        "title_slide",
+        "appendix"
+      ],
+      "adapter_interface": "deck_chrome_variant_selector_v1",
+      "reasoning_inputs": [
+        "slide_role",
+        "section",
+        "audience",
+        "confidentiality",
+        "explicit_human_constraints"
+      ],
+      "geometry_and_style_remain_deterministic_after_selection": true
+    },
+    "current_slide_variant": "content_slide",
+    "outer_padding_px": 40,
+    "font_family": "Arial",
+    "header": {
+      "left_text": "AI-ASSISTED SLIDE DRAFTING",
+      "right_text": "PROPOSED ARCHITECTURE",
+      "font_size_px": 13,
+      "font_weight": "bold",
+      "text_color": "#4A4A4A",
+      "secondary_text_color": "#968C6D",
+      "rule_color": "#DED7CF",
+      "rule_width_px": 1,
+      "accent_color": "#D93900",
+      "accent_rule_width_px": 120
+    },
+    "footer": {
+      "left_text": "PwC | Internal",
+      "center_text": "AI-assisted slide drafting",
+      "right_text_template": "24 August 2026  |  {slide_number}",
+      "font_size_px": 12,
+      "font_weight": "regular",
+      "left_font_weight": "bold",
+      "text_color": "#4A4A4A",
+      "secondary_text_color": "#968C6D",
+      "rule_color": "#DED7CF",
+      "rule_width_px": 1
+    }
+  },
+  "resolved_chrome_content": {},
+  "coordinate_transform_to_full_slide": {
+    "source_origin_px": [
+      0,
+      0
+    ],
+    "full_slide_offset_px": [
+      0,
+      41
+    ],
+    "scale_xy": [
+      1.1804034582132565,
+      1.1810154525386314
+    ],
+    "mapping": "full_x = source_x * scale_x; full_y = offset_y + source_y * scale_y"
+  },
+  "reconstruction_units": [
+    {
+      "id": "G_header",
+      "semantic_role": "generation_region_header",
+      "route": "native_textbox",
+      "entity_ids": [
+        "T_title",
+        "T_subtitle"
+      ],
+      "bbox_source_px": [
+        28,
+        28,
+        1230,
+        126
+      ]
+    },
+    {
+      "id": "G_stage1",
+      "semantic_role": "architecture_stage",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_stage1",
+        "S_tab1",
+        "T_num1",
+        "T_stage1_title",
+        "I_stage1",
+        "L_stage1_sep",
+        "T_stage1_body"
+      ],
+      "bbox_source_px": [
+        32,
+        182,
+        246,
+        596
+      ]
+    },
+    {
+      "id": "G_stage2",
+      "semantic_role": "architecture_stage",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_stage2",
+        "S_tab2",
+        "T_num2",
+        "T_stage2_title",
+        "G_ref1",
+        "G_ref2",
+        "G_ref3",
+        "G_ref4"
+      ],
+      "bbox_source_px": [
+        334,
+        182,
+        307,
+        596
+      ]
+    },
+    {
+      "id": "G_ref1",
+      "semantic_role": "reference_option",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_ref1",
+        "I_ref1",
+        "T_ref1"
+      ],
+      "bbox_source_px": [
+        346,
+        269,
+        254,
+        89
+      ]
+    },
+    {
+      "id": "G_ref2",
+      "semantic_role": "reference_option",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_ref2",
+        "I_ref2",
+        "T_ref2"
+      ],
+      "bbox_source_px": [
+        346,
+        393,
+        254,
+        92
+      ]
+    },
+    {
+      "id": "G_ref3",
+      "semantic_role": "reference_option",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_ref3",
+        "I_ref3",
+        "T_ref3"
+      ],
+      "bbox_source_px": [
+        346,
+        520,
+        254,
+        91
+      ]
+    },
+    {
+      "id": "G_ref4",
+      "semantic_role": "reference_option",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_ref4",
+        "I_ref4",
+        "T_ref4"
+      ],
+      "bbox_source_px": [
+        346,
+        646,
+        254,
+        91
+      ]
+    },
+    {
+      "id": "G_stage3",
+      "semantic_role": "architecture_stage",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_stage3",
+        "S_tab3",
+        "T_num3",
+        "T_stage3_title",
+        "I_stage3",
+        "I_openai",
+        "T_stage3_model",
+        "T_stage3_body",
+        "L_stage3_sep",
+        "T_target_preview",
+        "IMG_target_preview"
+      ],
+      "bbox_source_px": [
+        674.0,
+        187.5,
+        344,
+        596
+      ]
+    },
+    {
+      "id": "G_stage4",
+      "semantic_role": "architecture_stage",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_stage4",
+        "S_tab4",
+        "T_num4",
+        "T_stage4_title",
+        "G_semantic",
+        "G_pixel"
+      ],
+      "bbox_source_px": [
+        1057,
+        182,
+        276,
+        561
+      ]
+    },
+    {
+      "id": "G_semantic",
+      "semantic_role": "understanding_module",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_semantic",
+        "I_semantic",
+        "T_semantic_title",
+        "T_semantic_body"
+      ],
+      "bbox_source_px": [
+        1064,
+        280,
+        255,
+        154
+      ]
+    },
+    {
+      "id": "G_pixel",
+      "semantic_role": "understanding_module",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_pixel",
+        "I_pixel",
+        "T_pixel_title",
+        "T_pixel_body",
+        "I_opencv",
+        "T_pixel_model"
+      ],
+      "bbox_source_px": [
+        1065.0,
+        469.5,
+        254,
+        241
+      ]
+    },
+    {
+      "id": "G_stage5",
+      "semantic_role": "architecture_stage",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_stage5",
+        "S_tab5",
+        "T_num5",
+        "T_stage5_title",
+        "G_known",
+        "G_new"
+      ],
+      "bbox_source_px": [
+        1420,
+        182,
+        285,
+        519
+      ]
+    },
+    {
+      "id": "G_known",
+      "semantic_role": "reconstruction_module",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_known",
+        "I_known",
+        "T_known_title",
+        "T_known_body"
+      ],
+      "bbox_source_px": [
+        1437,
+        270,
+        256,
+        155
+      ]
+    },
+    {
+      "id": "G_new",
+      "semantic_role": "reconstruction_module",
+      "route": "known_reusable_element",
+      "entity_ids": [
+        "S_new",
+        "I_new",
+        "T_new_title",
+        "T_new_body"
+      ],
+      "bbox_source_px": [
+        1437,
+        458,
+        256,
+        217
+      ]
+    },
+    {
+      "id": "G_output",
+      "semantic_role": "editable_output",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "S_output",
+        "I_output",
+        "T_output"
+      ],
+      "bbox_source_px": [
+        1219,
+        775,
+        486,
+        107
+      ]
+    },
+    {
+      "id": "C_stage1_stage2",
+      "semantic_role": "stage_flow",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "C_stage1_stage2"
+      ],
+      "bbox_source_px": [
+        278,
+        440,
+        56,
+        25
+      ]
+    },
+    {
+      "id": "C_stage2_stage3",
+      "semantic_role": "reference_merge_flow",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "C_stage2_stage3"
+      ],
+      "bbox_source_px": [
+        600,
+        309,
+        74,
+        387
+      ]
+    },
+    {
+      "id": "C_stage3_stage4",
+      "semantic_role": "stage_flow",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "C_stage3_stage4"
+      ],
+      "bbox_source_px": [
+        1018,
+        440,
+        39,
+        25
+      ]
+    },
+    {
+      "id": "C_stage4_stage5",
+      "semantic_role": "shared_junction_reconstruction_flow",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "C_stage4_stage5"
+      ],
+      "bbox_source_px": [
+        1319,
+        340,
+        118,
+        230
+      ]
+    },
+    {
+      "id": "C_stage5_output",
+      "semantic_role": "output_flow",
+      "route": "standard_powerpoint_shape_connector_composition",
+      "entity_ids": [
+        "C_stage5_output"
+      ],
+      "bbox_source_px": [
+        1492,
+        674,
+        78,
+        101
+      ]
+    }
+  ],
+  "canonical_asset_mappings": [
+    {
+      "entity_id": "I_stage1",
+      "semantic_role": "semantic_planning",
+      "requested_asset_id": "TABLER_OUTLINE_HIERARCHY_3",
+      "selected_asset_id": "TABLER_OUTLINE_HIERARCHY_3",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/hierarchy-3.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        94,
+        282,
+        122,
+        125
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        155.0,
+        344.5
+      ],
+      "slot_padding_estimate_px": {
+        "left": 22,
+        "top": 23,
+        "right": 21,
+        "bottom": 20
+      },
+      "nearby_related_entities": [
+        "T_stage1_title",
+        "T_stage1_body"
+      ],
+      "target_color": "#f0d0b0",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_ref1",
+      "semantic_role": "visual_references",
+      "requested_asset_id": "TABLER_OUTLINE_TEMPLATE",
+      "selected_asset_id": "TABLER_OUTLINE_TEMPLATE",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/template.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        355,
+        277,
+        65,
+        66
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        387.5,
+        310.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 14,
+        "top": 14,
+        "right": 14,
+        "bottom": 14
+      },
+      "nearby_related_entities": [
+        "T_ref1"
+      ],
+      "target_color": "#f08050",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_ref2",
+      "semantic_role": "pictogram_icon_references",
+      "requested_asset_id": "TABLER_OUTLINE_ICONS",
+      "selected_asset_id": "TABLER_OUTLINE_ICONS",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/icons.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        355,
+        404,
+        65,
+        67
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        387.5,
+        437.5
+      ],
+      "slot_padding_estimate_px": {
+        "left": 13,
+        "top": 14,
+        "right": 13,
+        "bottom": 14
+      },
+      "nearby_related_entities": [
+        "T_ref2"
+      ],
+      "target_color": "#e06020",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_ref3",
+      "semantic_role": "user_provided_icons",
+      "requested_asset_id": "TABLER_OUTLINE_CLOUD_UPLOAD",
+      "selected_asset_id": "TABLER_OUTLINE_CLOUD_UPLOAD",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/cloud-upload.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        355,
+        529,
+        64,
+        68
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        387.0,
+        563.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 14,
+        "top": 15,
+        "right": 12,
+        "bottom": 15
+      },
+      "nearby_related_entities": [
+        "T_ref3"
+      ],
+      "target_color": "#e05000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_ref4",
+      "semantic_role": "style_rules",
+      "requested_asset_id": "TABLER_OUTLINE_PALETTE",
+      "selected_asset_id": "TABLER_OUTLINE_PALETTE",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/palette.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        355,
+        656,
+        65,
+        70
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        387.5,
+        691.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 13,
+        "top": 13,
+        "right": 12,
+        "bottom": 13
+      },
+      "nearby_related_entities": [
+        "T_ref4"
+      ],
+      "target_color": "#e05000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_stage3",
+      "semantic_role": "generated_image",
+      "requested_asset_id": "TABLER_OUTLINE_PHOTO_SPARK",
+      "selected_asset_id": "TABLER_OUTLINE_PHOTO_SPARK",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/photo-spark.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        699,
+        263,
+        71,
+        73
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        734.5,
+        299.5
+      ],
+      "slot_padding_estimate_px": {
+        "left": 14,
+        "top": 14,
+        "right": 15,
+        "bottom": 14
+      },
+      "nearby_related_entities": [
+        "T_stage3_model",
+        "T_stage3_body"
+      ],
+      "target_color": "#f06010",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_openai",
+      "semantic_role": "stage_3_openai_provider_logo",
+      "requested_asset_id": "USER_LOGO_OPENAI",
+      "selected_asset_id": "USER_LOGO_OPENAI",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/inputs/user_assets/reasoning-provider.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        785.0,
+        268.5,
+        71,
+        73
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        820.5,
+        305.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 14,
+        "top": 14,
+        "right": 14,
+        "bottom": 16
+      },
+      "nearby_related_entities": [
+        "T_stage3_model"
+      ],
+      "target_color": "#000000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_semantic",
+      "semantic_role": "semantic_mapping",
+      "requested_asset_id": "TABLER_OUTLINE_AFFILIATE",
+      "selected_asset_id": "TABLER_OUTLINE_AFFILIATE",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/affiliate.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1074,
+        305,
+        86,
+        103
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1117.0,
+        356.5
+      ],
+      "slot_padding_estimate_px": {
+        "left": 18,
+        "top": 21,
+        "right": 18,
+        "bottom": 22
+      },
+      "nearby_related_entities": [
+        "T_semantic_title",
+        "T_semantic_body"
+      ],
+      "target_color": "#f05010",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_pixel",
+      "semantic_role": "pixel_level_measurement",
+      "requested_asset_id": "TABLER_OUTLINE_RULER_MEASURE",
+      "selected_asset_id": "TABLER_OUTLINE_RULER_MEASURE",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/ruler-measure.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1074,
+        492,
+        86,
+        102
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1117.0,
+        543.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 17,
+        "top": 25,
+        "right": 17,
+        "bottom": 22
+      },
+      "nearby_related_entities": [
+        "T_pixel_title",
+        "T_pixel_body"
+      ],
+      "target_color": "#f0a070",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_opencv",
+      "semantic_role": "stage_4_opencv_logo",
+      "requested_asset_id": "USER_LOGO_OPENCV",
+      "selected_asset_id": "USER_LOGO_OPENCV",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/inputs/user_assets/vision-library.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1083.0,
+        608.5,
+        77,
+        85
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1121.5,
+        651.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 13,
+        "top": 11,
+        "right": 13,
+        "bottom": 18
+      },
+      "nearby_related_entities": [
+        "T_pixel_model"
+      ],
+      "target_color": "#f00000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_known",
+      "semantic_role": "known_element_reconstruction",
+      "requested_asset_id": "TABLER_OUTLINE_LAYOUT_DASHBOARD",
+      "selected_asset_id": "TABLER_OUTLINE_LAYOUT_DASHBOARD",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/layout-dashboard.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1448,
+        289,
+        85,
+        104
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1490.5,
+        341.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 17,
+        "top": 27,
+        "right": 17,
+        "bottom": 26
+      },
+      "nearby_related_entities": [
+        "T_known_title",
+        "T_known_body"
+      ],
+      "target_color": "#f04000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_new",
+      "semantic_role": "new_redesigned_reconstruction",
+      "requested_asset_id": "TABLER_OUTLINE_VECTOR_BEZIER_2",
+      "selected_asset_id": "TABLER_OUTLINE_VECTOR_BEZIER_2",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/assets/tabler/vector-bezier-2.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1447,
+        479,
+        86,
+        104
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1490.0,
+        531.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 17,
+        "top": 25,
+        "right": 16,
+        "bottom": 22
+      },
+      "nearby_related_entities": [
+        "T_new_title",
+        "T_new_body"
+      ],
+      "target_color": "#f04000",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    },
+    {
+      "entity_id": "I_output",
+      "semantic_role": "editable_pptx_file",
+      "requested_asset_id": "USER_LOGO_POWERPOINT",
+      "selected_asset_id": "USER_LOGO_POWERPOINT",
+      "selection_mode": "restored_exact_canonical_asset",
+      "selected_asset_path": "fixture://architecture/presentation-output.svg",
+      "alternative_candidates": [],
+      "target_bbox_source_px": [
+        1239,
+        787,
+        86,
+        84
+      ],
+      "placement_authority": "icon_slot",
+      "slot_center_px": [
+        1282.0,
+        829.0
+      ],
+      "slot_padding_estimate_px": {
+        "left": 13,
+        "top": 14,
+        "right": 14,
+        "bottom": 14
+      },
+      "nearby_related_entities": [
+        "T_output"
+      ],
+      "target_color": "#d05010",
+      "preserve_aspect_ratio": true,
+      "fit": "contain",
+      "alignment": "center",
+      "allow_stretch": false,
+      "generated_pixels_are_geometry_source": false
+    }
+  ],
+  "connector_reconstruction_plans": [
+    {
+      "entity_id": "C_stage1_stage2",
+      "relationship_intent": {
+        "source_entities": [
+          "G_stage1"
+        ],
+        "target_entities": [
+          "G_stage2"
+        ],
+        "relationship_type": "sequence_flow",
+        "directionality": "forward",
+        "structure_membership": "single"
+      },
+      "topology": {
+        "type": "one_to_one",
+        "source_count": 1,
+        "target_count": 1,
+        "source_anchor_count": 1,
+        "target_anchor_count": 1,
+        "junction_count": 0,
+        "source_anchor_cardinality_consistent": true,
+        "target_anchor_cardinality_consistent": true,
+        "shared_junction_required": false,
+        "shared_junction_measured": false
+      },
+      "configured_route": "straight",
+      "route_source": "step4_visual_constraints",
+      "measured_routing_corridor": {
+        "px": [
+          278,
+          440,
+          56,
+          25
+        ],
+        "normalized": [
+          0.160231,
+          0.485651,
+          0.032277,
+          0.027594
+        ],
+        "inches": [
+          2.1364,
+          3.6424,
+          0.4304,
+          0.207
+        ],
+        "pptx_emu": [
+          1953530,
+          3330596,
+          393516,
+          189238
+        ]
+      },
+      "approximate_start_anchors_px": [
+        [
+          278,
+          452.0
+        ]
+      ],
+      "approximate_end_anchors_px": [
+        [
+          334,
+          452.0
+        ]
+      ],
+      "endpoint_ownership_audit": [
+        {
+          "endpoint": "G_stage1",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_stage2",
+          "side": "left",
+          "ownership": "semantic_target_owner"
+        }
+      ],
+      "raster_endpoint_role": "soft_routing_evidence_only",
+      "junction_positions_px": [],
+      "routing_orientation": "horizontal",
+      "stroke_style": {
+        "color": "#E64B00",
+        "width_px": 2,
+        "dash": "solid"
+      },
+      "junction_treatment": {
+        "style": "none",
+        "reason": "logical_junction_has_no_independent_semantic_role"
+      },
+      "arrowhead_treatment": "triangle_at_target",
+      "anchor_spans_px": [
+        56.0
+      ],
+      "arrowhead_clearance_px": 34,
+      "arrowhead_clearance_passed": true,
+      "qa_checks": [
+        "endpoint_attachment",
+        "arrowhead_legibility",
+        "component_collision",
+        "branch_junction_clarity",
+        "unnecessary_bends",
+        "peer_route_consistency"
+      ],
+      "exact_raster_path_is_authoritative": false
+    },
+    {
+      "entity_id": "C_stage2_stage3",
+      "relationship_intent": {
+        "source_entities": [
+          "G_ref1",
+          "G_ref2",
+          "G_ref3",
+          "G_ref4"
+        ],
+        "target_entities": [
+          "G_stage3"
+        ],
+        "relationship_type": "reference_retrieval_outputs_feed_visual_generation",
+        "directionality": "forward",
+        "structure_membership": "merge_shared_junction"
+      },
+      "topology": {
+        "type": "many_to_one_merge",
+        "source_count": 4,
+        "target_count": 1,
+        "source_anchor_count": 4,
+        "target_anchor_count": 1,
+        "junction_count": 1,
+        "source_anchor_cardinality_consistent": true,
+        "target_anchor_cardinality_consistent": true,
+        "shared_junction_required": true,
+        "shared_junction_measured": true
+      },
+      "configured_route": "elbow_shared_junction",
+      "route_source": "step4_visual_constraints",
+      "measured_routing_corridor": {
+        "px": [
+          600,
+          309,
+          74,
+          387
+        ],
+        "normalized": [
+          0.345821,
+          0.34106,
+          0.042651,
+          0.427152
+        ],
+        "inches": [
+          4.611,
+          2.5579,
+          0.5687,
+          3.2036
+        ],
+        "pptx_emu": [
+          4216253,
+          2338986,
+          520004,
+          2929410
+        ]
+      },
+      "approximate_start_anchors_px": [
+        [
+          600,
+          313.5
+        ],
+        [
+          600,
+          439.0
+        ],
+        [
+          600,
+          565.5
+        ],
+        [
+          600,
+          691.5
+        ]
+      ],
+      "approximate_end_anchors_px": [
+        [
+          674,
+          452
+        ]
+      ],
+      "endpoint_ownership_audit": [
+        {
+          "endpoint": "G_ref1",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_ref2",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_ref3",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_ref4",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_stage3",
+          "side": "left",
+          "ownership": "semantic_target_owner"
+        }
+      ],
+      "raster_endpoint_role": "soft_routing_evidence_only",
+      "junction_positions_px": [
+        [
+          637,
+          452
+        ]
+      ],
+      "routing_orientation": "horizontal_inputs_to_vertical_bus_then_horizontal_output",
+      "stroke_style": {
+        "color": "#E64B00",
+        "width_px": 4,
+        "dash": "solid",
+        "corner_style": "square_elbow"
+      },
+      "junction_treatment": {
+        "style": "none",
+        "reason": "logical_junction_has_no_independent_semantic_role"
+      },
+      "arrowhead_treatment": "large_triangle_at_target",
+      "anchor_spans_px": [
+        157.03
+      ],
+      "arrowhead_clearance_px": 34,
+      "arrowhead_clearance_passed": true,
+      "qa_checks": [
+        "endpoint_attachment",
+        "arrowhead_legibility",
+        "component_collision",
+        "branch_junction_clarity",
+        "unnecessary_bends",
+        "peer_route_consistency"
+      ],
+      "exact_raster_path_is_authoritative": false
+    },
+    {
+      "entity_id": "C_stage3_stage4",
+      "relationship_intent": {
+        "source_entities": [
+          "G_stage3"
+        ],
+        "target_entities": [
+          "G_stage4"
+        ],
+        "relationship_type": "sequence_flow",
+        "directionality": "forward",
+        "structure_membership": "single"
+      },
+      "topology": {
+        "type": "one_to_one",
+        "source_count": 1,
+        "target_count": 1,
+        "source_anchor_count": 1,
+        "target_anchor_count": 1,
+        "junction_count": 0,
+        "source_anchor_cardinality_consistent": true,
+        "target_anchor_cardinality_consistent": true,
+        "shared_junction_required": false,
+        "shared_junction_measured": false
+      },
+      "configured_route": "straight",
+      "route_source": "step4_visual_constraints",
+      "measured_routing_corridor": {
+        "px": [
+          1018,
+          440,
+          39,
+          25
+        ],
+        "normalized": [
+          0.586744,
+          0.485651,
+          0.022478,
+          0.027594
+        ],
+        "inches": [
+          7.8232,
+          3.6424,
+          0.2997,
+          0.207
+        ],
+        "pptx_emu": [
+          7153576,
+          3330596,
+          274056,
+          189238
+        ]
+      },
+      "approximate_start_anchors_px": [
+        [
+          1018,
+          452.0
+        ]
+      ],
+      "approximate_end_anchors_px": [
+        [
+          1057,
+          452.0
+        ]
+      ],
+      "endpoint_ownership_audit": [
+        {
+          "endpoint": "G_stage3",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_stage4",
+          "side": "left",
+          "ownership": "semantic_target_owner"
+        }
+      ],
+      "raster_endpoint_role": "soft_routing_evidence_only",
+      "junction_positions_px": [],
+      "routing_orientation": "horizontal",
+      "stroke_style": {
+        "color": "#E64B00",
+        "width_px": 2,
+        "dash": "solid"
+      },
+      "junction_treatment": {
+        "style": "none",
+        "reason": "logical_junction_has_no_independent_semantic_role"
+      },
+      "arrowhead_treatment": "triangle_at_target",
+      "anchor_spans_px": [
+        39.0
+      ],
+      "arrowhead_clearance_px": 34,
+      "arrowhead_clearance_passed": true,
+      "qa_checks": [
+        "endpoint_attachment",
+        "arrowhead_legibility",
+        "component_collision",
+        "branch_junction_clarity",
+        "unnecessary_bends",
+        "peer_route_consistency"
+      ],
+      "exact_raster_path_is_authoritative": false
+    },
+    {
+      "entity_id": "C_stage4_stage5",
+      "relationship_intent": {
+        "source_entities": [
+          "G_semantic",
+          "G_pixel"
+        ],
+        "target_entities": [
+          "G_known",
+          "G_new"
+        ],
+        "relationship_type": "parallel_understanding_feeds_both_reconstruction_routes",
+        "directionality": "forward",
+        "structure_membership": "many_to_many_shared_junction"
+      },
+      "topology": {
+        "type": "many_to_many_shared_junction",
+        "source_count": 2,
+        "target_count": 2,
+        "source_anchor_count": 2,
+        "target_anchor_count": 2,
+        "junction_count": 1,
+        "source_anchor_cardinality_consistent": true,
+        "target_anchor_cardinality_consistent": true,
+        "shared_junction_required": true,
+        "shared_junction_measured": true
+      },
+      "configured_route": "elbow_shared_junction",
+      "route_source": "configured_topology_clarity_policy",
+      "measured_routing_corridor": {
+        "px": [
+          1319,
+          340,
+          118,
+          230
+        ],
+        "normalized": [
+          0.760231,
+          0.375276,
+          0.068012,
+          0.253863
+        ],
+        "inches": [
+          10.1364,
+          2.8146,
+          0.9068,
+          1.904
+        ],
+        "pptx_emu": [
+          9268730,
+          2573642,
+          829196,
+          1740993
+        ]
+      },
+      "approximate_start_anchors_px": [
+        [
+          1319,
+          357.0
+        ],
+        [
+          1319,
+          595.5
+        ]
+      ],
+      "approximate_end_anchors_px": [
+        [
+          1437,
+          347.5
+        ],
+        [
+          1437,
+          566.5
+        ]
+      ],
+      "endpoint_ownership_audit": [
+        {
+          "endpoint": "G_semantic",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_pixel",
+          "side": "right",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_known",
+          "side": "left",
+          "ownership": "semantic_target_owner"
+        },
+        {
+          "endpoint": "G_new",
+          "side": "left",
+          "ownership": "semantic_target_owner"
+        }
+      ],
+      "raster_endpoint_role": "soft_routing_evidence_only",
+      "junction_positions_px": [
+        [
+          1376,
+          454
+        ]
+      ],
+      "routing_orientation": "horizontal_curves_through_shared_junction",
+      "stroke_style": {
+        "color": "#E64B00",
+        "width_px": 4,
+        "dash": "solid",
+        "corner_style": "smooth_curve"
+      },
+      "junction_treatment": {
+        "style": "none",
+        "reason": "logical_junction_has_no_independent_semantic_role"
+      },
+      "arrowhead_treatment": "large_triangle_at_each_target",
+      "anchor_spans_px": [
+        118.38,
+        121.51
+      ],
+      "arrowhead_clearance_px": 34,
+      "arrowhead_clearance_passed": true,
+      "qa_checks": [
+        "endpoint_attachment",
+        "arrowhead_legibility",
+        "component_collision",
+        "branch_junction_clarity",
+        "unnecessary_bends",
+        "peer_route_consistency"
+      ],
+      "exact_raster_path_is_authoritative": false
+    },
+    {
+      "entity_id": "C_stage5_output",
+      "relationship_intent": {
+        "source_entities": [
+          "G_stage5"
+        ],
+        "target_entities": [
+          "G_output"
+        ],
+        "relationship_type": "reconstruction_to_editable_output",
+        "directionality": "forward",
+        "structure_membership": "single"
+      },
+      "topology": {
+        "type": "one_to_one",
+        "source_count": 1,
+        "target_count": 1,
+        "source_anchor_count": 1,
+        "target_anchor_count": 1,
+        "junction_count": 2,
+        "source_anchor_cardinality_consistent": true,
+        "target_anchor_cardinality_consistent": true,
+        "shared_junction_required": false,
+        "shared_junction_measured": true
+      },
+      "configured_route": "straight",
+      "route_source": "deterministic_zero_bend_simplification",
+      "measured_routing_corridor": {
+        "px": [
+          1492,
+          674,
+          78,
+          101
+        ],
+        "normalized": [
+          0.859942,
+          0.743929,
+          0.044957,
+          0.111479
+        ],
+        "inches": [
+          11.4659,
+          5.5795,
+          0.5994,
+          0.8361
+        ],
+        "pptx_emu": [
+          10484417,
+          5101867,
+          548112,
+          764523
+        ]
+      },
+      "approximate_start_anchors_px": [
+        [
+          1562.5,
+          701
+        ]
+      ],
+      "approximate_end_anchors_px": [
+        [
+          1562.5,
+          775
+        ]
+      ],
+      "endpoint_ownership_audit": [
+        {
+          "endpoint": "G_stage5",
+          "side": "bottom",
+          "ownership": "semantic_source_owner"
+        },
+        {
+          "endpoint": "G_output",
+          "side": "top",
+          "ownership": "semantic_target_owner"
+        }
+      ],
+      "raster_endpoint_role": "soft_routing_evidence_only",
+      "junction_positions_px": [
+        [
+          1565,
+          740
+        ],
+        [
+          1504,
+          740
+        ]
+      ],
+      "routing_orientation": "vertical_then_horizontal_then_vertical",
+      "stroke_style": {
+        "color": "#E64B00",
+        "width_px": 3,
+        "dash": "solid"
+      },
+      "junction_treatment": {
+        "style": "none",
+        "reason": "logical_junction_has_no_independent_semantic_role"
+      },
+      "arrowhead_treatment": "triangle_at_target",
+      "anchor_spans_px": [
+        74.0
+      ],
+      "arrowhead_clearance_px": 34,
+      "arrowhead_clearance_passed": true,
+      "qa_checks": [
+        "endpoint_attachment",
+        "arrowhead_legibility",
+        "component_collision",
+        "branch_junction_clarity",
+        "unnecessary_bends",
+        "peer_route_consistency"
+      ],
+      "exact_raster_path_is_authoritative": false
+    }
+  ],
+  "text_policy": {
+    "content_source": "authoritative upstream source text",
+    "logical_textbox_policy": "one native textbox per authored block",
+    "measured_outer_geometry_is_hard_constraint": true,
+    "raster_line_structure_is_soft_evidence": true,
+    "autofit": "none",
+    "explicit_margins_spacing_and_font": true,
+    "grouped_typography_normalization": true
+  },
+  "image_policy": {
+    "meaningful_image_entity_is_one_powerpoint_picture": true,
+    "internal_pixels_emit_objects": false,
+    "fallback": "Step 4 screenshot crop"
+  },
+  "connector_policy": {
+    "primary_source": "relationship intent",
+    "visual_constraints": [
+      "approximate anchors",
+      "junction positions",
+      "routing type",
+      "stroke style",
+      "arrowhead treatment",
+      "routing corridor"
+    ],
+    "ordinary_connector_route": "native PowerPoint straight, elbow, curved, branch, merge, or shared-junction composition",
+    "ordinary_connector_object_type": "native_powerpoint_connector",
+    "separate_arrowhead_shapes_allowed": false,
+    "raster_fragment_anchor_shapes_allowed": false,
+    "non_rendering_routing_ports_allowed": true,
+    "routing_ports_are_reconstruction_entities": false,
+    "routing_port_purpose": "attach native connectors to measured junctions or normalized centerlines when preset shape connection sites are insufficient",
+    "fragment_tracing_allowed": false,
+    "redundant_raster_paths_may_consolidate": true,
+    "minimum_visible_arrowhead_px": 18,
+    "exact_raster_path_authoritative": false,
+    "peer_normalization": true,
+    "terminal_route_simplification": {
+      "prefer_axis_aligned_segments": true,
+      "use_measured_terminal_anchor_over_container_center": true,
+      "remove_final_bend_when_junction_and_terminal_anchor_share_an_axis": true,
+      "maximum_ordinary_bends": 2
+    },
+    "custom_geometry_exception": "only when the connector is itself a meaningful designed visual"
+  },
+  "icon_policy": {
+    "placement_authority": "measured icon slot",
+    "generated_glyph_role": "semantic evidence only",
+    "canonical_asset_fit": "explicit proportional contain geometry and center",
+    "allow_stretch": false,
+    "compute_final_width_and_height_from_source_svg_aspect_ratio": true,
+    "maximize_within_padded_slot": true,
+    "aspect_ratio_qa_required": true,
+    "slot_surface": "remove when temporary, retain when part of final component design"
+  },
+  "z_order": [
+    "connectors",
+    "stage containers",
+    "module cards and grid dividers",
+    "raster image objects",
+    "canonical SVG assets",
+    "native textboxes"
+  ],
+  "style_configuration": {
+    "background": "clean white",
+    "display_font": "Georgia",
+    "body_font": "Arial",
+    "accent_colors": [
+      "#D93900",
+      "#EB8C00",
+      "#E0301E"
+    ],
+    "neutral_colors": [
+      "#111111",
+      "#4A4A4A",
+      "#E1E1E1",
+      "#F2F2F2",
+      "#FFFFFF"
+    ],
+    "density": "moderately dense consulting-slide",
+    "whitespace": "generous outside the information architecture and consistent within repeated components",
+    "visual_conventions": "strong hierarchy, clean alignment, restrained fills, thin rules, explicit process relationships",
+    "diagram_conventions": "clear directional flow, compact internal branches, purposeful connectors, no decorative legend",
+    "icon_treatment": "simple Tabler-style outline pictograms in signature orange, proportionally contain-fitted and centered above a pale PwC warm-tint rectangular slot surface with consistent padding. Identity logos retain their canonical colors and are exempt from pictogram recoloring.",
+    "brand_inspiration": {
+      "name": "PwC-inspired consulting aesthetic",
+      "status": "synthetic configurable approximation, not an official PwC brand standard",
+      "personality": [
+        "bold",
+        "collaborative",
+        "optimistic",
+        "fast",
+        "sharp",
+        "focused"
+      ],
+      "color_roles": {
+        "signature_orange": "#D93900",
+        "bright_orange": "#EB8C00",
+        "red": "#E0301E",
+        "burgundy": "#602320",
+        "warm_yellow": "#FFB600",
+        "warm_tints": [
+          "#FCE4D6",
+          "#F7D7C4",
+          "#FFF0D6"
+        ],
+        "warm_neutrals": [
+          "#F2F2F2",
+          "#DED7CF",
+          "#968C6D"
+        ]
+      },
+      "color_usage": "Lead with white space and near-black typography. Use signature orange for hierarchy and directional emphasis. Use red, burgundy, yellow, warm tints, and warm neutrals selectively to distinguish information families without creating a rainbow palette.",
+      "shape_language": "Use crisp rectangular color blocks, restrained cropped wedges or slanted momentum accents, thin warm-gray rules, and occasional stepped block relationships. Keep shape use purposeful and flat.",
+      "surface_language": "Use white as the primary field, pale warm tint panels for secondary grouping, and saturated color blocks for small high-emphasis regions. Avoid decorative gradients and excessive rounded cards.",
+      "research_basis": [
+        "https://www.pwc.com/gx/en/news-room/time-for-change.html",
+        "https://www.pwc.com/us/en/about-us/newsroom/press-releases/brand-evolution-at-the-forefront-of-change.html",
+        "https://www.pwc.com/gx/en/about/ethics/pwc-code-of-conduct.pdf"
+      ]
+    }
+  },
+  "icon_slot_configuration": {
+    "enabled": true,
+    "authoritative_placement_object": "slot_box",
+    "generated_glyph_is_authoritative": false,
+    "default_inset_fraction": 0.14,
+    "minimum_inset_px": 8,
+    "alignment": "center",
+    "fit": "contain",
+    "allow_stretch": false,
+    "compute_contain_geometry_explicitly": true,
+    "maximum_aspect_ratio_error": 0.001,
+    "maximize_icon_within_inset_area": true,
+    "generation_tolerance_percent": 4,
+    "minimum_external_clearance_px": 12,
+    "generation_rendering": "Use a clear rectangular design container with a very light neutral or warm-tint surface. Keep its edges readable enough to establish the allocated region without drawing measurement guides or dashed annotations.",
+    "reconstruction_rendering": "Remove the temporary slot surface when it is only placement scaffolding. Retain it when it is visibly part of the intended component design.",
+    "standard_pictogram_surface": {
+      "enabled": true,
+      "fill": "#FCE4D6",
+      "alternate_fills": [
+        "#F7D7C4",
+        "#FFF0D6"
+      ],
+      "border": "none",
+      "glyph_color": "#D93900",
+      "glyph_z_order": "above_slot_surface",
+      "applies_to": "library pictograms and icons",
+      "exemptions": [
+        "user-provided logos",
+        "protected identity assets"
+      ]
+    }
+  },
+  "connector_configuration": {
+    "style_id": "consulting_flow_v1",
+    "allowed_routing_types": [
+      "straight",
+      "elbow",
+      "curved",
+      "straight_shared_junction",
+      "elbow_shared_junction",
+      "curved_shared_junction"
+    ],
+    "default_route": "straight",
+    "branch_route": "elbow_shared_junction",
+    "stroke": {
+      "color": "#D93900",
+      "width_px": 4,
+      "dash": "solid",
+      "line_cap": "round",
+      "line_join": "round"
+    },
+    "arrowhead": {
+      "type": "triangle",
+      "length_px": 20,
+      "width_px": 18,
+      "powerpoint_size": "lg",
+      "minimum_visible_endpoint_px": 18,
+      "minimum_clear_segment_px": 34
+    },
+    "junction": {
+      "style": "filled_circle",
+      "diameter_px": 10
+    },
+    "routing": {
+      "minimum_clearance_px": 12,
+      "minimum_bend_spacing_px": 20,
+      "maximum_ordinary_bends": 2,
+      "avoid_crossing_text": true,
+      "avoid_crossing_peer_components": true,
+      "normalize_peer_routes": true,
+      "prefer_axis_aligned_segments": true,
+      "terminal_approach_must_be_straight": true,
+      "avoid_redundant_terminal_bends": true,
+      "use_measured_terminal_anchor_over_container_center": true,
+      "axis_alignment_tolerance_px": 8
+    },
+    "qa": {
+      "check_arrowhead_legibility": true,
+      "check_arrowhead_to_stroke_ratio": true,
+      "arrowhead_length_to_stroke_ratio": [
+        3.0,
+        5.0
+      ],
+      "check_endpoint_attachment": true,
+      "check_label_and_component_collisions": true,
+      "check_branch_junction_clarity": true,
+      "simplify_unnecessary_bends": true,
+      "native_connector_objects_only": true,
+      "forbid_separate_arrowhead_shapes": true,
+      "forbid_connector_fragment_tracing": true,
+      "consolidate_redundant_raster_paths": true,
+      "preserve_semantic_merge_topology": true,
+      "normalize_horizontal_peer_flows": true,
+      "allow_non_rendering_routing_ports": true
+    }
+  },
+  "connector_configuration_qa": {
+    "style_id": "consulting_flow_v1",
+    "checks": {
+      "arrowhead_to_stroke_ratio": {
+        "value": 5.0,
+        "range": [
+          3.0,
+          5.0
+        ],
+        "passed": true
+      },
+      "clear_segment_for_arrowhead": {
+        "value_px": 34,
+        "required_minimum_px": 30.0,
+        "passed": true
+      },
+      "branch_route_is_configured": {
+        "value": "elbow_shared_junction",
+        "passed": true
+      },
+      "endpoint_is_visibly_sized": {
+        "value_px": 18,
+        "required_minimum_px": 18,
+        "passed": true
+      },
+      "native_connector_only_policy": {
+        "value": true,
+        "passed": true
+      }
+    },
+    "status": "passed"
+  },
+  "exact_source_content": {
+    "title": "Proposed Architecture for AI-Assisted Slide Drafting",
+    "subtitle": "High-quality editable slides can be produced by letting AI freely design within the right semantic and brand context, then systematically translating the generated visual back into clean, reusable PowerPoint objects.",
+    "stages": [
+      {
+        "number": 1,
+        "label": "Communication & Semantic Planning",
+        "content": [
+          "Human communication intent + source information",
+          "Determine content structure, relationships, hierarchy and emphasis",
+          "Produce layout-agnostic visual intent unless the user explicitly specifies layout"
+        ]
+      },
+      {
+        "number": 2,
+        "label": "Reference Retrieval",
+        "content": [
+          "Template References (Template Page Library)",
+          "Pictogram / Icon References (Pictogram / Icon Library)",
+          "User-Provided Icons (Uploaded assets)",
+          "Style Rules (Configured typography, color system and visual conventions)"
+        ]
+      },
+      {
+        "number": 3,
+        "label": "Visual Generation",
+        "content": [
+          "GPT Image 2 receives semantic visual intent, template references, selected assets and style rules",
+          "GPT Image 2 determines visual structure, use of supplied assets, creation of new visual elements and final composition",
+          "Generated target slide image"
+        ]
+      },
+      {
+        "number": 4,
+        "label": "Parallel Understanding of the Generated Image",
+        "content": [
+          "Semantic Mapping (VLM) determines what each rendered element represents and maps known assets",
+          "Pixel-Level Measurement (OpenCV + SAM 2) measures positions, boundaries, colors, strokes and text-block geometry"
+        ]
+      },
+      {
+        "number": 5,
+        "label": "Editable PowerPoint Reconstruction",
+        "content": [
+          "Known Element Reconstruction uses canonical assets, native PowerPoint objects and the Known Element Library",
+          "New / Redesigned Element Reconstruction uses semantic decomposition, standard PowerPoint shapes and connectors, geometry fitting, and raster only when required"
+        ]
+      }
+    ],
+    "output_label": "Editable PPTX"
+  },
+  "fitted_text_contracts": [
+    {
+      "id": "T_title",
+      "bbox_px": [
+        28,
+        29,
+        1230,
+        61
+      ],
+      "source_text_raw": "Proposed Architecture for AI-Assisted Slide Drafting",
+      "authored_text": "Proposed Architecture for AI-Assisted Slide Drafting",
+      "logical_paragraphs": [
+        "Proposed Architecture for AI-Assisted Slide Drafting"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Proposed Architecture for AI-Assisted Slide Drafting"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          30,
+          34,
+          1221,
+          54
+        ]
+      ],
+      "font_family": "Georgia",
+      "font_size_px": 49.75,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0,
+        "top": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 1152.33,
+      "predicted_block_height_px": 48.72,
+      "usable_width_px": 1230,
+      "usable_height_px": 61,
+      "predicted_width_ratio": 0.9369,
+      "predicted_height_ratio": 0.7986,
+      "typography_group": "slide_title"
+    },
+    {
+      "id": "T_subtitle",
+      "bbox_px": [
+        28,
+        108,
+        1034,
+        47
+      ],
+      "source_text_raw": "High-quality editable slides can be produced by letting AI freely design within the right semantic and brand context, then systematically translating the generated visual back into clean, reusable PowerPoint objects.",
+      "authored_text": "High-quality editable slides can be produced by letting AI freely design within the right semantic and brand context, then systematically translating the generated visual back into clean, reusable PowerPoint objects.",
+      "logical_paragraphs": [
+        "High-quality editable slides can be produced by letting AI freely design within the right semantic and brand context, then systematically translating the generated visual back into clean, reusable PowerPoint objects."
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "High-quality editable slides can be produced by letting AI freely design within the right semantic and brand",
+        "context, then systematically translating the generated visual back into clean, reusable PowerPoint objects."
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          28,
+          135,
+          1027,
+          20
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 19.25,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 2,
+        "top": 2,
+        "right": 2,
+        "bottom": 2
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 900.95,
+      "predicted_block_height_px": 40.81,
+      "usable_width_px": 1030,
+      "usable_height_px": 43,
+      "predicted_width_ratio": 0.8747,
+      "predicted_height_ratio": 0.9491,
+      "typography_group": "subtitle"
+    },
+    {
+      "id": "T_num1",
+      "bbox_px": [
+        44,
+        198,
+        35,
+        31
+      ],
+      "source_text_raw": "01",
+      "authored_text": "01",
+      "logical_paragraphs": [
+        "01"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "01"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          44,
+          198,
+          35,
+          31
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.0,
+      "bold": true,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "middle",
+      "line_spacing": 0.98,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 33.02,
+      "predicted_block_height_px": 29.75,
+      "usable_width_px": 35,
+      "usable_height_px": 31,
+      "predicted_width_ratio": 0.9435,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 29.75,
+      "typography_group": "stage_number"
+    },
+    {
+      "id": "T_stage1_title",
+      "bbox_px": [
+        100,
+        199,
+        151,
+        42
+      ],
+      "source_text_raw": "Communication & Semantic Planning",
+      "authored_text": "Communication & Semantic Planning",
+      "logical_paragraphs": [
+        "Communication & Semantic Planning"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Communication &",
+        "Semantic Planning"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          102,
+          225,
+          147,
+          16
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 15.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.92,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 134.06,
+      "predicted_block_height_px": 29.95,
+      "usable_width_px": 147,
+      "usable_height_px": 38,
+      "predicted_width_ratio": 0.912,
+      "predicted_height_ratio": 0.7882,
+      "individual_font_size_before_refinement_px": 15.0,
+      "typography_group": "stage_title"
+    },
+    {
+      "id": "T_stage1_body",
+      "bbox_px": [
+        49,
+        470,
+        207,
+        198
+      ],
+      "source_text_raw": "Human communication intent + source information\nDetermine content structure, relationships, hierarchy and emphasis\nProduce layout-agnostic visual intent unless the user explicitly specifies layout",
+      "authored_text": "Human communication intent + source information\nDetermine content structure, relationships, hierarchy and emphasis\nProduce layout-agnostic visual intent unless the user explicitly specifies layout",
+      "logical_paragraphs": [
+        "Human communication intent + source information\nDetermine content structure, relationships, hierarchy and emphasis\nProduce layout-agnostic visual intent unless the user explicitly specifies layout"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 3,
+      "predicted_native_wrap_lines": [
+        "Human communication",
+        "intent + source",
+        "information",
+        "Determine content",
+        "structure, relationships,",
+        "hierarchy and emphasis",
+        "Produce layout-agnostic",
+        "visual intent unless the",
+        "user explicitly specifies",
+        "layout"
+      ],
+      "predicted_native_line_count": 10,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          51,
+          532,
+          204,
+          13
+        ],
+        [
+          70,
+          551,
+          181,
+          14
+        ],
+        [
+          70,
+          629,
+          182,
+          11
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 16.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 176.8,
+      "predicted_block_height_px": 184.8,
+      "usable_width_px": 203,
+      "usable_height_px": 194,
+      "predicted_width_ratio": 0.8709,
+      "predicted_height_ratio": 0.9526,
+      "individual_font_size_before_refinement_px": 16.5,
+      "typography_group": "stage_body"
+    },
+    {
+      "id": "T_num2",
+      "bbox_px": [
+        346,
+        198,
+        35,
+        31
+      ],
+      "source_text_raw": "02",
+      "authored_text": "02",
+      "logical_paragraphs": [
+        "02"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "02"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          346,
+          198,
+          35,
+          31
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.0,
+      "bold": true,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "middle",
+      "line_spacing": 0.98,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 33.02,
+      "predicted_block_height_px": 29.75,
+      "usable_width_px": 35,
+      "usable_height_px": 31,
+      "predicted_width_ratio": 0.9435,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 29.75,
+      "typography_group": "stage_number"
+    },
+    {
+      "id": "T_stage2_title",
+      "bbox_px": [
+        402,
+        199,
+        174,
+        31
+      ],
+      "source_text_raw": "Reference Retrieval",
+      "authored_text": "Reference Retrieval",
+      "logical_paragraphs": [
+        "Reference Retrieval"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Reference Retrieval"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          405,
+          202,
+          152,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 15.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.92,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 158.57,
+      "predicted_block_height_px": 16.97,
+      "usable_width_px": 170,
+      "usable_height_px": 27,
+      "predicted_width_ratio": 0.9327,
+      "predicted_height_ratio": 0.6286,
+      "individual_font_size_before_refinement_px": 17.0,
+      "typography_group": "stage_title"
+    },
+    {
+      "id": "T_ref1",
+      "bbox_px": [
+        432,
+        291,
+        155,
+        39
+      ],
+      "source_text_raw": "Visual References (Visual Reference Library)",
+      "authored_text": "Visual References\n(Visual Reference Library)",
+      "logical_paragraphs": [
+        "Visual References\n(Visual Reference Library)"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Visual References",
+        "(Visual Reference Library)"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          434,
+          314,
+          141,
+          14
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 12.25,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 139.23,
+      "predicted_block_height_px": 25.92,
+      "usable_width_px": 151,
+      "usable_height_px": 35,
+      "predicted_width_ratio": 0.9221,
+      "predicted_height_ratio": 0.7406,
+      "individual_font_size_before_refinement_px": 12.0,
+      "typography_group": "reference_label"
+    },
+    {
+      "id": "T_ref2",
+      "bbox_px": [
+        432,
+        414,
+        160,
+        54
+      ],
+      "source_text_raw": "Pictogram / Icon References (Pictogram / Icon Library)",
+      "authored_text": "Pictogram / Icon References\n(Pictogram / Icon Library)",
+      "logical_paragraphs": [
+        "Pictogram / Icon References\n(Pictogram / Icon Library)"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Pictogram / Icon",
+        "References",
+        "(Pictogram / Icon Library)"
+      ],
+      "predicted_native_line_count": 3,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          434,
+          450,
+          149,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 12.25,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 145.76,
+      "predicted_block_height_px": 42.12,
+      "usable_width_px": 156,
+      "usable_height_px": 50,
+      "predicted_width_ratio": 0.9344,
+      "predicted_height_ratio": 0.8424,
+      "individual_font_size_before_refinement_px": 13.0,
+      "typography_group": "reference_label"
+    },
+    {
+      "id": "T_ref3",
+      "bbox_px": [
+        432,
+        544,
+        156,
+        39
+      ],
+      "source_text_raw": "User-Provided Icons (Uploaded assets)",
+      "authored_text": "User-Provided Icons\n(Uploaded assets)",
+      "logical_paragraphs": [
+        "User-Provided Icons\n(Uploaded assets)"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "User-Provided Icons",
+        "(Uploaded assets)"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          434,
+          567,
+          109,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 12.25,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 140.28,
+      "predicted_block_height_px": 33.48,
+      "usable_width_px": 152,
+      "usable_height_px": 35,
+      "predicted_width_ratio": 0.9229,
+      "predicted_height_ratio": 0.9566,
+      "individual_font_size_before_refinement_px": 15.5,
+      "typography_group": "reference_label"
+    },
+    {
+      "id": "T_ref4",
+      "bbox_px": [
+        432,
+        656,
+        160,
+        75
+      ],
+      "source_text_raw": "Style Rules (Configured typography, color system and visual conventions)",
+      "authored_text": "Style Rules\n(Configured typography,\ncolor system and visual\nconventions)",
+      "logical_paragraphs": [
+        "Style Rules\n(Configured typography,\ncolor system and visual\nconventions)"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Style Rules",
+        "(Configured typography,",
+        "color system and visual",
+        "conventions)"
+      ],
+      "predicted_native_line_count": 4,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          435,
+          680,
+          142,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 12.25,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 144.62,
+      "predicted_block_height_px": 58.32,
+      "usable_width_px": 156,
+      "usable_height_px": 71,
+      "predicted_width_ratio": 0.927,
+      "predicted_height_ratio": 0.8214,
+      "individual_font_size_before_refinement_px": 13.5,
+      "typography_group": "reference_label"
+    },
+    {
+      "id": "T_num3",
+      "bbox_px": [
+        685,
+        198,
+        35,
+        31
+      ],
+      "source_text_raw": "03",
+      "authored_text": "03",
+      "logical_paragraphs": [
+        "03"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "03"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          685,
+          198,
+          35,
+          31
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.0,
+      "bold": true,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "middle",
+      "line_spacing": 0.98,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 33.02,
+      "predicted_block_height_px": 29.75,
+      "usable_width_px": 35,
+      "usable_height_px": 31,
+      "predicted_width_ratio": 0.9435,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 29.75,
+      "typography_group": "stage_number"
+    },
+    {
+      "id": "T_stage3_title",
+      "bbox_px": [
+        743,
+        199,
+        166,
+        31
+      ],
+      "source_text_raw": "Visual Generation",
+      "authored_text": "Visual Generation",
+      "logical_paragraphs": [
+        "Visual Generation"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Visual Generation"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          745,
+          202,
+          141,
+          14
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 15.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.92,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 150.79,
+      "predicted_block_height_px": 17.72,
+      "usable_width_px": 162,
+      "usable_height_px": 27,
+      "predicted_width_ratio": 0.9308,
+      "predicted_height_ratio": 0.6564,
+      "individual_font_size_before_refinement_px": 17.75,
+      "typography_group": "stage_title"
+    },
+    {
+      "id": "T_stage3_model",
+      "bbox_px": [
+        872.0,
+        291.5,
+        108,
+        32
+      ],
+      "source_text_raw": "GPT Image 2",
+      "authored_text": "GPT Image 2",
+      "logical_paragraphs": [
+        "GPT Image 2"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "GPT Image 2"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          875,
+          294,
+          102,
+          17
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 16.0,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 96.84,
+      "predicted_block_height_px": 17.28,
+      "usable_width_px": 104,
+      "usable_height_px": 28,
+      "predicted_width_ratio": 0.9312,
+      "predicted_height_ratio": 0.6171,
+      "individual_font_size_before_refinement_px": 16.0,
+      "typography_group": "technology_label"
+    },
+    {
+      "id": "T_stage3_body",
+      "bbox_px": [
+        704,
+        350,
+        252,
+        143
+      ],
+      "source_text_raw": "GPT Image 2 receives semantic visual intent, visual references, selected assets and style rules\nGPT Image 2 determines visual structure, use of supplied assets, creation of new visual elements and final composition",
+      "authored_text": "GPT Image 2 receives semantic visual intent, visual references, selected assets and style rules\nGPT Image 2 determines visual structure, use of supplied assets, creation of new visual elements and final composition",
+      "logical_paragraphs": [
+        "GPT Image 2 receives semantic visual intent, visual references, selected assets and style rules\nGPT Image 2 determines visual structure, use of supplied assets, creation of new visual elements and final composition"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 2,
+      "predicted_native_wrap_lines": [
+        "GPT Image 2 receives semantic",
+        "visual intent, visual references,",
+        "selected assets and style rules",
+        "GPT Image 2 determines visual",
+        "structure, use of supplied",
+        "assets, creation of new visual",
+        "elements and final composition"
+      ],
+      "predicted_native_line_count": 7,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          726,
+          376,
+          223,
+          14
+        ],
+        [
+          726,
+          395,
+          204,
+          14
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 16.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 1.0,
+        "top": 1.0,
+        "right": 1.0,
+        "bottom": 1.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 230.95,
+      "predicted_block_height_px": 127.4,
+      "usable_width_px": 248,
+      "usable_height_px": 139,
+      "predicted_width_ratio": 0.9313,
+      "predicted_height_ratio": 0.9165,
+      "individual_font_size_before_refinement_px": 16.25,
+      "typography_group": "stage_body"
+    },
+    {
+      "id": "T_target_preview",
+      "bbox_px": [
+        744,
+        518,
+        200,
+        24
+      ],
+      "source_text_raw": "Generated target slide image",
+      "authored_text": "Generated target slide image",
+      "logical_paragraphs": [
+        "Generated target slide image"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Generated target slide image"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          747,
+          523,
+          191,
+          14
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 13.25,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 2,
+        "top": 2,
+        "right": 2,
+        "bottom": 2
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 181.66,
+      "predicted_block_height_px": 14.31,
+      "usable_width_px": 196,
+      "usable_height_px": 20,
+      "predicted_width_ratio": 0.9268,
+      "predicted_height_ratio": 0.7155,
+      "typography_group": "image_caption"
+    },
+    {
+      "id": "T_num4",
+      "bbox_px": [
+        1068,
+        198,
+        35,
+        31
+      ],
+      "source_text_raw": "04",
+      "authored_text": "04",
+      "logical_paragraphs": [
+        "04"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "04"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1068,
+          198,
+          35,
+          31
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.0,
+      "bold": true,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "middle",
+      "line_spacing": 0.98,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 33.02,
+      "predicted_block_height_px": 29.75,
+      "usable_width_px": 35,
+      "usable_height_px": 31,
+      "predicted_width_ratio": 0.9435,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 29.75,
+      "typography_group": "stage_number"
+    },
+    {
+      "id": "T_stage4_title",
+      "bbox_px": [
+        1121,
+        198,
+        188,
+        48
+      ],
+      "source_text_raw": "Parallel Understanding of the Generated Image",
+      "authored_text": "Parallel Understanding of\nthe Generated Image",
+      "logical_paragraphs": [
+        "Parallel Understanding of\nthe Generated Image"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Parallel Understanding",
+        "of",
+        "the Generated Image"
+      ],
+      "predicted_native_line_count": 3,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1123,
+          203,
+          186,
+          16
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 15.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.92,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 163.2,
+      "predicted_block_height_px": 44.93,
+      "usable_width_px": 184,
+      "usable_height_px": 44,
+      "predicted_width_ratio": 0.887,
+      "predicted_height_ratio": 1.0211,
+      "individual_font_size_before_refinement_px": 15.0,
+      "typography_group": "stage_title"
+    },
+    {
+      "id": "T_semantic_title",
+      "bbox_px": [
+        1174,
+        304,
+        139,
+        24
+      ],
+      "source_text_raw": "Semantic Mapping",
+      "authored_text": "Semantic Mapping",
+      "logical_paragraphs": [
+        "Semantic Mapping"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Semantic Mapping"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1176,
+          310,
+          123,
+          15
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 14.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 114.72,
+      "predicted_block_height_px": 13.1,
+      "usable_width_px": 135,
+      "usable_height_px": 20,
+      "predicted_width_ratio": 0.8498,
+      "predicted_height_ratio": 0.6552,
+      "individual_font_size_before_refinement_px": 13.0,
+      "typography_group": "module_title"
+    },
+    {
+      "id": "T_semantic_body",
+      "bbox_px": [
+        1173,
+        331,
+        138,
+        78
+      ],
+      "source_text_raw": "(VLM) determines what each rendered element represents and maps known assets",
+      "authored_text": "(VLM) determines what each rendered element represents and maps known assets",
+      "logical_paragraphs": [
+        "(VLM) determines what each rendered element represents and maps known assets"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "(VLM) determines what",
+        "each rendered element",
+        "represents and maps",
+        "known assets"
+      ],
+      "predicted_native_line_count": 4,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1176,
+          393,
+          135,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 13.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 123.9,
+      "predicted_block_height_px": 52.8,
+      "usable_width_px": 134,
+      "usable_height_px": 74,
+      "predicted_width_ratio": 0.9246,
+      "predicted_height_ratio": 0.7135,
+      "individual_font_size_before_refinement_px": 12.0,
+      "typography_group": "module_body"
+    },
+    {
+      "id": "T_pixel_title",
+      "bbox_px": [
+        1173,
+        478,
+        139,
+        55
+      ],
+      "source_text_raw": "Pixel-Level Measurement",
+      "authored_text": "Pixel-Level\nMeasurement",
+      "logical_paragraphs": [
+        "Pixel-Level\nMeasurement"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Pixel-Level",
+        "Measurement"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1176,
+          514,
+          97,
+          12
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 14.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 128.8,
+      "predicted_block_height_px": 40.32,
+      "usable_width_px": 135,
+      "usable_height_px": 51,
+      "predicted_width_ratio": 0.9541,
+      "predicted_height_ratio": 0.7906,
+      "individual_font_size_before_refinement_px": 20.0,
+      "typography_group": "module_title"
+    },
+    {
+      "id": "T_pixel_body",
+      "bbox_px": [
+        1174,
+        534,
+        139,
+        102
+      ],
+      "source_text_raw": "(OpenCV + SAM 2) measures positions, boundaries, colors, strokes and text-block geometry",
+      "authored_text": "(OpenCV + SAM 2) measures positions, boundaries, colors, strokes and text-block geometry",
+      "logical_paragraphs": [
+        "(OpenCV + SAM 2) measures positions, boundaries, colors, strokes and text-block geometry"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "(OpenCV + SAM 2)",
+        "measures",
+        "positions,",
+        "boundaries, colors,",
+        "strokes and",
+        "text-block geometry"
+      ],
+      "predicted_native_line_count": 6,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1176,
+          597,
+          123,
+          10
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 13.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 124.19,
+      "predicted_block_height_px": 94.05,
+      "usable_width_px": 135,
+      "usable_height_px": 98,
+      "predicted_width_ratio": 0.9199,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 14.25,
+      "typography_group": "module_body"
+    },
+    {
+      "id": "T_pixel_model",
+      "bbox_px": [
+        1174.0,
+        644.5,
+        139,
+        28
+      ],
+      "source_text_raw": "OpenCV + SAM 2",
+      "authored_text": "OpenCV + SAM 2",
+      "logical_paragraphs": [
+        "OpenCV + SAM 2"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "OpenCV + SAM 2"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1176,
+          661,
+          130,
+          16
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 16.0,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 126.13,
+      "predicted_block_height_px": 16.74,
+      "usable_width_px": 135,
+      "usable_height_px": 24,
+      "predicted_width_ratio": 0.9343,
+      "predicted_height_ratio": 0.6975,
+      "individual_font_size_before_refinement_px": 15.5,
+      "typography_group": "technology_label"
+    },
+    {
+      "id": "T_num5",
+      "bbox_px": [
+        1431,
+        198,
+        35,
+        31
+      ],
+      "source_text_raw": "05",
+      "authored_text": "05",
+      "logical_paragraphs": [
+        "05"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "05"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1431,
+          198,
+          35,
+          31
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.0,
+      "bold": true,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "middle",
+      "line_spacing": 0.98,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 33.02,
+      "predicted_block_height_px": 29.75,
+      "usable_width_px": 35,
+      "usable_height_px": 31,
+      "predicted_width_ratio": 0.9435,
+      "predicted_height_ratio": 0.9597,
+      "individual_font_size_before_refinement_px": 29.75,
+      "typography_group": "stage_number"
+    },
+    {
+      "id": "T_stage5_title",
+      "bbox_px": [
+        1489,
+        198,
+        184,
+        49
+      ],
+      "source_text_raw": "Editable PowerPoint Reconstruction",
+      "authored_text": "Editable PowerPoint\nReconstruction",
+      "logical_paragraphs": [
+        "Editable PowerPoint\nReconstruction"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Editable PowerPoint",
+        "Reconstruction"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1491,
+          203,
+          159,
+          13
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 15.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 0.92,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 169.05,
+      "predicted_block_height_px": 34.94,
+      "usable_width_px": 180,
+      "usable_height_px": 45,
+      "predicted_width_ratio": 0.9392,
+      "predicted_height_ratio": 0.7765,
+      "individual_font_size_before_refinement_px": 17.5,
+      "typography_group": "stage_title"
+    },
+    {
+      "id": "T_known_title",
+      "bbox_px": [
+        1545,
+        285.5,
+        139,
+        40
+      ],
+      "source_text_raw": "Known Element Reconstruction",
+      "authored_text": "Known Element\nReconstruction",
+      "logical_paragraphs": [
+        "Known Element\nReconstruction"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Known Element",
+        "Reconstruction"
+      ],
+      "predicted_native_line_count": 2,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1548,
+          312,
+          102,
+          12
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 14.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 125.54,
+      "predicted_block_height_px": 33.77,
+      "usable_width_px": 135,
+      "usable_height_px": 36,
+      "predicted_width_ratio": 0.9299,
+      "predicted_height_ratio": 0.938,
+      "individual_font_size_before_refinement_px": 16.75,
+      "typography_group": "module_title"
+    },
+    {
+      "id": "T_known_body",
+      "bbox_px": [
+        1545,
+        332,
+        139,
+        78
+      ],
+      "source_text_raw": "uses canonical assets, native PowerPoint objects and the Known Element Library",
+      "authored_text": "uses canonical assets, native PowerPoint objects and the Known Element Library",
+      "logical_paragraphs": [
+        "uses canonical assets, native PowerPoint objects and the Known Element Library"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "uses canonical assets,",
+        "native PowerPoint",
+        "objects and the Known",
+        "Element Library"
+      ],
+      "predicted_native_line_count": 4,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1548,
+          393,
+          130,
+          12
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 13.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 121.26,
+      "predicted_block_height_px": 52.8,
+      "usable_width_px": 135,
+      "usable_height_px": 74,
+      "predicted_width_ratio": 0.8982,
+      "predicted_height_ratio": 0.7135,
+      "individual_font_size_before_refinement_px": 12.0,
+      "typography_group": "module_body"
+    },
+    {
+      "id": "T_new_title",
+      "bbox_px": [
+        1545,
+        473.5,
+        140,
+        63
+      ],
+      "source_text_raw": "New / Redesigned Element Reconstruction",
+      "authored_text": "New / Redesigned\nElement\nReconstruction",
+      "logical_paragraphs": [
+        "New / Redesigned\nElement\nReconstruction"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "New / Redesigned",
+        "Element",
+        "Reconstruction"
+      ],
+      "predicted_native_line_count": 3,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1548,
+          480,
+          119,
+          15
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 14.75,
+      "bold": true,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 111.12,
+      "predicted_block_height_px": 39.31,
+      "usable_width_px": 136,
+      "usable_height_px": 59,
+      "predicted_width_ratio": 0.817,
+      "predicted_height_ratio": 0.6663,
+      "individual_font_size_before_refinement_px": 13.0,
+      "typography_group": "module_title"
+    },
+    {
+      "id": "T_new_body",
+      "bbox_px": [
+        1545,
+        540,
+        141,
+        115
+      ],
+      "source_text_raw": "uses semantic decomposition, standard PowerPoint shapes and connectors, geometry fitting, and raster only when required",
+      "authored_text": "uses semantic decomposition, standard PowerPoint shapes and connectors, geometry fitting, and raster only when required",
+      "logical_paragraphs": [
+        "uses semantic decomposition, standard PowerPoint shapes and connectors, geometry fitting, and raster only when required"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "uses semantic",
+        "decomposition,",
+        "standard PowerPoint",
+        "shapes and connectors,",
+        "geometry fitting, and",
+        "raster only when",
+        "required"
+      ],
+      "predicted_native_line_count": 7,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1547,
+          562,
+          139,
+          12
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 13.5,
+      "bold": false,
+      "italic": false,
+      "color": "#111111",
+      "alignment": "left",
+      "vertical_alignment": "top",
+      "line_spacing": 1.0,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 127.23,
+      "predicted_block_height_px": 92.4,
+      "usable_width_px": 137,
+      "usable_height_px": 111,
+      "predicted_width_ratio": 0.9287,
+      "predicted_height_ratio": 0.8324,
+      "individual_font_size_before_refinement_px": 12.0,
+      "typography_group": "module_body"
+    },
+    {
+      "id": "T_output",
+      "bbox_px": [
+        1347,
+        807,
+        214,
+        48
+      ],
+      "source_text_raw": "Editable PPTX",
+      "authored_text": "Editable PPTX",
+      "logical_paragraphs": [
+        "Editable PPTX"
+      ],
+      "preserved_explicit_breaks": true,
+      "rendered_line_count_evidence": 1,
+      "predicted_native_wrap_lines": [
+        "Editable PPTX"
+      ],
+      "predicted_native_line_count": 1,
+      "measured_line_boxes_soft_evidence_px": [
+        [
+          1347,
+          807,
+          214,
+          48
+        ]
+      ],
+      "font_family": "Arial",
+      "font_size_px": 30.25,
+      "bold": false,
+      "italic": false,
+      "color": "#FFFFFF",
+      "alignment": "center",
+      "vertical_alignment": "top",
+      "line_spacing": 0.96,
+      "paragraph_space_before_px": 0,
+      "paragraph_space_after_px": 0,
+      "insets_px": {
+        "left": 2,
+        "top": 2,
+        "right": 2,
+        "bottom": 2
+      },
+      "wrap": "square",
+      "autofit": "none",
+      "fit_safety_factor": 0.94,
+      "predicted_max_line_width_px": 196.62,
+      "predicted_block_height_px": 30.2,
+      "usable_width_px": 210,
+      "usable_height_px": 44,
+      "predicted_width_ratio": 0.9363,
+      "predicted_height_ratio": 0.6864,
+      "typography_group": "output_label"
+    }
+  ],
+  "fitted_geometry_contracts": [
+    {
+      "id": "S_tab1",
+      "semantic_role": "stage_number_tab",
+      "bbox_px": [
+        33,
+        184,
+        60,
+        53
+      ],
+      "visible_bbox_px": [
+        33,
+        184,
+        60,
+        53
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#E26002",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              33,
+              184
+            ],
+            [
+              33,
+              236
+            ],
+            [
+              82,
+              236
+            ],
+            [
+              89,
+              198
+            ],
+            [
+              92,
+              197
+            ],
+            [
+              92,
+              184
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 0
+      },
+      "sam_used": false
+    },
+    {
+      "id": "S_tab2",
+      "semantic_role": "stage_number_tab",
+      "bbox_px": [
+        335,
+        184,
+        60,
+        53
+      ],
+      "visible_bbox_px": [
+        335,
+        184,
+        60,
+        53
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#E05C02",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              335,
+              184
+            ],
+            [
+              335,
+              236
+            ],
+            [
+              384,
+              236
+            ],
+            [
+              391,
+              199
+            ],
+            [
+              394,
+              198
+            ],
+            [
+              394,
+              184
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 0
+      },
+      "sam_used": false
+    },
+    {
+      "id": "S_tab3",
+      "semantic_role": "stage_number_tab",
+      "bbox_px": [
+        675,
+        184,
+        60,
+        53
+      ],
+      "visible_bbox_px": [
+        675,
+        184,
+        60,
+        53
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#E15F02",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              675,
+              184
+            ],
+            [
+              675,
+              236
+            ],
+            [
+              723,
+              236
+            ],
+            [
+              731,
+              193
+            ],
+            [
+              734,
+              192
+            ],
+            [
+              734,
+              184
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 0
+      },
+      "sam_used": false
+    },
+    {
+      "id": "S_tab4",
+      "semantic_role": "stage_number_tab",
+      "bbox_px": [
+        1058,
+        184,
+        60,
+        53
+      ],
+      "visible_bbox_px": [
+        1058,
+        184,
+        60,
+        53
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#E26302",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              1058,
+              184
+            ],
+            [
+              1058,
+              236
+            ],
+            [
+              1105,
+              236
+            ],
+            [
+              1114,
+              189
+            ],
+            [
+              1117,
+              188
+            ],
+            [
+              1117,
+              184
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 0
+      },
+      "sam_used": false
+    },
+    {
+      "id": "S_tab5",
+      "semantic_role": "stage_number_tab",
+      "bbox_px": [
+        1421,
+        184,
+        60,
+        53
+      ],
+      "visible_bbox_px": [
+        1421,
+        184,
+        60,
+        53
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#E26102",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              1421,
+              184
+            ],
+            [
+              1421,
+              236
+            ],
+            [
+              1468,
+              236
+            ],
+            [
+              1477,
+              191
+            ],
+            [
+              1480,
+              190
+            ],
+            [
+              1480,
+              184
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 0
+      },
+      "sam_used": false
+    },
+    {
+      "id": "S_output",
+      "semantic_role": "output_container",
+      "bbox_px": [
+        1219,
+        775,
+        486,
+        107
+      ],
+      "visible_bbox_px": [
+        1219,
+        775,
+        486,
+        107
+      ],
+      "source": "opencv_selected_mask_skeleton",
+      "color": "#CE3300",
+      "stroke_width_px": 1.6,
+      "primitives": [
+        {
+          "type": "filled_path",
+          "points_px": [
+            [
+              1219,
+              881
+            ],
+            [
+              1679,
+              881
+            ],
+            [
+              1704,
+              775
+            ],
+            [
+              1219,
+              775
+            ]
+          ],
+          "closed": true
+        },
+        {
+          "type": "knockout_path",
+          "points_px": [
+            [
+              1297,
+              809
+            ],
+            [
+              1305,
+              809
+            ],
+            [
+              1306,
+              810
+            ],
+            [
+              1306,
+              823
+            ],
+            [
+              1308,
+              824
+            ],
+            [
+              1308,
+              833
+            ],
+            [
+              1307,
+              834
+            ],
+            [
+              1298,
+              834
+            ],
+            [
+              1297,
+              833
+            ],
+            [
+              1297,
+              828
+            ],
+            [
+              1300,
+              821
+            ],
+            [
+              1299,
+              817
+            ],
+            [
+              1296,
+              814
+            ]
+          ],
+          "closed": true
+        }
+      ],
+      "primitive_counts": {
+        "line": 0,
+        "ellipse": 0,
+        "rect": 0,
+        "custom_path": 0,
+        "filled_path": 1,
+        "knockout_path": 1
+      },
+      "sam_used": false
+    }
+  ],
+  "fit_policy": {
+    "text": "Measured outer geometry is immutable. Font metrics, line spacing, paragraph spacing, and insets are fitted inside it.",
+    "line_art": "OpenCV masks are skeletonized and decomposed into lines, ellipses, rectangles, and residual custom paths.",
+    "sam": "SAM remains reserved for irregular filled regions and is disabled for thin line art."
+  },
+  "alignment_bbox_overrides": {
+    "T_known_title": [
+      1545,
+      285.5,
+      139,
+      40
+    ],
+    "T_new_title": [
+      1545,
+      473.5,
+      140,
+      63
+    ],
+    "T_stage3_model": [
+      872.0,
+      291.5,
+      108,
+      32
+    ],
+    "T_pixel_model": [
+      1174.0,
+      644.5,
+      139,
+      28
+    ]
+  },
+  "refinement_pass": {
+    "policy": "Bounded semantic-system normalization after initial reconstruction fit.",
+    "typography_groups": [
+      {
+        "group": "slide_title",
+        "semantic_role": "slide_title",
+        "members": [
+          "T_title"
+        ],
+        "shared_font_size_px": 49.75,
+        "shared_font_size_pt": 37.31,
+        "inset_px": 0,
+        "line_spacing": 0.96,
+        "singleton": true
+      },
+      {
+        "group": "subtitle",
+        "semantic_role": "subtitle",
+        "members": [
+          "T_subtitle"
+        ],
+        "shared_font_size_px": 19.25,
+        "shared_font_size_pt": 14.44,
+        "inset_px": 2,
+        "line_spacing": 1.0,
+        "singleton": true
+      },
+      {
+        "group": "stage_number",
+        "semantic_role": "stage_number",
+        "members": [
+          "T_num1",
+          "T_num2",
+          "T_num3",
+          "T_num4",
+          "T_num5"
+        ],
+        "shared_font_size_px": 30.0,
+        "shared_font_size_pt": 22.5,
+        "inset_px": 0.0,
+        "line_spacing": 0.98,
+        "singleton": false
+      },
+      {
+        "group": "stage_title",
+        "semantic_role": "stage_title",
+        "members": [
+          "T_stage1_title",
+          "T_stage2_title",
+          "T_stage3_title",
+          "T_stage4_title",
+          "T_stage5_title"
+        ],
+        "shared_font_size_px": 15.75,
+        "shared_font_size_pt": 11.81,
+        "inset_px": 0.0,
+        "line_spacing": 0.92,
+        "singleton": false
+      },
+      {
+        "group": "stage_body",
+        "semantic_role": "stage_body",
+        "members": [
+          "T_stage1_body",
+          "T_stage3_body"
+        ],
+        "shared_font_size_px": 16.5,
+        "shared_font_size_pt": 12.38,
+        "inset_px": 1.0,
+        "line_spacing": 1.0,
+        "singleton": false
+      },
+      {
+        "group": "reference_label",
+        "semantic_role": "reference_label",
+        "members": [
+          "T_ref1",
+          "T_ref2",
+          "T_ref3",
+          "T_ref4"
+        ],
+        "shared_font_size_px": 12.25,
+        "shared_font_size_pt": 9.19,
+        "inset_px": 1.0,
+        "line_spacing": 1.0,
+        "singleton": false
+      },
+      {
+        "group": "technology_label",
+        "semantic_role": "technology_label",
+        "members": [
+          "T_stage3_model",
+          "T_pixel_model"
+        ],
+        "shared_font_size_px": 16.0,
+        "shared_font_size_pt": 12.0,
+        "inset_px": 0.0,
+        "line_spacing": 1.0,
+        "singleton": false
+      },
+      {
+        "group": "image_caption",
+        "semantic_role": "image_caption",
+        "members": [
+          "T_target_preview"
+        ],
+        "shared_font_size_px": 13.25,
+        "shared_font_size_pt": 9.94,
+        "inset_px": 2,
+        "line_spacing": 1.0,
+        "singleton": true
+      },
+      {
+        "group": "module_title",
+        "semantic_role": "module_title",
+        "members": [
+          "T_semantic_title",
+          "T_pixel_title",
+          "T_known_title",
+          "T_new_title"
+        ],
+        "shared_font_size_px": 14.75,
+        "shared_font_size_pt": 11.06,
+        "inset_px": 0.0,
+        "line_spacing": 0.96,
+        "singleton": false
+      },
+      {
+        "group": "module_body",
+        "semantic_role": "module_body",
+        "members": [
+          "T_semantic_body",
+          "T_pixel_body",
+          "T_known_body",
+          "T_new_body"
+        ],
+        "shared_font_size_px": 13.5,
+        "shared_font_size_pt": 10.12,
+        "inset_px": 0.0,
+        "line_spacing": 1.0,
+        "singleton": false
+      },
+      {
+        "group": "output_label",
+        "semantic_role": "output_label",
+        "members": [
+          "T_output"
+        ],
+        "shared_font_size_px": 30.25,
+        "shared_font_size_pt": 22.69,
+        "inset_px": 2,
+        "line_spacing": 0.96,
+        "singleton": true
+      }
+    ],
+    "group_splits": [],
+    "alignment_corrections": [
+      {
+        "relationship": "shared_module_title_top_inset",
+        "entities": [
+          "T_known_title"
+        ],
+        "delta_px": [
+          0,
+          -0.5
+        ],
+        "shared_inset_px": 15.5
+      },
+      {
+        "relationship": "shared_module_title_top_inset",
+        "entities": [
+          "T_new_title"
+        ],
+        "delta_px": [
+          0,
+          0.5
+        ],
+        "shared_inset_px": 15.5
+      },
+      {
+        "relationship": "technology_badges_stage_3_and_4",
+        "entities": [
+          "I_openai",
+          "T_stage3_model",
+          "S_stage3_technology_badge"
+        ],
+        "delta_px": [
+          0.0,
+          5.5
+        ],
+        "constraint_checks": {
+          "parent_containment": true,
+          "collision_clearance": true,
+          "preserved_dimensions": true,
+          "preserved_z_order": true,
+          "preserved_semantic_order": true,
+          "preserved_connector_topology": true,
+          "text_fit": true,
+          "material_improvement": true
+        }
+      },
+      {
+        "relationship": "technology_badges_stage_3_and_4",
+        "entities": [
+          "I_opencv",
+          "T_pixel_model",
+          "S_stage4_technology_badge"
+        ],
+        "delta_px": [
+          0.0,
+          -5.5
+        ],
+        "constraint_checks": {
+          "parent_containment": true,
+          "collision_clearance": true,
+          "preserved_dimensions": true,
+          "preserved_z_order": true,
+          "preserved_semantic_order": true,
+          "preserved_connector_topology": true,
+          "text_fit": true,
+          "material_improvement": true
+        }
+      }
+    ],
+    "constrained_normalization": {
+      "policy": "Semantic peer normalization with hard containment, clearance, movement, and rollback constraints.",
+      "decisions": [
+        {
+          "group_id": "technology_badges_stage_3_and_4",
+          "semantic_basis": "The two objects are peer technology attribution badges placed at the bottom of adjacent stage containers.",
+          "anchor": "parent_bottom_inset",
+          "confidence": 0.97,
+          "status": "accepted",
+          "corrections": [
+            {
+              "entity_id": "G_stage3_technology_badge",
+              "member_entity_ids": [
+                "I_openai",
+                "T_stage3_model",
+                "S_stage3_technology_badge"
+              ],
+              "before_bbox_px": [
+                688.0,
+                729.0,
+                222.0,
+                94.0
+              ],
+              "after_bbox_px": [
+                688.0,
+                734.5,
+                222.0,
+                94.0
+              ],
+              "delta_px": [
+                0.0,
+                5.5
+              ],
+              "apply_as_rigid_group": true
+            },
+            {
+              "entity_id": "G_stage4_technology_badge",
+              "member_entity_ids": [
+                "I_opencv",
+                "T_pixel_model",
+                "S_stage4_technology_badge"
+              ],
+              "before_bbox_px": [
+                970.0,
+                741.0,
+                244.0,
+                93.0
+              ],
+              "after_bbox_px": [
+                970.0,
+                735.5,
+                244.0,
+                93.0
+              ],
+              "delta_px": [
+                0.0,
+                -5.5
+              ],
+              "apply_as_rigid_group": true
+            }
+          ],
+          "checks": {
+            "parent_containment": true,
+            "collision_clearance": true,
+            "preserved_dimensions": true,
+            "preserved_z_order": true,
+            "preserved_semantic_order": true,
+            "preserved_connector_topology": true,
+            "text_fit": true,
+            "material_improvement": true
+          },
+          "target_anchor_value": 13.5,
+          "before_error": 60.5,
+          "after_error": 0.0,
+          "improvement_ratio": 1.0
+        }
+      ],
+      "accepted_groups": 1,
+      "rejected_groups": 0,
+      "unchanged_groups": 0
+    },
+    "maximum_alignment_correction_px": 5.5
+  }
+}

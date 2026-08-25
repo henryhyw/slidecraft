@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Editable world map component preview">
+  <rect width="640" height="360" fill="#f8f6f3"/>
+  <text x="42" y="52" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#171717">Editable world map</text>
+  <g fill="#ded7cf" stroke="#ffffff" stroke-width="5" stroke-linejoin="round">
+    <path d="M70 125l42-35 75 8 38 34-17 34-45 8-31 42-39-18-20-38z"/>
+    <path d="M205 201l38 10 20 55-19 61-29-18-18-69z"/>
+    <path d="M286 111l45-25 78 17 24 28-20 23-47-10-31 17-35-12z"/>
+    <path d="M344 166l47 4 23 36-14 74-32 34-29-66z"/>
+    <path d="M425 117l61-20 77 22 29 37-35 27-57-9-35 21-31-34z"/>
+    <path d="M517 251l39-14 38 19-9 35-47 7-28-22z"/>
+  </g>
+  <path d="M425 117l61-20 77 22 29 37-35 27-57-9-35 21-31-34z" fill="#d93900" stroke="#ffffff" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="500" cy="144" r="7" fill="#ffb600"/>
+  <text x="42" y="330" font-family="Arial, sans-serif" font-size="14" fill="#5c554f">Reusable editable regions with configurable highlights and labels</text>
+</svg>

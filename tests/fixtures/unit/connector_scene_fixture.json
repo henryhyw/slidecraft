@@ -1,0 +1,23 @@
+{
+  "title": "Connector fixture",
+  "slides": [
+    {
+      "slide_id": "connector",
+      "dimensions_px": [1000, 562],
+      "background": "#FFFFFF",
+      "objects": [
+        {
+          "id": "C1",
+          "kind": "connector_graph",
+          "sources_px": [[100, 280]],
+          "targets_px": [[900, 280]],
+          "junctions_px": [],
+          "route": "straight",
+          "style": {"color": "#D93900", "width_px": 4},
+          "arrowhead_treatment": "triangle_at_target",
+          "z": 1
+        }
+      ]
+    }
+  ]
+}

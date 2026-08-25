@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0.0",
+  "items": {
+    "world_map/world_map.component.json": {
+      "name": "Editable world map",
+      "description": "A reusable editable world-map component for geographic context, regional highlighting and consulting-style market views.",
+      "tags": ["map", "geography", "regions", "market"]
+    }
+  }
+}

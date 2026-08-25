@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "component_id": "consulting.world-map",
+  "version": "1.0.0",
+  "name": "Editable consulting world map",
+  "description": "A reusable editable world map whose regions can be highlighted and labelled.",
+  "license": "Example only",
+  "provenance": {
+    "owner": "local user library",
+    "source": "user-authored PowerPoint fragment"
+  },
+  "semantic": {
+    "roles": ["world_map", "geographic_distribution", "regional_highlight"],
+    "concepts": ["world", "countries", "regions", "geography", "distribution"],
+    "aliases": ["global map", "country map", "regional footprint"],
+    "required_parts": ["editable geographic regions"],
+    "relationship_types": ["location", "coverage", "distribution"]
+  },
+  "recognition": {
+    "minimum_confidence": 0.78,
+    "visual_signatures": [
+      "recognizable world map silhouette",
+      "multiple geographic regions that may use different fills"
+    ],
+    "aspect_ratio_range": [1.4, 2.8]
+  },
+  "implementation": {
+    "type": "pptx_fragment",
+    "source": "source.pptx",
+    "slide_index": 0,
+    "root_shape_name": "component_root",
+    "editable_object_types": ["freeform", "textbox", "group"]
+  },
+  "parameters": {
+    "highlighted_regions": {
+      "type": "string_array",
+      "required": false,
+      "default": [],
+      "description": "Region identifiers to highlight."
+    },
+    "base_fill": {
+      "type": "color",
+      "required": false,
+      "default": "#DED7CF"
+    },
+    "highlight_fill": {
+      "type": "color",
+      "required": false,
+      "default": "#D93900"
+    },
+    "show_labels": {
+      "type": "boolean",
+      "required": false,
+      "default": false
+    }
+  },
+  "bindings": [
+    {
+      "parameter": "base_fill",
+      "selector": "region_*",
+      "property": "fill"
+    },
+    {
+      "parameter": "highlighted_regions",
+      "selector": "region_{value}",
+      "property": "fill",
+      "transform": "use_parameter:highlight_fill"
+    },
+    {
+      "parameter": "show_labels",
+      "selector": "label_*",
+      "property": "visible"
+    }
+  ],
+  "ports": [],
+  "policies": {
+    "resize": "contain",
+    "recolor": "parameter_only",
+    "typography": "inherit_deck",
+    "allow_part_removal": false,
+    "allow_part_duplication": false
+  },
+  "preview": {
+    "image": "preview.svg",
+    "example_parameters": "examples/basic.json"
+  }
+}

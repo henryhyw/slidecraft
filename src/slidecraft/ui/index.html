@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slidecraft</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark"><span></span><span></span><span></span></div>
+        <div><strong>Slidecraft</strong><small>Agent workspace</small></div>
+      </div>
+      <nav aria-label="Primary">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span><span class="nav-label">Overview</span></button>
+        <button class="nav-item" data-view="projects"><span class="nav-icon">▱</span><span class="nav-label">Projects</span></button>
+        <button class="nav-item" data-view="design"><span class="nav-icon">◐</span><span class="nav-label">Style</span></button>
+        <button class="nav-item" data-view="resources"><span class="nav-icon">▦</span><span class="nav-label">Resources</span></button>
+        <button class="nav-item" data-view="system"><span class="nav-icon">⚙︎</span><span class="nav-label">System</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <div><strong>Local runtime</strong><small id="runtime-caption">Checking…</small></div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="view-eyebrow">WORKSPACE</p>
+          <h1 id="view-title">Overview</h1>
+          <p class="view-description" id="view-description" hidden></p>
+        </div>
+        <div class="top-actions">
+          <button class="primary-button" id="new-project-button"><span>＋</span> New project</button>
+        </div>
+      </header>
+
+      <section class="view active" id="view-overview">
+        <div class="hero-panel">
+          <div>
+            <span class="hero-kicker">SLIDECRAFT</span>
+            <h2>From source material to a<br>polished, editable deck.</h2>
+            <p>Plan, shape and refine every slide with your agent.</p>
+          </div>
+          <div class="hero-orbit" aria-hidden="true">
+            <div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div>
+            <div class="orbit-core">S</div>
+          </div>
+        </div>
+        <div class="overview-work-grid">
+          <div class="metric-grid overview-metrics" id="metric-grid"></div>
+          <section class="latest-presentation-card" id="latest-presentation" aria-live="polite"></section>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">CONTINUE WORKING</p><h3>Recent projects</h3></div><button class="text-button" data-go="projects">View all</button></div>
+        <div class="project-grid" id="recent-projects"></div>
+      </section>
+
+      <section class="view" id="view-projects">
+        <div id="projects-list-panel"><div class="project-grid wide" id="all-projects"></div></div>
+        <div id="project-workspace-panel" hidden>
+          <button class="back-button" id="project-back">‹ All projects</button>
+          <div class="project-workspace-heading"><div><p class="eyebrow">PROJECT</p><h2 id="workspace-project-title">Project</h2><p id="workspace-project-description"></p><code id="workspace-project-path" class="workspace-project-path"></code></div><button class="quiet-button" id="workspace-open-folder" type="button"><span aria-hidden="true">↗</span> Open project folder</button></div>
+          <div class="resource-tabs" role="tablist">
+            <button class="resource-tab active" data-resource-tab="overview">Overview</button>
+            <button class="resource-tab" data-resource-tab="materials">Materials <span id="count-materials">0</span></button>
+            <button class="resource-tab" data-resource-tab="visual_assets">Visual assets <span id="count-visual-assets">0</span></button>
+            <button class="resource-tab" data-resource-tab="icons">Icons <span id="count-icons">0</span></button>
+            <button class="resource-tab" data-resource-tab="components">Components <span id="count-components">0</span></button>
+            <button class="resource-tab" data-resource-tab="visual_references">Visual inspiration <span id="count-visual-references">0</span></button>
+          </div>
+          <div class="resource-pane active" data-resource-pane="overview">
+            <section class="project-progress-card"><div><p class="eyebrow">CURRENT STATUS</p><h3 id="project-progress-label">Ready to start</h3><p id="project-progress-note">Continue in your Agent conversation whenever you are ready.</p></div><div class="progress-track" id="project-progress-track" aria-label="Project progress"></div></section>
+            <div class="project-output-section"><div class="detail-section-heading"><h4>Presentation outputs</h4><span>Editable files and previews</span></div><div class="resource-list resource-gallery" id="workspace-deliverables"></div></div>
+          </div>
+          <div class="resource-pane" data-resource-pane="materials"><div class="resource-pane-toolbar"><div><strong>Source materials</strong><span>Documents, data and decisions the Agent can use in later conversations. Adding a file does not change the current plan.</span></div><button class="quiet-button" id="upload-material-button">Add material</button><input id="material-file-input" type="file" multiple hidden></div><div class="resource-list resource-gallery" id="resource-materials"></div></div>
+          <div class="resource-pane" data-resource-pane="visual_assets"><div class="resource-pane-toolbar"><div><strong>Project visuals</strong><span>Logos, photographs and illustrations that may appear directly in this presentation. Adding one leaves the current plan unchanged.</span></div><button class="quiet-button" id="upload-asset-button">Add visual asset</button><input id="asset-file-input" type="file" accept="image/*,.svg" hidden></div><div class="asset-grid" id="asset-grid"></div></div>
+          <div class="resource-pane" data-resource-pane="icons"><div class="resource-pane-toolbar"><div><strong>Icons for this deck</strong><span>Canonical pictograms selected by the Agent or by you. They remain clean and editable.</span></div><button class="quiet-button project-library-choose" data-category="icons">Choose icons</button></div><div class="resource-list resource-gallery icon-resource-list" id="resource-icons"></div></div>
+          <div class="resource-pane" data-resource-pane="components"><div class="resource-pane-toolbar"><div><strong>Reusable components</strong><span>Editable maps, diagrams and structured elements selected for this presentation.</span></div><button class="quiet-button project-library-choose" data-category="components">Choose components</button></div><div class="resource-list resource-gallery" id="resource-components"></div></div>
+          <div class="resource-pane" data-resource-pane="visual_references"><div class="resource-pane-toolbar"><div><strong>Visual inspiration</strong><span>Whole-slide examples that guide visual quality and composition without supplying content.</span></div><button class="quiet-button project-library-choose" data-category="visual_references">Choose inspiration</button></div><div class="resource-list resource-gallery" id="resource-visual-references"></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-design">
+        <div class="design-settings" id="design-settings">
+          <button class="design-control communication-control" id="edit-guidance-card" type="button"><div class="design-copy"><span>Communication design</span><strong id="guidance-profile">Loading…</strong><p id="guidance-description">How the deck organizes its argument and how much information each slide carries.</p><div class="communication-density"><span>Density</span><b id="density-profile-label">Loading…</b><div class="density-summary-visual" id="density-summary-visual"></div></div></div><div class="design-visual-button" aria-hidden="true"><span class="communication-mini"><i></i><b></b><b></b><em></em></span><small>Configure</small></div></button>
+          <button class="design-control" id="edit-typography-card" type="button"><div class="design-copy"><span>Typography</span><strong class="typography-label" id="typography-label">Loading…</strong><p>Display and body typefaces used across the presentation.</p></div><div class="type-preview-button" aria-hidden="true"><span id="type-preview-display">Aa</span><small id="type-preview-body">Presentation</small></div></button>
+          <button class="design-control" id="edit-visual-language-card" type="button"><div class="design-copy"><span>Color and icons</span><strong id="visual-language-label">Loading…</strong><p>The palette and canonical icon treatment used throughout the deck.</p></div><div class="visual-language-preview" aria-hidden="true"><span class="palette-preview" id="palette-preview"></span><span class="icon-treatment-preview" id="icon-treatment-preview">◇</span></div></button>
+        </div>
+      </section>
+
+      <section class="view" id="view-resources">
+        <div class="section-heading resource-page-intro"><p class="view-introduction">Manage the visual inspiration, icons and editable components available to every project.</p><span class="subtle">Stored locally in collections you control</span></div>
+        <div class="library-grid" id="library-grid"></div>
+      </section>
+
+      <section class="view" id="view-system">
+        <div class="section-heading"><div><p class="eyebrow">SYSTEM STATUS</p><h3>Local capabilities</h3><span class="subtle" id="health-checked-at">Checking automatically…</span></div><button class="quiet-button" id="health-refresh">Refresh</button></div>
+        <div class="health-grid" id="health-grid"><div class="loading-card">Checking local capabilities…</div></div>
+        <section class="provider-section">
+          <div class="section-heading"><div><p class="eyebrow">CONNECTION</p><h3>Image generation</h3><p class="provider-help">Reasoning and visual understanding come from the Agent application. Configure an external image-generation connection here when the Agent does not provide one.</p></div></div>
+          <div class="provider-panel"><div id="provider-list"></div></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="project-dialog">
+    <form method="dialog" id="project-form">
+      <div class="dialog-heading"><div><p class="eyebrow">NEW WORKSPACE</p><h3>Create a project</h3></div><button class="icon-button" value="cancel" formnovalidate aria-label="Close">×</button></div>
+      <label>Project name<input name="name" required placeholder="AI strategy deck"></label>
+      <label>Location <span>optional</span><input name="location" placeholder="Leave empty for the Slidecraft data folder"></label>
+      <label>Description <span>optional</span><textarea name="description" rows="3" placeholder="What this project is meant to achieve"></textarea></label>
+      <div class="folder-preview"><span>Your files</span><code>deliverables/ · sources/</code><span>Project data</span><code>kept out of the way</code></div>
+      <div class="dialog-actions"><button class="quiet-button" value="cancel" formnovalidate>Cancel</button><button class="primary-button" value="default" id="create-project-submit">Create project</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="project-picker-dialog" class="project-picker-dialog">
+    <div class="project-picker-shell">
+      <div class="preview-heading"><div><p class="eyebrow">PROJECT RESOURCES</p><h3 id="project-picker-title">Choose resources</h3><p id="project-picker-description"></p></div><button class="icon-button" id="project-picker-close" aria-label="Close resource picker">×</button></div>
+      <div class="project-picker-grid" id="project-picker-grid"></div>
+    </div>
+  </dialog>
+
+  <dialog id="asset-dialog">
+    <form method="dialog" id="asset-form">
+      <div class="dialog-heading"><div><p class="eyebrow">PROJECT ASSET</p><h3 id="asset-dialog-title">Add asset</h3></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+      <div class="selected-file" id="selected-file">Choose an image or SVG</div>
+      <label>What does it represent?<input id="asset-role" placeholder="For example, client logo"></label>
+      <fieldset class="asset-use-fieldset"><legend>How should it be used?</legend><input id="asset-policy" type="hidden" value="available"><div class="asset-use-grid"><button type="button" class="asset-use-choice selected" data-policy="available"><strong>Available</strong><small>Use when it helps</small></button><button type="button" class="asset-use-choice" data-policy="preferred"><strong>Preferred</strong><small>Prioritize when relevant</small></button><button type="button" class="asset-use-choice" data-policy="required_somewhere"><strong>Required</strong><small>Include somewhere in the deck</small></button></div></fieldset>
+      <p class="setting-help">The planner will decide the most suitable slide. A deck-wide requirement never means placing the asset on every page.</p>
+      <div class="dialog-actions"><button class="quiet-button" value="cancel">Cancel</button><button class="primary-button" value="default">Add to project</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="preview-dialog" class="preview-dialog">
+    <div class="preview-shell">
+      <div class="preview-heading"><div><p class="eyebrow" id="preview-category">PREVIEW</p><h3 id="preview-title">Resource</h3><p id="preview-description"></p></div><button class="icon-button" id="preview-close" aria-label="Close preview">×</button></div>
+      <div class="preview-stage" id="preview-stage"><div class="preview-loading">Preparing preview…</div></div>
+    </div>
+  </dialog>
+
+  <dialog id="design-dialog">
+    <form method="dialog" id="design-form">
+      <div class="dialog-heading"><div><p class="eyebrow">PRESENTATION DESIGN</p><h3 id="design-dialog-title">Edit design</h3></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+      <div id="design-fields"></div>
+      <p class="setting-help">These choices become persistent defaults. A project or chat instruction can override them later.</p>
+      <div class="dialog-actions"><button class="quiet-button" value="cancel">Cancel</button><button class="primary-button" value="default">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="provider-dialog">
+    <form method="dialog" id="provider-form">
+      <div class="dialog-heading"><div><p class="eyebrow">IMAGE GENERATION</p><h3 id="provider-dialog-title">Configure connection</h3><p class="provider-dialog-intro">Use the Agent's image capability when available, or connect Slidecraft directly to an image API.</p></div><button class="icon-button" value="cancel" formnovalidate aria-label="Close">×</button></div>
+      <input id="provider-role" type="hidden">
+      <fieldset class="provider-policy-fieldset"><legend>Generation priority</legend><label><input type="radio" name="provider-policy" value="prefer_host"><span><strong>Use Agent when available</strong><small>Fall back to this connection when the Agent cannot generate images.</small></span></label><label><input type="radio" name="provider-policy" value="force_configured"><span><strong>Always use this connection</strong><small>Ignore an Agent image tool for this workspace.</small></span></label></fieldset>
+      <fieldset class="provider-adapter-fieldset"><legend>Configured connection</legend><input id="provider-adapter" type="hidden"><div class="provider-adapter-grid"><button class="provider-adapter-choice" type="button" data-adapter="openai"><span class="provider-adapter-mark">O</span><span><strong>OpenAI API</strong><small>Connect directly to GPT Image</small></span></button><button class="provider-adapter-choice" type="button" data-adapter="custom-openai-compatible"><span class="provider-adapter-mark">↗</span><span><strong>Compatible endpoint</strong><small>Use another OpenAI-compatible service</small></span></button></div></fieldset>
+      <div class="provider-fields">
+        <label>Model<input id="provider-model" placeholder="gpt-image-2" autocomplete="off"></label>
+        <label class="provider-endpoint-field">Endpoint URL <span>required for compatible services</span><input id="provider-base-url" inputmode="url" placeholder="https://api.example.com/v1" autocomplete="off"></label>
+        <label>API key<div class="secret-field"><input id="provider-credential" type="password" placeholder="Enter a key to save or test" autocomplete="new-password" spellcheck="false"><button id="provider-credential-toggle" type="button">Show</button></div></label>
+      </div>
+      <div class="credential-note" id="provider-credential-note"></div>
+      <div class="provider-test-status" id="provider-test-status" role="status"></div>
+      <div class="dialog-actions provider-actions"><button class="quiet-button danger-quiet" id="provider-remove-credential" type="button">Remove saved key</button><span></span><button class="quiet-button" id="provider-test" type="button">Test connection</button><button class="primary-button" value="default">Save connection</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="library-dialog" class="library-dialog">
+    <div class="library-shell">
+      <div class="preview-heading"><div><p class="eyebrow">RESOURCE COLLECTION</p><h3 id="library-dialog-title">Collection</h3><p id="library-dialog-description"></p></div><button class="icon-button" id="library-close" aria-label="Close collection">×</button></div>
+      <div class="library-location-editor"><label>Folder location<input id="library-location" placeholder="Choose a local folder"></label><button class="quiet-button" id="library-open-folder" type="button"><span aria-hidden="true">↗</span> Open folder</button><button class="quiet-button" id="library-save-location">Save location</button></div>
+      <div class="library-actions"><button class="primary-button" id="library-add-files">Add files</button><input id="library-file-input" type="file" multiple hidden><span id="library-count"></span></div>
+      <div class="library-item-grid" id="library-item-grid"></div>
+    </div>
+  </dialog>
+
+  <dialog id="library-metadata-dialog">
+    <form method="dialog" id="library-metadata-form">
+      <div class="dialog-heading"><div><p class="eyebrow">RETRIEVAL DETAILS</p><h3 id="library-metadata-title">Resource details</h3></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+      <input id="library-metadata-item-id" type="hidden">
+      <label>Display name<input id="library-metadata-name" placeholder="Clear resource name"></label>
+      <label>Description<textarea id="library-metadata-description" rows="4" placeholder="What this resource represents and when it is useful"></textarea></label>
+      <label>Search tags <span>comma separated</span><input id="library-metadata-tags" placeholder="timeline, process, consulting"></label>
+      <p class="setting-help">You can leave these fields empty. The Agent can inspect the resource and complete them later through the same library interface.</p>
+      <div class="dialog-actions"><button class="quiet-button" value="cancel">Cancel</button><button class="primary-button" value="default">Save details</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="removal-dialog" class="removal-dialog">
+    <div class="removal-dialog-content">
+      <div class="removal-symbol" aria-hidden="true">−</div>
+      <div><p class="eyebrow">REMOVE FROM PROJECT</p><h3 id="removal-title">Remove this item?</h3><p id="removal-message">This item will no longer be available to this project.</p></div>
+      <div class="dialog-actions"><button class="quiet-button" id="removal-cancel" type="button">Keep it</button><button class="destructive-button" id="removal-confirm" type="button">Remove</button></div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

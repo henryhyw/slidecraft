@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#fbfaf8"/>
+  <text x="72" y="92" font-family="Georgia, serif" font-size="48" fill="#171717">Delivery approach</text>
+  <text x="72" y="132" font-family="Arial, sans-serif" font-size="19" fill="#67615c">Four coordinated workstreams convert strategy into measurable execution</text>
+  <rect x="72" y="188" width="340" height="620" fill="#f0eeeb"/>
+  <rect x="72" y="188" width="340" height="84" fill="#d94f14"/>
+  <text x="106" y="241" font-family="Arial, sans-serif" font-size="27" font-weight="700" fill="#ffffff">Context and objective</text>
+  <text x="106" y="336" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#171717">Shared ambition</text>
+  <rect x="106" y="371" width="250" height="11" rx="5" fill="#cbc6c0"/>
+  <rect x="106" y="398" width="224" height="11" rx="5" fill="#cbc6c0"/>
+  <rect x="106" y="425" width="264" height="11" rx="5" fill="#cbc6c0"/>
+  <rect x="106" y="492" width="270" height="170" rx="5" fill="#ffffff"/>
+  <circle cx="241" cy="553" r="29" fill="#fff0e7"/><path d="M226 557h30M241 542v30" stroke="#d94f14" stroke-width="5"/>
+  <rect x="142" y="609" width="198" height="10" rx="5" fill="#d7d2cd"/>
+  <rect x="142" y="632" width="164" height="10" rx="5" fill="#d7d2cd"/>
+  <g font-family="Arial, sans-serif">
+    <line x1="472" y1="340" x2="1510" y2="340" stroke="#ddd8d3"/>
+    <line x1="472" y1="495" x2="1510" y2="495" stroke="#ddd8d3"/>
+    <line x1="472" y1="650" x2="1510" y2="650" stroke="#ddd8d3"/>
+    <text x="500" y="275" font-family="Georgia, serif" font-size="54" fill="#d94f14">01</text>
+    <text x="610" y="262" font-size="23" font-weight="700" fill="#171717">Frame the decision</text>
+    <rect x="610" y="286" width="586" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="610" y="309" width="492" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="1370" y="230" width="92" height="72" rx="6" fill="#fff0e7"/><circle cx="1416" cy="266" r="17" fill="none" stroke="#d94f14" stroke-width="4"/>
+    <text x="500" y="430" font-family="Georgia, serif" font-size="54" fill="#d94f14">02</text>
+    <text x="610" y="417" font-size="23" font-weight="700" fill="#171717">Build the evidence</text>
+    <rect x="610" y="441" width="540" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="610" y="464" width="620" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="1370" y="385" width="92" height="72" rx="6" fill="#fff0e7"/><path d="M1394 431l16-20 16 13 18-25" fill="none" stroke="#d94f14" stroke-width="4"/>
+    <text x="500" y="585" font-family="Georgia, serif" font-size="54" fill="#d94f14">03</text>
+    <text x="610" y="572" font-size="23" font-weight="700" fill="#171717">Design the response</text>
+    <rect x="610" y="596" width="604" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="610" y="619" width="510" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="1370" y="540" width="92" height="72" rx="6" fill="#fff0e7"/><rect x="1393" y="559" width="46" height="34" fill="none" stroke="#d94f14" stroke-width="4"/>
+    <text x="500" y="740" font-family="Georgia, serif" font-size="54" fill="#d94f14">04</text>
+    <text x="610" y="727" font-size="23" font-weight="700" fill="#171717">Mobilize delivery</text>
+    <rect x="610" y="751" width="558" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="610" y="774" width="470" height="11" rx="5" fill="#d7d2cd"/>
+    <rect x="1370" y="695" width="92" height="72" rx="6" fill="#fff0e7"/><path d="M1394 744h44M1416 713v31" stroke="#d94f14" stroke-width="4"/>
+  </g>
+</svg>

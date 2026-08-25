@@ -1,0 +1,5 @@
+interface:
+  display_name: "Slidecraft"
+  short_description: "Build traceable editable decks with Slidecraft"
+  brand_color: "#D94F14"
+  default_prompt: "Use $slidecraft to turn my materials into a structured, editable presentation."

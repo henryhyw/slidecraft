@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["connector_audits", "quality"],
+  "properties": {
+    "connector_audits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["connector_id", "connector_intent", "visual_constraints"],
+        "properties": {
+          "connector_id": {"type": "string"},
+          "connector_intent": {"$ref": "semantic_scene_draft.schema.json#/$defs/connectorIntent"},
+          "visual_constraints": {"$ref": "semantic_scene_draft.schema.json#/$defs/connectorVisualConstraints"}
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relationship_correctness", "layout_feasibility", "uncertainties"],
+      "properties": {
+        "relationship_correctness": {"type": "number", "minimum": 0, "maximum": 1},
+        "layout_feasibility": {"type": "number", "minimum": 0, "maximum": 1},
+        "uncertainties": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

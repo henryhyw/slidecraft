@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0.0",
+  "deck_id": "demo_deck",
+  "governing_thought": "A coherent deck needs one governing thought and grounded evidence.",
+  "storyline_archetype": "answer_first",
+  "density_profile": {"profile_id": "high_consulting"},
+  "density_analysis": {"evidence_unit_count": 1, "planned_content_slide_count": 1},
+  "sections": [
+    {"section_id": "S1", "number": 1, "title": "Main", "purpose": "Explain the answer", "promise": null, "slide_ids": ["cover", "content_1"]}
+  ],
+  "slides": [
+    {
+      "slide_id": "cover",
+      "ordinal": 1,
+      "section_id": "S1",
+      "role": "title_slide",
+      "communication_job": "Introduce the deck",
+      "message_title": "Demo deck",
+      "source_atom_ids": [],
+      "relationships": [],
+      "dependencies": [],
+      "semantic_unit_count": 0,
+      "supporting_evidence_count": 0,
+      "route": "image_generation",
+      "system_layout_id": null
+    },
+    {
+      "slide_id": "content_1",
+      "ordinal": 2,
+      "section_id": "S1",
+      "role": "content",
+      "communication_job": "Explain the evidence",
+      "message_title": "Evidence supports the answer",
+      "source_atom_ids": ["M1_ATOM_001"],
+      "relationships": [],
+      "dependencies": ["cover"],
+      "semantic_unit_count": 4,
+      "supporting_evidence_count": 1,
+      "route": "system_layout",
+      "system_layout_id": "agenda_clean_v1"
+    }
+  ],
+  "source_allocation": [{"source_atom_id": "M1_ATOM_001", "slide_ids": ["content_1"], "status": "used"}],
+  "design_system_snapshot": {"config_id": "test"},
+  "quality_evaluation": {
+    "storyline_coherence": 0.95,
+    "source_coverage": 1.0,
+    "slide_job_clarity": 0.94,
+    "route_fidelity": 0.9,
+    "cross_slide_coherence": 0.95,
+    "passed": true
+  }
+}

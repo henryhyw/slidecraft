@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slidecraft.dev/schemas/generation-approval-1.0.0.json",
+  "title": "Generation Approval Record",
+  "type": "object",
+  "required": ["schema_version", "preflight_fingerprint", "decision", "approved_by", "decided_at"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "preflight_fingerprint": {"type": "string"},
+    "decision": {"enum": ["approved", "changes_requested", "rejected"]},
+    "approved_by": {"type": "string"},
+    "decided_at": {"type": "string", "format": "date-time"},
+    "scope": {"enum": ["whole_run", "selected_slides"]},
+    "approved_slide_ids": {"type": "array", "items": {"type": "string"}},
+    "requested_changes": {"type": "array", "items": {"type": "string"}},
+    "comment": {"type": "string"}
+  }
+}

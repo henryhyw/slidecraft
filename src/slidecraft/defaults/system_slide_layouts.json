@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "coordinate_system": "normalized_0_to_1",
+  "layouts": [
+    {
+      "system_layout_id": "title_slide_minimal_v1",
+      "slide_roles": ["title_slide"],
+      "description": "A restrained cover with a large serif title, optional subtitle, project metadata, and one controlled warm editorial accent composition.",
+      "slots": [
+        {"name": "title", "kind": "textbox", "box": [0.06, 0.2, 0.78, 0.22], "style_role": "deck_title"},
+        {"name": "subtitle", "kind": "textbox", "box": [0.06, 0.45, 0.62, 0.12], "style_role": "deck_subtitle"},
+        {"name": "metadata", "kind": "textbox", "box": [0.06, 0.72, 0.55, 0.1], "style_role": "metadata"}
+      ],
+      "decorative_recipe": [
+        {"kind": "parallelogram", "box": [0.73, 0.58, 0.27, 0.18], "fill_role": "accent_primary"},
+        {"kind": "parallelogram", "box": [0.8, 0.72, 0.2, 0.12], "fill_role": "accent_secondary"}
+      ]
+    },
+    {
+      "system_layout_id": "section_divider_slanted_blocks_v1",
+      "slide_roles": ["section_divider", "appendix_divider"],
+      "description": "A repeatable transition page with two diagonal color blocks, a large section number, a concise section title, and an optional one-line promise.",
+      "slots": [
+        {"name": "section_number", "kind": "textbox", "box": [0.08, 0.31, 0.16, 0.22], "style_role": "section_number"},
+        {"name": "section_title", "kind": "textbox", "box": [0.27, 0.33, 0.61, 0.16], "style_role": "section_title"},
+        {"name": "section_promise", "kind": "textbox", "box": [0.27, 0.52, 0.56, 0.1], "style_role": "section_subtitle"}
+      ],
+      "decorative_recipe": [
+        {"kind": "parallelogram", "box": [0.0, 0.22, 0.34, 0.5], "fill_role": "accent_primary"},
+        {"kind": "parallelogram", "box": [0.18, 0.22, 0.18, 0.5], "fill_role": "accent_secondary"}
+      ]
+    },
+    {
+      "system_layout_id": "agenda_clean_v1",
+      "slide_roles": ["agenda"],
+      "description": "A deterministic agenda using deck section numbers, names, and concise promises with consistent spacing.",
+      "slots": [
+        {"name": "title", "kind": "textbox", "box": [0.06, 0.08, 0.82, 0.12], "style_role": "slide_title"},
+        {"name": "agenda_items", "kind": "repeating_group", "box": [0.1, 0.25, 0.8, 0.58], "style_role": "agenda_item"}
+      ],
+      "decorative_recipe": []
+    },
+    {
+      "system_layout_id": "statement_slide_v1",
+      "slide_roles": ["quote_or_statement"],
+      "description": "A high-emphasis statement slide with one message, optional attribution, and restrained accent geometry.",
+      "slots": [
+        {"name": "statement", "kind": "textbox", "box": [0.1, 0.25, 0.8, 0.34], "style_role": "statement"},
+        {"name": "attribution", "kind": "textbox", "box": [0.1, 0.64, 0.55, 0.08], "style_role": "metadata"}
+      ],
+      "decorative_recipe": [
+        {"kind": "rectangle", "box": [0.1, 0.19, 0.12, 0.012], "fill_role": "accent_primary"}
+      ]
+    },
+    {
+      "system_layout_id": "closing_next_steps_v1",
+      "slide_roles": ["closing"],
+      "description": "A closing page with the requested decision or next step, optional contacts, and a stable final accent treatment.",
+      "slots": [
+        {"name": "closing_message", "kind": "textbox", "box": [0.08, 0.24, 0.75, 0.2], "style_role": "section_title"},
+        {"name": "next_steps", "kind": "textbox", "box": [0.08, 0.5, 0.66, 0.2], "style_role": "body"},
+        {"name": "contact", "kind": "textbox", "box": [0.08, 0.76, 0.5, 0.08], "style_role": "metadata"}
+      ],
+      "decorative_recipe": [
+        {"kind": "parallelogram", "box": [0.76, 0.55, 0.24, 0.24], "fill_role": "accent_primary"}
+      ]
+    }
+  ]
+}

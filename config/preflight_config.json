@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0.0",
+  "default_approval_mode": "interactive_required",
+  "allowed_approval_modes": ["interactive_required", "explicit_delegation", "policy_auto_approval"],
+  "require_approval_before_external_generation": true,
+  "permission_gated_capabilities": {
+    "policy": "explicit_setup_only",
+    "never_prompt_during_pipeline_run": true,
+    "powerpoint_automation": {
+      "default_mode": "skip_with_report",
+      "setup_command": "slidecraft authorize-powerpoint",
+      "normal_run_requires_recorded_authorization": true,
+      "timeout_seconds": 120
+    },
+    "model_credentials": {
+      "source": "environment_or_configured_secret_provider",
+      "prompt_during_run": false
+    },
+    "checkpoint_downloads": {
+      "automatic": false,
+      "setup_only": true
+    }
+  },
+  "system_managed_long_term_fields": [
+    "guidance_profile",
+    "density_profile",
+    "full_slide_dimensions",
+    "header_footer_geometry",
+    "title_system",
+    "typography_system",
+    "color_system",
+    "icon_treatment",
+    "connector_system",
+    "visual_conventions"
+  ],
+  "run_resolved_fields": [
+    "deck_objective",
+    "audience",
+    "storyline",
+    "slide_objective",
+    "governing_message",
+    "title_text",
+    "subtitle_text",
+    "header_content",
+    "footer_content",
+    "source_allocation",
+    "hard_constraints",
+    "mandatory_assets",
+    "selected_visual_references",
+    "generation_route",
+    "unresolved_assumptions"
+  ],
+  "framework_may_propose": [
+    "title_text",
+    "subtitle_text",
+    "header_content",
+    "footer_content",
+    "storyline",
+    "slide_objective",
+    "asset_usage",
+    "generation_route"
+  ],
+  "blocking_conditions": [
+    "unresolved_hard_constraint",
+    "missing_authoritative_content",
+    "missing_mandatory_asset",
+    "unallocated_required_source",
+    "conflicting_user_instruction",
+    "unapproved_material_assumption"
+  ],
+  "approval_scope": {
+    "default": "whole_run_with_slide_exceptions",
+    "invalidate_on_change": [
+      "authoritative_content",
+      "hard_constraints",
+      "mandatory_assets",
+      "title_text",
+      "chrome_content",
+      "generation_route",
+      "deck_design_configuration"
+    ],
+    "retain_on_change": ["diagnostic_notes", "nonmaterial_report_wording"]
+  },
+  "asset_ingestion": {
+    "project_store": "sources/assets/ingested",
+    "storage_mode": "copy_to_project_store",
+    "filename_policy": "sha256_prefix_plus_sanitized_original_name",
+    "deduplicate_by_sha256": true,
+    "record_original_attachment_name": true,
+    "record_source_locator": true,
+    "require_usage_classification": true,
+    "allowed_usage_classes": ["mandatory", "optional", "reference_only", "do_not_use"]
+  }
+}

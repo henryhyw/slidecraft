@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1.0",
+  "slide": {
+    "canvas_px": [1672, 941],
+    "intent": "Exercise the first-class raster image reconstruction route",
+    "reading_order": ["IMG_fixture"]
+  },
+  "groups": [],
+  "entities": [
+    {
+      "id": "IMG_fixture",
+      "kind": "image",
+      "role": "generated_visual_screenshot",
+      "semantic_description": "A meaningful generated raster visual retained as one image object",
+      "bbox_hint": [500, 250, 300, 200],
+      "crop_mode": "fill",
+      "preserve_aspect_ratio": true,
+      "rotation_degrees": 0,
+      "z_order": 10
+    }
+  ],
+  "relationships": [],
+  "ambiguities": []
+}

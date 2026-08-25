@@ -1,0 +1,14 @@
+{
+  "name": "@slidecraft/pptx-constructor",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "description": "Portable editable PowerPoint constructor for Slidecraft",
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "pptxgenjs": "^4.0.1"
+  },
+  "bin": {
+    "slidecraft-pptx": "js/scene_to_pptx.mjs"
+  }
+}

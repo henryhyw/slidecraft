@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Reasoning-guided reconstruction refinement plan",
+  "type": "object",
+  "required": ["alignment_groups"],
+  "properties": {
+    "alignment_groups": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "semantic_basis", "anchor", "confidence", "members"],
+        "properties": {
+          "id": {"type": "string"},
+          "semantic_basis": {"type": "string"},
+          "anchor": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "parent_padding_px": {"type": "number", "minimum": 0},
+          "members": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["id", "bbox_px", "parent_bbox_px"],
+              "properties": {
+                "id": {"type": "string"},
+                "member_entity_ids": {"type": "array", "items": {"type": "string"}},
+                "bbox_px": {"$ref": "#/$defs/box"},
+                "parent_bbox_px": {"$ref": "#/$defs/box"},
+                "obstacle_bboxes_px": {"type": "array", "items": {"$ref": "#/$defs/box"}},
+                "maximum_translation_px": {"type": "number", "minimum": 0},
+                "minimum_clearance_px": {"type": "number", "minimum": 0},
+                "post_move_text_fit": {"type": "boolean"},
+                "connector_topology_preserved": {"type": "boolean"},
+                "semantic_order_preserved": {"type": "boolean"},
+                "z_order_preserved": {"type": "boolean"}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "box": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "number"},
+        {"type": "number"},
+        {"type": "number", "exclusiveMinimum": 0},
+        {"type": "number", "exclusiveMinimum": 0}
+      ],
+      "items": false
+    }
+  }
+}

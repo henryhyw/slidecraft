@@ -1,0 +1,74 @@
+schema_version = "1.0.0"
+
+[runtime]
+mode = "local"
+compute = "auto"
+failure_policy = "fail_before_publish"
+data_dir_env = "SLIDECRAFT_DATA_DIR"
+
+[projects]
+workspace_strategy = "user_selected_or_managed_default"
+internal_directory = ".slidecraft"
+deliverables_directory = "deliverables"
+sources_directory = "sources"
+
+[providers.reasoning]
+adapter = "host-file"
+model = "gpt-5.6-terra"
+api_key_env = "OPENAI_API_KEY"
+
+[providers.vision]
+adapter = "host-file"
+model = "gpt-5.6-terra"
+api_key_env = "OPENAI_API_KEY"
+
+[providers.image_generation]
+adapter = "host"
+selection_policy = "prefer_host"
+configured_adapter = "openai"
+model = "gpt-image-2"
+api_key_env = "OPENAI_API_KEY"
+credential_id = "providers.image_generation"
+
+[libraries]
+visual_references = "libraries/visual_references"
+icons = "libraries/icons"
+components = "libraries/components"
+styles = "libraries/styles"
+
+[design]
+guidance_profile = "consulting"
+density_profile = "high_consulting"
+display_font = "Georgia"
+body_font = "Arial"
+color_system = "warm_orange"
+icon_style = "tabler_warm_slot"
+primary_color = "#D93900"
+secondary_color = "#EB8C00"
+highlight_color = "#E0301E"
+text_color = "#111111"
+surface_color = "#FCE4D6"
+
+[segmentation]
+enabled = "auto"
+model = "sam2.1-hiera-tiny"
+device = "auto"
+checkpoint = "models/sam2.1_hiera_tiny.pt"
+
+[reconstruction]
+backend = "auto"
+quality_policy = "portable_compatible"
+
+[validation]
+package_validation = true
+powerpoint_native = false
+require_native_powerpoint_for_publish = false
+
+[interaction]
+prompt_during_run = false
+preflight_approval = true
+clarification_mode = "high_value_optional"
+maximum_clarification_questions = 3
+allow_skip_clarifications = true
+missing_optional_capability = "skip_with_report"
+missing_required_capability = "fail_once_with_action"

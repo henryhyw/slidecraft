@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slidecraft.dev/schemas/deck-request-1.0.0.json",
+  "title": "Slidecraft Deck Request",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "deck_id", "objective", "audience", "materials"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "deck_id": {"type": "string"},
+    "objective": {"type": "string", "minLength": 1},
+    "audience": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": {"type": "string"},
+        "decision_context": {"type": "string"},
+        "prior_knowledge": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "desired_outcome": {"type": "string"},
+    "preferred_slide_count": {
+      "type": "object",
+      "properties": {
+        "minimum": {"type": "integer", "minimum": 1},
+        "target": {"type": "integer", "minimum": 1},
+        "maximum": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "storyline_preference": {"type": "string"},
+    "density_profile": {
+      "oneOf": [
+        {"enum": ["high_consulting", "medium", "light"]},
+        {"type": "object"}
+      ],
+      "default": "high_consulting"
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["material_id", "modality"],
+        "properties": {
+          "material_id": {"type": "string"},
+          "modality": {"enum": ["text", "structured_text", "document", "pdf", "spreadsheet", "image", "diagram", "audio", "url"]},
+          "path": {"type": "string"},
+          "content": {},
+          "role": {"type": "string"},
+          "description": {"type": "string"},
+          "authority": {"enum": ["authoritative", "supporting", "intent_evidence"]},
+          "required_usage": {"type": "boolean"},
+          "provenance": {"type": "string"}
+        },
+        "anyOf": [
+          {"required": ["path"]},
+          {"required": ["content"]}
+        ],
+        "additionalProperties": true
+      }
+    },
+    "constraints": {"type": "array"},
+    "assets": {"type": "array"},
+    "style_profile": {"type": ["string", "object"]},
+    "deck_design_profile": {"type": ["string", "object"]}
+  }
+}
