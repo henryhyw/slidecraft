@@ -15,12 +15,16 @@
       "Establish a governing answer or conclusion where the evidence supports one.",
       "Build a coherent argument spine in which each slide advances the reasoning.",
       "A reader should be able to recover the core argument from slide messages alone.",
-      "Avoid slides that repeat information without advancing the argument."
+      "Avoid slides that repeat information without advancing the argument.",
+      "Integrate required topics where they prove feasibility, economics, risk, or recommendation instead of presenting them as an internal checklist.",
+      "Choose the story around audience value and evidence. Do not default to a tour of the product, workflow, or component architecture."
     ],
     "diagnostics": [
       "Does every section advance a distinct phase of the argument?",
       "Does the message chain recover the governing answer?",
-      "Are claims sequenced according to audience decision needs?"
+      "Are claims sequenced according to audience decision needs?",
+      "Does each slide answer a different audience question and create a reason for the next slide?",
+      "Could any adjacent slides be consolidated because their claims or proof obligations overlap?"
     ],
     "storyline_archetypes": {
       "recommendation": ["executive_answer", "context", "evidence", "recommendation", "implementation", "decision_or_next_steps"],
@@ -73,7 +77,8 @@
       "Prefer conclusion-led and specific slide messages over topic labels where appropriate.",
       "Keep language economical and decision-relevant.",
       "Avoid generic framing, redundant exposition, and unsupported certainty.",
-      "Supporting copy should earn its space by advancing or qualifying the message."
+      "Supporting copy should earn its space by advancing or qualifying the message.",
+      "Use concrete nouns, decisions, evidence, and implications. Avoid generic labels such as overview, workflow, capabilities, architecture, and value unless the title states the actual conclusion."
     ],
     "title_policy": "Use conclusion-led message titles for information-bearing slides when evidence supports a conclusion. Use concise structural labels for covers and section dividers."
   },
@@ -96,6 +101,8 @@
   },
   "anti_patterns": [
     "content dump without a governing message",
+    "product tour organized around internal modules instead of the audience's decision",
+    "required topics isolated as checklist pages with no role in the argument",
     "several unrelated conclusions on one slide",
     "visual equality for semantically unequal information",
     "arbitrary boxes or cards with no relationship logic",

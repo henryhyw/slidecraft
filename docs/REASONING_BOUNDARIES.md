@@ -5,6 +5,8 @@ People work with Slidecraft through an AI Agent. The Agent interprets the reques
 ## Agent-owned decisions
 
 - Whether clarification is useful and which questions to ask
+- Whether the user wants collaborative review or uninterrupted delegated execution
+- Which research findings and planning decisions should be surfaced during collaboration
 - What every source means, which facts it supports, and where those facts occur
 - Which sources are authoritative, relevant, required, supporting, or excluded
 - Whether the available grounded material supports credible planning

@@ -78,6 +78,8 @@ The Agent calls `slidecraft_open_project` and returns the most relevant result. 
 
 For a new presentation, the Agent first reads every source with its native document, data, and visual capabilities. It authors grounded source atoms with locators, authority, required-use decisions, exclusions, and provenance. It decides whether the evidence supports credible planning and asks only questions that could materially change the result. The Agent then calls `slidecraft_prepare_deck` with the agreed brief. The tool returns planning guidance. The Agent authors the deck plan and sends it through the same tool.
 
+Unless the user requests uninterrupted execution, the Agent shares its source and research synthesis before finalizing the brief. Before slide generation, it shows the recommended length, storyline phases, conclusion-led message for every slide, evidence allocation, required topics, assumptions, and exclusions. This is an ordinary conversation with the Agent. Slidecraft does not create an approval state.
+
 When a project includes images or diagrams, the agent describes the information they carry and links that interpretation to the original file. The resulting deck can trace visual claims back to their source.
 
 ## Image generation

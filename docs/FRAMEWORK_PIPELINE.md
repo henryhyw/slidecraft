@@ -106,7 +106,7 @@ The semantic planner receives the slide objective, exact source content, and exp
 
 The planner can express sequence, comparison, hierarchy, grouping, parallelism, causality, contribution, dependency, and input-output logic. It does not normally choose coordinates, column widths, cards, or precise components. Image generation owns those design decisions unless the user explicitly constrains them.
 
-The current architecture records a semantic plan authored by the host Agent. The Agent builds semantic units, considers plausible communication structures, selects the strongest structure, and verifies exact-source traceability. Slidecraft validates the recorded result before downstream work begins.
+The current architecture records a semantic plan authored by the host Agent. The planning brief includes the resolved communication profile and density targets. The Agent builds semantic units, considers plausible communication structures, selects the strongest structure, and verifies exact-source traceability. Slidecraft validates the recorded result before downstream work begins.
 
 ## Agent resource retrieval
 

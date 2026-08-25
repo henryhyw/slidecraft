@@ -4,13 +4,58 @@ from __future__ import annotations
 
 import json
 from importlib.resources import files
+from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from slidecraft.orchestration.guidance_profiles import resolve_guidance_profile
+
 
 def load_deck_plan_schema() -> dict[str, Any]:
     return json.loads(files("slidecraft.schemas").joinpath("deck_plan_minimal.schema.json").read_text(encoding="utf-8"))
+
+
+def _packaged_guidance_root() -> Path:
+    return Path(str(files("slidecraft").joinpath("guidance_profiles")))
+
+
+def _resolve_planning_guidance(design: dict[str, Any]) -> dict[str, Any]:
+    reference = design.get("guidance_profile", {})
+    profile_id = reference.get("profile_id", "base") if isinstance(reference, dict) else str(reference)
+    profile_ref = reference.get("path") if isinstance(reference, dict) else None
+    root_ref = reference.get("inheritance_root") if isinstance(reference, dict) else None
+    packaged_root = _packaged_guidance_root()
+    if profile_ref and not str(profile_ref).startswith("packaged:"):
+        profile_path = Path(profile_ref).expanduser().resolve()
+    else:
+        profile_path = packaged_root / f"{profile_id}.json"
+    if root_ref and not str(root_ref).startswith("packaged:"):
+        profile_root = Path(root_ref).expanduser().resolve()
+    else:
+        profile_root = packaged_root
+    resolved = resolve_guidance_profile(profile_path, profile_root)
+    return {
+        "profile_id": resolved["profile_id"],
+        "name": resolved["name"],
+        "description": resolved["description"],
+        "deck_reasoning": resolved["deck_reasoning"],
+        "writing": resolved["writing"],
+        "review": resolved["review"],
+        "anti_patterns": resolved["anti_patterns"],
+        "design_freedom": resolved["design_freedom"],
+    }
+
+
+def _resolve_density_guidance(request: dict[str, Any], design: dict[str, Any]) -> dict[str, Any]:
+    selected = request.get("density_profile", design.get("density_profile", "high_consulting"))
+    if isinstance(selected, dict):
+        return selected
+    policy = _load_routing_policy()
+    profile = policy.get("density", {}).get("profiles", {}).get(selected)
+    if profile is None:
+        raise ValueError(f"Density profile {selected!r} is unavailable")
+    return {"profile_id": selected, **profile}
 
 
 def build_deck_prompt(request: dict[str, Any], intake: dict[str, Any], design: dict[str, Any]) -> str:
@@ -19,6 +64,8 @@ def build_deck_prompt(request: dict[str, Any], intake: dict[str, Any], design: d
         if request.get("preferred_slide_count")
         else "Propose the smallest credible deck length after resolving evidence volume, density, storyline needs, and structural pages."
     )
+    guidance = _resolve_planning_guidance(design)
+    density = _resolve_density_guidance(request, design)
     return f"""Plan a coherent presentation deck using the selected communication guidance and density profile.
 
 DECK REQUEST
@@ -30,18 +77,26 @@ NORMALIZED SOURCE ATOMS AND CONSTRAINTS
 FROZEN DECK DESIGN SYSTEM
 {json.dumps(design, indent=2, ensure_ascii=False)}
 
+RESOLVED COMMUNICATION GUIDANCE
+{json.dumps(guidance, indent=2, ensure_ascii=False)}
+
+RESOLVED DENSITY GUIDANCE
+{json.dumps(density, indent=2, ensure_ascii=False)}
+
 PLANNING METHOD
-1. Use the audience decision, Agent-authored source authority and use decisions, hard constraints, selected guidance profile, and density before allocating slides. Establish one governing thought for the deck.
-2. Build two or three plausible storylines. Evaluate them for answer quality, evidence flow, section logic, source coverage, audience fit, density, and requested length. Select the strongest one.
-3. Organize the selected storyline into purposeful argument phases. Use section dividers only when they materially clarify a new phase.
-4. Give every information-bearing slide one governing message supported by several semantic or evidence units. Avoid duplicate messages and sparse content slides that violate the density profile.
-5. Use the Agent-authored source authority, required-use, and exclusion decisions. Allocate every required source atom to a slide or appendix. Preserve exact content and provenance.
-6. Use deterministic system layouts only for low-information structural slides. Use image generation for every information-bearing slide so the image model can choose its visual form.
-7. Record dependencies, terminology obligations, repeated component roles, and cross-slide data consistency requirements.
-8. Consider project assets by semantic role. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. Record chosen asset IDs on their assigned slides and in asset_allocation.
-9. Author the slide-specific header and footer content proposal for each slide when deck chrome is enabled. Choose its configured variant from the slide role and deck context. Empty text is valid only when intentional and must still be present as an explicit value.
-10. {count_instruction}
-11. Self-evaluate storyline coherence, source coverage, slide-job clarity, route fidelity, and cross-slide coherence. Return the requested JSON object only when these checks pass.
+1. Establish the audience's decision, use, or consequential question. Derive a specific governing answer from the evidence and constraints.
+2. Build two or three genuinely different storylines. Compare their decision value, explanatory power, evidence flow, audience fit, density, and requested length. Select the strongest one.
+3. Build an argument spine in which each slide answers a distinct audience question and creates a clear reason for the next slide. Avoid a product tour or internal component inventory unless that directly serves the audience's decision.
+4. Use conclusion-led message titles for information-bearing slides. The message chain alone should recover the deck's core argument. Adjacent slides must advance different claims or proof obligations.
+5. Give every information-bearing slide one dominant claim supported by several source-grounded evidence units, relationships, implications, or qualifications. Integrate required topics into the argument instead of treating them as checklist pages.
+6. Use the Agent-authored source authority, required-use, and exclusion decisions. Allocate every required source atom to a slide or appendix. Preserve exact content and provenance. Qualify claims when the evidence is directional, anecdotal, or incomplete.
+7. Match the resolved density guidance. Consolidate overlapping ideas before adding pages, and avoid sparse concept-per-slide planning.
+8. Use deterministic system layouts only for low-information structural slides. Use image generation for every information-bearing slide so the image model can choose its visual form.
+9. Record dependencies, terminology obligations, repeated component roles, and cross-slide data consistency requirements.
+10. Consider project assets by semantic role. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. Record chosen asset IDs on their assigned slides and in asset_allocation.
+11. Author the slide-specific header and footer content proposal for each slide when deck chrome is enabled. Choose its configured variant from the slide role and deck context. Empty text is valid only when intentional and must still be present as an explicit value.
+12. {count_instruction}
+13. Before returning, test the title chain, evidence support, distinction between adjacent slides, required-topic integration, and relevance to the audience decision. Return the requested JSON object only when these checks pass.
 """
 
 

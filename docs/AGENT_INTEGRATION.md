@@ -49,6 +49,8 @@ slidecraft_render_deck
 
 Cover pages, section dividers, and other low-information structural pages use the reusable layouts selected in the deck plan. They enter final assembly without image generation.
 
+For a new deck, the Agent normally works collaboratively. It shares a concise source and research synthesis, asks only questions that can materially change the story, and then presents one planning proposal with the audience decision, governing message, recommended slide count, storyline phases, conclusion-led slide messages, evidence allocation, required topics, assumptions, and exclusions. A user can explicitly delegate uninterrupted execution. The same reasoning still occurs, while the Agent continues without waiting for review. This conversational posture belongs to the Agent app and creates no server-owned approval state.
+
 The Agent can stop after any completed operation. Reopening the project returns the saved progress and current deliverables. A new Agent session only needs the project name.
 
 ## What the Agent owns

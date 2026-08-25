@@ -33,6 +33,12 @@ masks, contours, caches, and logs hidden unless technical evidence is requested.
 For new work, place the project in the Agent's current workspace unless the user chose another
 folder. Pass that workspace as `location` when calling `slidecraft_open_project`. Existing projects
 can be reopened by name, stable ID, or folder.
+
+For new decks, default to collaborative planning unless the user explicitly delegates uninterrupted
+execution. Discuss the source and research synthesis before recording the final brief. Before slide
+generation, show the recommended length, storyline, conclusion-led slide messages, evidence
+allocation, required topics, assumptions, and exclusions. Keep this conversational state in the
+Agent app.
 """.strip()
 
 

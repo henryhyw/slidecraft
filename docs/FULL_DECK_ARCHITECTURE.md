@@ -2,7 +2,7 @@
 
 ## Planning contract
 
-The host Agent reads the project materials, authors grounded source evidence, decides authority and required use, and determines whether the evidence supports credible planning. It then starts from audience, desired outcome, explicit constraints, density, and an optional page-count range. It records that conversational result through `slidecraft_prepare_deck`. The Agent compares plausible storylines, chooses one governing thought, creates purposeful sections, allocates every required source atom, and assigns one communication job to every slide. A second call validates and stores the authored plan.
+The host Agent reads the project materials, authors grounded source evidence, decides authority and required use, and determines whether the evidence supports credible planning. It then starts from audience, desired outcome, explicit constraints, density, and an optional page-count range. It records that conversational result through `slidecraft_prepare_deck`. The planning brief resolves the full selected communication profile and density targets. The Agent compares plausible storylines, chooses one governing thought, creates purposeful sections, allocates every required source atom, and assigns one communication job to every slide. A second call validates and stores the authored plan.
 
 Visual source material is interpreted by the host's visual understanding before planning. The interpretation remains paired with the original path and hash. Path-only images remain explicitly pending, so filename and dimension metadata cannot masquerade as semantic evidence.
 

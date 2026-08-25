@@ -80,6 +80,7 @@ slidecraft = [
 "share/slidecraft/scripts" = ["scripts/render_with_powerpoint_mac.py", "scripts/measure_visual_scene.py"]
 "share/slidecraft/integrations/skills/slidecraft" = ["integrations/skills/slidecraft/SKILL.md"]
 "share/slidecraft/integrations/skills/slidecraft/agents" = ["integrations/skills/slidecraft/agents/openai.yaml"]
+"share/slidecraft/integrations/skills/slidecraft/references" = ["integrations/skills/slidecraft/references/planning.md"]
 
 
 [tool.ruff]

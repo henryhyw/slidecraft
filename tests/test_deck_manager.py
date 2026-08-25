@@ -10,11 +10,23 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from slidecraft.deck.manager import DeckManager
+from slidecraft.deck.planning import build_deck_prompt
 from slidecraft.intake import normalize_deck_intake
 from slidecraft.providers.file import RecordedDeckPlan
 
 
 class DeckManagerTests(unittest.TestCase):
+    def test_planning_prompt_resolves_selected_guidance_and_density(self) -> None:
+        design = json.loads((ROOT / "src" / "slidecraft" / "defaults" / "deck_design.json").read_text())
+        prompt = build_deck_prompt(
+            {"deck_id": "demo", "objective": "Make a decision"},
+            {"source_atoms": [], "materials": [], "constraint_register": [], "quality": {}},
+            design,
+        )
+        self.assertIn("A reader should be able to recover the core argument from slide messages alone.", prompt)
+        self.assertIn("target_semantic_units_per_content_slide", prompt)
+        self.assertIn("Avoid a product tour or internal component inventory", prompt)
+
     def test_manager_routes_and_emits_jobs(self) -> None:
         request = {
             "schema_version": "1.0.0",

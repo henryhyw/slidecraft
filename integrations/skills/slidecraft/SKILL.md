@@ -22,22 +22,29 @@ Do not recreate reasoning inside Python or ask Slidecraft to infer a decision th
 - When the user supplies a project name, ID, or folder, call `slidecraft_open_project` first. Use `create_if_missing` only when the user clearly intends new work. For a new project, pass the Agent's current workspace as `location` unless the user chose another folder.
 - For a new body of work, create a project in the user's chosen folder. Use the managed default location when they express no preference.
 - Inspect every source with the host Agent's document, data, and visual capabilities. Author concise source facts and interpretations with stable locators, authority, required-use decisions, exclusions, and provenance. Decide whether the grounded evidence supports credible planning. Ask a high-value question only when the answer could materially change the result.
+- For a new or substantially replanned deck, read [references/planning.md](references/planning.md) for the brief contract and planning-quality standard.
 - Convert the agreed conversation, audience, Agent-authored source evidence, constraints, desired result, density, and optional slide count into `slidecraft_prepare_deck`. Author the plan from the returned planning brief, then call the same tool with `deck_plan`.
 - For existing work, inspect the workspace before calling any mutating capability.
 - Treat `deliverables/` and `sources/` as user-facing. Treat `.slidecraft/` as durable Agent evidence that stays hidden during ordinary interaction.
 - Never infer progress from filenames alone. Use artifact freshness, lifecycle, validation, and dependencies.
 
-## Clarify before planning
+## Work with the user before planning
 
-Reason over the complete request and materials. Decide whether any unanswered question could materially change the deck. If so, ask up to three concise questions through the Agent app before preparing the brief. Record the answers, skipped choices, and delegated decisions in the brief.
+Choose the collaboration posture from the request. For a new deck, use a collaborative posture unless the user explicitly delegates uninterrupted execution. The Agent app owns this conversational state. Slidecraft does not store an approval workflow.
 
-Keep the set small. Avoid visual-style questions, details already answered by source material, and questions the Agent can safely decide. Make every question easy to answer and offer delegation to the Agent. If the user skips, record the delegation and continue using best judgment.
+In collaborative work, inspect the sources and complete any material research first. Share a concise synthesis that covers the evidence, research implications, proposed audience and decision, objective, governing direction, constraints, and important assumptions. Ask up to three easy questions only when the answers could materially change the story. Use a host-native structured input surface when available and ordinary conversation otherwise.
 
-Use a host-native structured input surface when one is available. Ordinary conversational questions are a valid fallback.
+After resolving those questions, show one user-facing planning proposal before slide generation. Combine the recommended slide count, storyline phases, conclusion-led message for every slide, principal evidence allocation, required-topic placement, assumptions, and exclusions. Invite correction. The Agent may store the agreed brief and plan through `slidecraft_prepare_deck` after this discussion.
+
+When the user explicitly delegates the work, make the same decisions with the same quality standard and continue without waiting. Surface the research synthesis, brief, storyboard, or plan when it helps the user or when they request it.
 
 ## Plan and retrieve
 
 - Author the deck plan with the host reasoning model. Slidecraft validates IDs, source coverage, route compatibility, available system layouts, asset policies, and deck length.
+- Build the plan around the audience's decision or consequential question. Compare plausible storylines and choose a specific governing answer supported by the evidence.
+- Make the slide-message chain recover the complete argument. Every information-bearing slide needs a distinct claim, proof obligation, and reason to follow the preceding slide.
+- Integrate required topics where they prove feasibility, economics, risk, or implications. Avoid a product tour, internal component inventory, or checklist structure unless it directly serves the audience's purpose.
+- Consolidate overlapping claims and respect the configured density. A high-density consulting deck should carry several related evidence units per content slide.
 - Choose low-information structural slide roles when a stable system layout serves the communication job. Choose image generation for information-bearing slides. Supply the compatible route and layout ID in the plan.
 - Author slide-specific header and footer content when deck chrome is enabled. Geometry and style come from configuration.
 - For each generated slide, author the semantic design using the prepared prompt.

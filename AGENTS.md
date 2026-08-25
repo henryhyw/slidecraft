@@ -11,6 +11,8 @@ Slidecraft helps agent apps create and revise editable presentations. Use its to
 
 For new work, inspect every supplied source with the Agent app's native document, data, and visual capabilities. Author the source facts, interpretations, authority, required-use decisions, exclusions, and constraint classifications in the brief. Keep each source path beside the Agent-authored evidence so provenance remains intact. Decide whether the evidence supports credible planning and ask only high-value questions when it does not. Call `slidecraft_prepare_deck` after making those decisions. The first call returns planning guidance. Author the plan, then call the same tool with `deck_plan`.
 
+For a new deck, default to collaborative planning unless the user explicitly delegates uninterrupted execution. Share the source and research synthesis before recording the final brief. Before slide generation, show a combined planning proposal with the audience decision, governing message, recommended slide count, storyline phases, one conclusion-led message per slide, principal evidence allocation, required topics, assumptions, and exclusions. In delegated work, make the same decisions and continue without waiting.
+
 New projects already contain a frozen deck-design baseline. The host Agent authors the storyline, slide routes, structural-layout choices, header and footer content, and content-slide semantic designs. For each content job, use `slidecraft_generate_slide`. It returns semantic-design guidance, resource candidates, or an image-generation brief according to the information supplied in the call.
 
 The user does not need to know project paths, artifact keys, or pipeline stages. Explain decisions in ordinary presentation language.
