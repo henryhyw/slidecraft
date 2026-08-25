@@ -2,7 +2,7 @@ import unittest
 
 from slidecraft.orchestration.naming import (
     migrate_deck_and_slide,
-    migrate_orchestration_state,
+    migrate_generation_context,
     migrate_reconstruction_handoff,
 )
 
@@ -19,7 +19,7 @@ class NamingMigrationTests(unittest.TestCase):
         self.assertEqual(len(notices), 5)
 
     def test_state_legacy_fields_migrate(self) -> None:
-        state, notices = migrate_orchestration_state({
+        state, notices = migrate_generation_context({
             "deck_configuration": {"id": "legacy"},
             "reference_retrieval": {"template_references": [1], "template_retrieval": {"selected": [1]}},
         })

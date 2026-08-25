@@ -26,8 +26,8 @@ Any host that supports stdio MCP can launch this command.
 slidecraft-mcp
 ```
 
-The server introduces its tools and workflow when the agent app connects. Agent apps with reusable
-skill support can also install the bundled Slidecraft skill for richer presentation guidance.
+The server introduces six presentation tools when the Agent app connects. Agent apps with reusable
+skill support also receive the bundled Slidecraft skill for richer presentation guidance.
 
 The guided installer registers detected Codex and Claude Code installations. It also installs the bundled Slidecraft workflow skill for those hosts. The commands below are available when manual registration is useful.
 
@@ -60,16 +60,13 @@ For GitHub Copilot, add the MCP command to `~/.copilot/mcp-config.json` for the 
 ```
 
 For another MCP client, create a local STDIO server entry with `slidecraft-mcp` as the command.
-If the client has no MCP support but can run local commands, use `slidecraft agent-call` with JSON
-arguments. Python hosts can import `slidecraft.call_capability` directly.
+The client starts that process automatically when it needs Slidecraft. If the client has no MCP
+support but can run Python, it can import the six functions in `slidecraft.agent_workflows`.
 
 The bundled skill at `integrations/skills/slidecraft/SKILL.md` teaches compatible hosts the conversational workflow. The repository-level `AGENTS.md` gives the same entry guidance to Agents working from this source tree.
 
-Hosts with shell access and no MCP client can use `slidecraft project resolve`, `slidecraft project show`, and the generic `slidecraft agent-call` transport.
-
-```bash
-slidecraft agent-call --capability workflow_status --arguments '{"workspace":"/path/to/project"}'
-```
+When a user asks to see the optional dashboard, the Agent can run `slidecraft console`. Slidecraft
+starts the local webpage and opens it in the default browser.
 
 ## Start a fresh session
 
@@ -77,17 +74,17 @@ A user can say any natural equivalent of the following request.
 
 > Continue the Market Growth project and show me what is ready.
 
-The Agent should resolve the project name, inspect its durable status, and return the most relevant result. If the user clearly asks to begin a new project, the Agent may create it through the same resolver. A path is optional.
+The Agent calls `slidecraft_open_project` and returns the most relevant result. If the user clearly asks to begin a new project, it sets `create_if_missing`. A path is optional.
 
-For a new presentation, the Agent calls `set_deck_brief` with the audience, objective, source materials, explicit constraints, desired result, optional density override, and optional slide-count range agreed in conversation. This typed entry point works over MCP and does not require the host to author hidden project files.
+For a new presentation, the Agent calls `slidecraft_prepare_deck` with the audience, objective, source materials, explicit constraints, desired result, optional density override, and optional slide-count range agreed in conversation. The tool returns planning guidance. The Agent authors the deck plan and sends it through the same tool.
 
 When a project includes images or diagrams, the agent describes the information they carry and links that interpretation to the original file. The resulting deck can trace visual claims back to their source.
 
 ## Image generation
 
-The Agent calls `resolve_image_generation_route` before generation.
+`slidecraft_generate_slide` resolves image generation automatically.
 
-- Agent apps with image generation create the slide image directly and register it with the project.
+- Agent apps with image generation receive the prompt and references, create the slide image directly, and send its path through the same tool.
 - An OpenAI or OpenAI-compatible connection gives other agent apps the same generation route.
 - The System page lets users choose which route Slidecraft uses for the project.
 
@@ -95,13 +92,13 @@ The Agent calls `resolve_image_generation_route` before generation.
 
 The Agent interprets project sources, decides whether any high-value clarification is useful, and creates one deck plan. The plan freezes the storyline, source allocation, density, shared design system, page order, and route for each slide.
 
-Structural slides such as covers and section dividers use packaged deterministic layouts selected by the Agent. Content slides become slide jobs. The Agent calls `prepare_slide`, creates the semantic design, searches the local collections, chooses the resources, and calls `prepare_generation`. Generated images then pass through Agent-authored semantic mapping, deterministic measurement, Agent-authored reconstruction decisions, and constructor-scene compilation.
+Structural slides such as covers and section dividers use packaged deterministic layouts selected by the Agent. For each content slide, `slidecraft_generate_slide` guides semantic design and resource selection before image generation. `slidecraft_measure_slide` accepts the Agent's visual analysis and records exact geometry. `slidecraft_reconstruct_slide` builds editable objects from the measured evidence and refinement plan.
 
-`workflow_status` reports which planned slides have fresh constructor scenes. The Agent starts assembly when the deck is ready and the user's request calls for it. Assembly uses deck-plan order and enforces the frozen design identity, canvas, background, repeated typography roles, canonical asset roles, connector minimums, and deterministic header and footer contract.
+`slidecraft_open_project` reports which planned slides are complete. The Agent calls `slidecraft_render_deck` when every planned slide is ready and the user's request calls for the deck. Assembly uses deck-plan order and enforces the frozen design identity, canvas, background, repeated typography roles, canonical asset roles, connector minimums, and deterministic header and footer contract.
 
 ## What the Agent returns
 
-`project_detail` exposes user-facing deliverables and a curated list of reviewable intermediate artifacts. The Agent chooses what to return from conversational intent.
+`slidecraft_open_project` exposes user-facing deliverables and a curated list of reviewable intermediate artifacts. The Agent chooses what to return from conversational intent.
 
 - Final deck requests return the editable `.pptx` and any requested report.
 - Progress reviews can return the deck plan, generated slides, decisions, or current preview.

@@ -34,7 +34,7 @@ Clarification is a planning aid and never a mandatory questionnaire. The selecto
 
 Each question explains why the answer matters and offers a short set of mutually exclusive choices. Every question includes an explicit option that delegates the choice to the Agent. The user may skip the complete set. In that case, the framework records the assumptions it makes and continues planning.
 
-The host Agent owns presentation of the questions. A host with structured elicitation support can render choices through its native interface. Other hosts ask the same package conversationally. Both routes call `record_clarification_answers`, so the downstream planner receives one normalized artifact with source provenance.
+The host Agent owns presentation of the questions. A host with structured elicitation support can render choices through its native interface. Other hosts ask conversationally. The Agent records answers, skipped choices, and delegated decisions in the deck brief so planning receives one source-grounded account.
 
 ## Human approval summary
 

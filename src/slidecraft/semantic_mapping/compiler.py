@@ -1,4 +1,4 @@
-"""Compile schema-constrained VLM output into the semantic scene contract."""
+"""Validate and compile an Agent-authored visual analysis."""
 
 from __future__ import annotations
 
@@ -10,10 +10,8 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from PIL import Image
 
-from slidecraft.providers.base import StructuredVisionProvider
+from slidecraft.providers.file import RecordedVisualAnalysis
 from slidecraft.segmentation.policy import decide_segmentation
-
-from .prompt import build_connector_audit_prompt, build_semantic_mapping_prompt
 
 
 def _schema_path() -> Path:
@@ -34,17 +32,12 @@ def load_connector_audit_schema() -> dict[str, Any]:
     return schema
 
 
-def _audit_connectors(provider: StructuredVisionProvider, image_path: Path, draft: dict[str, Any], handoff: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
+def _audit_connectors(analysis: RecordedVisualAnalysis, image_path: Path, draft: dict[str, Any], handoff: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None]:
     connector_ids = [entity["id"] for entity in draft["entities"] if entity["kind"] == "connector"]
-    if not connector_ids or not getattr(provider, "supports_connector_audit", False):
+    if not connector_ids or not analysis.supports_connector_audit:
         return draft, None
     schema = load_connector_audit_schema()
-    result = provider.extract(
-        image_path=image_path,
-        prompt=build_connector_audit_prompt(scene_draft=draft, upstream_handoff=handoff),
-        schema=schema,
-        operation="slidecraft_connector_audit",
-    )
+    result = analysis.result_for("slidecraft_connector_audit")
     errors = sorted(Draft202012Validator(schema).iter_errors(result), key=lambda error: list(error.path))
     if errors:
         summary = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:8])
@@ -133,7 +126,7 @@ def _validate_graph(draft: dict[str, Any]) -> list[str]:
 
 @dataclass
 class SemanticMapCompiler:
-    provider: StructuredVisionProvider
+    analysis: RecordedVisualAnalysis
     segmentation_mode: str = "auto"
     minimum_quality: float = 0.72
 
@@ -147,13 +140,7 @@ class SemanticMapCompiler:
         with Image.open(image_path) as image:
             width, height = image.size
         schema = load_schema()
-        prompt = build_semantic_mapping_prompt(canvas_px=(width, height), upstream_handoff=upstream_handoff)
-        draft = self.provider.extract(
-            image_path=image_path,
-            prompt=prompt,
-            schema=schema,
-            operation="slidecraft_semantic_scene",
-        )
+        draft = self.analysis.result_for("slidecraft_semantic_scene")
         errors = sorted(Draft202012Validator(schema).iter_errors(draft), key=lambda error: list(error.path))
         if errors:
             summary = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors[:8])
@@ -165,7 +152,7 @@ class SemanticMapCompiler:
         quality_floor = min(quality["meaningful_granularity"], quality["source_coverage"], quality["relationship_completeness"])
         if quality_floor < self.minimum_quality:
             raise ValueError(f"Semantic scene quality floor {quality_floor:.3f} is below {self.minimum_quality:.3f}")
-        draft, connector_audit = _audit_connectors(self.provider, image_path, draft, upstream_handoff)
+        draft, connector_audit = _audit_connectors(self.analysis, image_path, draft, upstream_handoff)
         graph_errors = _validate_graph(draft)
         if graph_errors:
             raise ValueError(f"Audited connector graph is invalid: {graph_errors}")
@@ -249,8 +236,7 @@ class SemanticMapCompiler:
             "entities": entities,
             "relationships": draft["relationships"],
             "semantic_mapping_runtime": {
-                "provider": self.provider.provider_id,
-                "automatic": True,
+                "authored_by": self.analysis.source_id,
                 "schema": "semantic_scene_draft.schema.json",
                 "coordinate_compilation": "normalized_0_to_1000_to_pixels",
                 "quality": quality,
@@ -258,7 +244,7 @@ class SemanticMapCompiler:
                 "connector_semantic_audits": connector_audits,
                 "focused_connector_audit_pass": {
                     "executed": connector_audit is not None,
-                    "provider": self.provider.provider_id if connector_audit is not None else None,
+                    "authored_by": self.analysis.source_id if connector_audit is not None else None,
                     "quality": connector_audit.get("quality") if connector_audit else None,
                 },
                 "eligible_sam_entity_ids": [entity["id"] for entity in entities if entity["sam_prompt"]],
@@ -268,12 +254,12 @@ class SemanticMapCompiler:
 
 def compile_semantic_map(
     *,
-    provider: StructuredVisionProvider,
+    analysis: RecordedVisualAnalysis,
     image_path: Path,
     upstream_handoff: dict[str, Any],
     segmentation_mode: str = "auto",
 ) -> dict[str, Any]:
-    return SemanticMapCompiler(provider=provider, segmentation_mode=segmentation_mode).compile(
+    return SemanticMapCompiler(analysis=analysis, segmentation_mode=segmentation_mode).compile(
         image_path=image_path,
         upstream_handoff=upstream_handoff,
     )

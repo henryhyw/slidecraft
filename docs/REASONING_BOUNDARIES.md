@@ -1,6 +1,6 @@
 # Reasoning boundaries
 
-Slidecraft is agent native. The host agent interprets the user, materials, images, and design context. The framework supplies reliable operations that turn those decisions into traceable editable presentations.
+People work with Slidecraft through an AI Agent. The Agent interprets the request, materials, images, and design context. Slidecraft supplies reliable operations that turn those decisions into traceable editable presentations.
 
 ## Agent-owned decisions
 

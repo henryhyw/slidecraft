@@ -9,7 +9,7 @@ from unittest.mock import patch
 from slidecraft.agent import safe_call_capability
 from slidecraft.deck.manager import DeckManager
 from slidecraft.intake import normalize_deck_intake
-from slidecraft.providers.file import FileStructuredReasoningProvider
+from slidecraft.providers.file import RecordedDeckPlan
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -142,8 +142,8 @@ def test_planned_deck_status_reports_slide_artifacts_without_orchestrating() -> 
     with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}):
         project = safe_call_capability("create_project", {"name": "Demo", "location": str(Path(directory) / "project")})["result"]
         root = Path(project["workspace_path"])
-        provider = FileStructuredReasoningProvider(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json")
-        DeckManager(root, provider).initialize(
+        authored_plan = RecordedDeckPlan(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json").read()
+        DeckManager(root, authored_plan).initialize(
             request=request,
             intake=normalize_deck_intake(request, root),
             design_system=json.loads((root / ".slidecraft" / "deck_design.json").read_text()),

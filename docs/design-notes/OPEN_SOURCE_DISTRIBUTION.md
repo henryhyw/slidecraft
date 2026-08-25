@@ -233,8 +233,6 @@ Important manifest sections include these fields.
 Use standard Python entry points.
 
 ```text
-slidecraft.reasoning_providers
-slidecraft.vision_providers
 slidecraft.image_providers
 slidecraft.segmentation_providers
 slidecraft.library_providers

@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from slidecraft.deck.manager import DeckManager
 from slidecraft.intake import normalize_deck_intake
-from slidecraft.providers.file import FileStructuredReasoningProvider
+from slidecraft.providers.file import RecordedDeckPlan
 
 
 class DeckManagerTests(unittest.TestCase):
@@ -24,9 +24,9 @@ class DeckManagerTests(unittest.TestCase):
             "materials": [{"material_id": "M1", "modality": "text", "content": "Authoritative evidence", "authority": "authoritative"}],
         }
         intake = normalize_deck_intake(request, ROOT)
-        provider = FileStructuredReasoningProvider(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json")
+        authored_plan = RecordedDeckPlan(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json").read()
         with tempfile.TemporaryDirectory() as directory:
-            manifest = DeckManager(Path(directory), provider).initialize(
+            manifest = DeckManager(Path(directory), authored_plan).initialize(
                 request=request,
                 intake=intake,
                 design_system={"config_id": "test", "full_slide_px": [1000, 562], "style": {}, "deck_chrome": {"enabled": False}},
@@ -56,11 +56,11 @@ class DeckManagerTests(unittest.TestCase):
             "materials": [{"material_id": "M1", "modality": "text", "content": "Evidence", "authority": "authoritative"}],
         }
         intake = normalize_deck_intake(request, ROOT)
-        provider = FileStructuredReasoningProvider(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json")
+        authored_plan = RecordedDeckPlan(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json").read()
         with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(
             ValueError, "outside the requested range"
         ):
-            DeckManager(Path(directory), provider).initialize(
+            DeckManager(Path(directory), authored_plan).initialize(
                 request=request,
                 intake=intake,
                 design_system={"config_id": "test", "full_slide_px": [1000, 562], "style": {}, "deck_chrome": {"enabled": False}},

@@ -15,7 +15,7 @@ def build_semantic_planning_prompt(
     intake_manifest: dict[str, Any] | None = None,
     guidance_profile: dict[str, Any] | None = None,
 ) -> str:
-    """Build a provider-neutral prompt for a managed or host reasoning model."""
+    """Build the planning brief used by the host Agent."""
     return f"""Design the semantic communication structure for one presentation slide.
 
 SLIDE OBJECTIVE
@@ -112,7 +112,7 @@ def validate_semantic_design(plan: dict[str, Any], slide: dict[str, Any]) -> dic
 
 
 def resolve_semantic_design(slide: dict[str, Any], base_dir: Path | None = None) -> dict[str, Any]:
-    """Resolve a supplied host-brain or managed-brain result through one contract."""
+    """Validate and resolve a semantic design authored by the host Agent."""
     if "semantic_design" in slide:
         plan = slide["semantic_design"]
     elif "semantic_design_path" in slide:

@@ -11,7 +11,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from slidecraft.providers.file import FileStructuredVisionProvider
+from slidecraft.providers.file import RecordedVisualAnalysis
 from slidecraft.semantic_mapping.compiler import compile_semantic_map
 
 
@@ -32,8 +32,8 @@ class SemanticMappingTests(unittest.TestCase):
                     }
                 ],
             }
-            provider = FileStructuredVisionProvider(ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json")
-            result = compile_semantic_map(provider=provider, image_path=image_path, upstream_handoff=handoff)
+            analysis = RecordedVisualAnalysis(ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json")
+            result = compile_semantic_map(analysis=analysis, image_path=image_path, upstream_handoff=handoff)
 
         by_id = {entity["id"]: entity for entity in result["entities"]}
         self.assertEqual(by_id["T_title"]["authored_text"], "Grounded title")
@@ -41,7 +41,7 @@ class SemanticMappingTests(unittest.TestCase):
         self.assertTrue(by_id["S_accent"]["sam_prompt"])
         self.assertFalse(by_id["I_example"]["sam_prompt"])
         self.assertEqual(by_id["I_example"]["asset_mapping_status"], "exact_agent_selected_asset")
-        self.assertTrue(result["semantic_mapping_runtime"]["automatic"])
+        self.assertEqual(result["semantic_mapping_runtime"]["authored_by"], "agent_record")
 
     def test_low_quality_scene_is_rejected(self) -> None:
         fixture = json.loads((ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json").read_text())
@@ -51,9 +51,9 @@ class SemanticMappingTests(unittest.TestCase):
             result_path.write_text(json.dumps(fixture))
             image_path = Path(directory) / "slide.png"
             Image.new("RGB", (100, 100), "white").save(image_path)
-            provider = FileStructuredVisionProvider(result_path)
+            analysis = RecordedVisualAnalysis(result_path)
             with self.assertRaisesRegex(ValueError, "quality floor"):
-                compile_semantic_map(provider=provider, image_path=image_path, upstream_handoff={})
+                compile_semantic_map(analysis=analysis, image_path=image_path, upstream_handoff={})
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Agent-native capability surface over the Slidecraft core."""
+"""Presentation capabilities exposed to Agent applications."""
 
 from __future__ import annotations
 
@@ -956,7 +956,7 @@ def record_clarification_answers(**arguments: Any) -> dict[str, Any]:
 def plan_deck(**arguments: Any) -> dict[str, Any]:
     from slidecraft.deck.manager import DeckManager
     from slidecraft.intake import normalize_deck_intake
-    from slidecraft.providers.file import FileStructuredReasoningProvider
+    from slidecraft.providers.file import RecordedDeckPlan
 
     workspace_path = Path(arguments["workspace"]).expanduser().resolve()
     request_path = Path(arguments["request"]).expanduser().resolve()
@@ -984,8 +984,8 @@ def plan_deck(**arguments: Any) -> dict[str, Any]:
             "Use the host Agent's visual understanding and add its source-grounded interpretation as material content."
         )
     design = json.loads(Path(arguments["design"]).expanduser().read_text(encoding="utf-8"))
-    provider = FileStructuredReasoningProvider(Path(arguments["result"]).expanduser().resolve())
-    manifest = DeckManager(workspace_path, provider).initialize(
+    authored_plan = RecordedDeckPlan(Path(arguments["result"]).expanduser().resolve()).read()
+    manifest = DeckManager(workspace_path, authored_plan).initialize(
         request=request,
         intake=intake,
         design_system=design,
@@ -1010,13 +1010,13 @@ def register_generated_image(**arguments: Any) -> dict[str, Any]:
 
 
 def semantic_map(**arguments: Any) -> dict[str, Any]:
-    from slidecraft.providers.file import FileStructuredVisionProvider
+    from slidecraft.providers.file import RecordedVisualAnalysis
     from slidecraft.semantic_mapping.compiler import compile_semantic_map
 
-    provider = FileStructuredVisionProvider(Path(arguments["result"]).expanduser().resolve())
+    analysis = RecordedVisualAnalysis(Path(arguments["result"]).expanduser().resolve())
     handoff_path = Path(arguments["handoff"]).expanduser().resolve()
     compiled = compile_semantic_map(
-        provider=provider,
+        analysis=analysis,
         image_path=Path(arguments["image"]).expanduser().resolve(),
         upstream_handoff=json.loads(handoff_path.read_text(encoding="utf-8")),
         segmentation_mode=arguments.get("segmentation", "auto"),

@@ -4,14 +4,14 @@ Slidecraft helps agent apps create and revise editable presentations. Use its to
 
 ## Begin from a project name
 
-1. Call `resolve_project` with the name, stable project ID, or local folder supplied by the user.
+1. Call `slidecraft_open_project` with the name, stable project ID, or local folder supplied by the user.
 2. Set `create_if_missing` only when the user clearly intends to start a new project.
-3. Call `workflow_status` with the resolved project location.
-4. Reason over the user's request and the durable project facts, then choose the appropriate capability yourself.
+3. Reason over the user's request and the returned progress, sources, and deliverables.
+4. Use the remaining workflow tools according to the work the user wants.
 
-For new work, turn the conversation into an authoritative brief and call `set_deck_brief`. Include source-grounded interpretations for uploaded images and diagrams. Keep the source path alongside the interpretation so provenance remains intact.
+For new work, turn the conversation into an authoritative brief and call `slidecraft_prepare_deck`. Include source-grounded interpretations for uploaded images and diagrams. Keep the source path alongside the interpretation so provenance remains intact. The first call returns planning guidance. Author the plan, then call the same tool with `deck_plan`.
 
-New projects already contain a frozen deck-design baseline. The host Agent authors the storyline, slide routes, structural-layout choices, header and footer content, and content-slide semantic designs. For each content job, call `prepare_slide`, author the semantic design, search the local collections, select the resources, then call `prepare_generation`. Use `workflow_status` whenever a fresh factual inventory would help.
+New projects already contain a frozen deck-design baseline. The host Agent authors the storyline, slide routes, structural-layout choices, header and footer content, and content-slide semantic designs. For each content job, use `slidecraft_generate_slide`. It returns semantic-design guidance, resource candidates, or an image-generation brief according to the information supplied in the call.
 
 The user does not need to know project paths, artifact keys, or pipeline stages. Explain decisions in ordinary presentation language.
 
@@ -24,13 +24,13 @@ Lead public-facing explanations with what the user can do and what result they w
 - Respect a request to inspect, revise, regenerate, continue, or deliver one artifact without forcing a full restart.
 - Use the host's image-generation capability when available. Use Slidecraft's configured image provider when the host has no image tool or the user selected that provider.
 - Register every external model result before another capability consumes it.
-- Read `workflow_status` when needed so work resumes from durable evidence instead of chat memory. It reports facts and never chooses the next action.
-- Never assemble a partial planned deck. `render_pptx` derives deck order from the active plan and rejects missing, extra, stale, or reordered scenes.
+- Reopen the project when a fresh factual inventory would help. It reports facts and never chooses the next action.
+- Never assemble a partial planned deck. `slidecraft_render_deck` derives deck order from the active plan and rejects missing, extra, stale, or reordered slides.
 
 ## Surface useful results
 
-Use `project_detail` to find deliverables, source material, and reviewable intermediate artifacts. Return the editable PowerPoint when the user asks for the deck. Return plans, generated slides, decisions, or reports when they ask to review progress. Keep masks, OCR fragments, contours, caches, and logs hidden unless the user requests technical evidence.
+`slidecraft_open_project` returns deliverables, source material, and reviewable intermediate artifacts. Return the editable PowerPoint when the user asks for the deck. Return plans, generated slides, decisions, or reports when they ask to review progress. Keep masks, OCR fragments, contours, caches, and logs hidden unless the user requests technical evidence.
 
 ## Interfaces
 
-Prefer the Slidecraft MCP tools when they are connected. The Python capability API and `slidecraft agent-call` provide the same behavior. The optional dashboard reads and edits the same durable files. It does not own workflow progression.
+Prefer the six Slidecraft workflow tools when the MCP server is connected. The optional dashboard reads and edits the same durable files. It does not own workflow progression.

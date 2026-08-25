@@ -105,7 +105,7 @@ The semantic planner receives the slide objective, exact source content, and exp
 
 The planner can express sequence, comparison, hierarchy, grouping, parallelism, causality, contribution, dependency, and input-output logic. It does not normally choose coordinates, column widths, cards, or precise components. Image generation owns those design decisions unless the user explicitly constrains them.
 
-The current architecture uses a host-Agent semantic plan through a provider-neutral artifact contract. The Agent builds semantic units, considers plausible communication structures, selects the strongest structure, and verifies exact-source traceability.
+The current architecture records a semantic plan authored by the host Agent. The Agent builds semantic units, considers plausible communication structures, selects the strongest structure, and verifies exact-source traceability. Slidecraft validates the recorded result before downstream work begins.
 
 ## Agent resource retrieval
 
@@ -395,7 +395,7 @@ The current release requires the following checks before accepting a reconstruct
 
 The following boundaries allow implementation upgrades without changing downstream contracts.
 
-- Reasoning model adapter
+- Host-Agent result contract
 - Header and footer exclusion resolver
 - Deck chrome variant selector
 - Visual reference retriever
@@ -444,7 +444,7 @@ Unsupported optional routes remain search evidence. The Agent selects a supporte
 
 The framework is ready as a pipeline architecture when these conditions hold.
 
-- Every run emits a versioned orchestration state and reconstruction handoff.
+- Every generated slide records a versioned generation context and reconstruction handoff.
 - Exact content, semantic design, selected assets, deck design configuration, and visual reference identities survive generation.
 - Slide understanding separates reconstruction units from pixel evidence.
 - Editable reconstruction routes every reconstruction unit to an explicit editable implementation or documented fallback.

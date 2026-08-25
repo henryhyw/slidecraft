@@ -4,7 +4,7 @@
 
 | Area | Current state |
 | --- | --- |
-| Exact-content authority | Exact source fields become 27 traceable source atoms for the architecture slide |
+| Exact-content authority | Exact source fields become traceable source atoms with stable provenance |
 | Constraint register | The host Agent classifies explicit instructions and records category, source, confidence, and status. Typed hard-constraint fields remain hard by contract |
 | User assets | Canonical files, semantic roles, hashes, provenance, and mandatory status are retained |
 | Semantic planning | The host Agent considers plausible structures, selects the strongest one, and records exact-source traceability |
@@ -14,9 +14,9 @@
 | Generation handoff | Intake, constraints, source atoms, retrieved candidates, exact content, style, assets, and policy reach Slide understanding |
 | Evidence separation | OCR, contours, masks, edge fragments, and generated glyphs remain reconstruction evidence |
 | Reconstruction policies | Authored text, canonical icon slots, semantic connector graphs, known components, images, and fitted geometry have explicit routes |
-| Agent semantic mapping | Provider-neutral structured visual reasoning authors meaningful entities, source mappings, canonical assets, connector graphs, groups, z-order, reconstruction routes, and SAM eligibility |
+| Agent semantic mapping | The host Agent authors meaningful entities, source mappings, canonical assets, connector graphs, groups, z-order, reconstruction routes, and SAM eligibility through a validated result contract |
 | General constructor scene | Slide understanding and Editable reconstruction contracts compile into a reusable scene IR with Office-scaled native text, canonical assets, shapes, and native connector graphs |
-| Agent-native workflow | Typed Agent decisions, deterministic execution, passive artifact persistence, factual progress inspection, and cross-slide conformance checks are implemented |
+| Conversational Agent workflow | Typed Agent decisions, deterministic execution, passive artifact persistence, factual progress inspection, and cross-slide conformance checks are implemented |
 | Portable constructor routes | Native text, tables, editable charts, SVG assets, semantic connector graphs, standard shapes, fitted freeforms, raster images, z-order, and source notes are implemented |
 | Distribution | Wheel build, starter collections, MCP adapter, explicit constructor dependency setup, and isolated-install rendering are verified |
 | Capability safety | Normal runs never invoke permission dialogs. PowerPoint automation is explicit setup-only and time bounded |
@@ -33,9 +33,9 @@ Each adapter must produce source atoms with stable locators such as page, paragr
 
 The host Agent owns implied constraints, conflicts across materials, superseded instructions, conditional requirements, and missing decisions. Slidecraft stores the resulting register and enforces typed hard constraints downstream. It does not use keyword rules to recreate the Agent's judgment.
 
-### Managed semantic planner
+### Semantic planning
 
-The schema, prompt, candidate comparison, traceability audit, and host-Agent execution path work through one structured artifact contract.
+The schema, planning brief, storyline comparison, traceability audit, and host-Agent execution path work through one structured result contract.
 
 ### Visual-reference indexing
 
@@ -47,7 +47,7 @@ The current Tabler subset has semantic metadata and searches correctly. Larger c
 
 ### Known components
 
-The manifest schema, example map, semantic retrieval, confidence threshold, and reconstruction policy exist. The editable PPTX-fragment importer, primitive-recipe interpreter, parameter binder, preview generator, and trusted Python factory loader remain to be built.
+The manifest schema, example map, semantic candidate search, and reconstruction policy exist. The editable PPTX-fragment importer, primitive-recipe interpreter, parameter binder, preview generator, and trusted Python factory loader remain to be built.
 
 ### Source-to-output traceability
 

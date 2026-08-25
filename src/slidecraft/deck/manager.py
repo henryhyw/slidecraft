@@ -10,7 +10,6 @@ from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
-from slidecraft.providers.base import StructuredReasoningProvider
 from slidecraft.runtime.artifacts import ArtifactWorkspace
 
 from .planning import plan_deck
@@ -28,7 +27,7 @@ class DeckManager:
     """Materialize an Agent-authored deck plan and its bounded typed artifacts."""
 
     run_dir: Path
-    reasoning_provider: StructuredReasoningProvider
+    authored_plan: dict[str, Any]
 
     def initialize(
         self,
@@ -53,7 +52,7 @@ class DeckManager:
             files("slidecraft.defaults").joinpath("deck_planning_config.json").read_text(encoding="utf-8")
         )
         plan, validation = plan_deck(
-            self.reasoning_provider,
+            self.authored_plan,
             request=request,
             intake=intake,
             design=design_system,

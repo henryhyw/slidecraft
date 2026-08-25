@@ -2,7 +2,7 @@
 
 ## Current status
 
-The installable alpha supports planning, image-generation briefs, agent-native or API-based image creation, semantic mapping, precise measurement, editable text, tables, charts, shapes, fitted freeforms, canonical SVG assets, native connectors, source notes, and PowerPoint package validation. Microsoft PowerPoint for Mac can add an Office-native render comparison.
+The installable alpha supports conversational deck planning, image-generation briefs, image creation through the Agent or a connected API, slide understanding, precise measurement, editable text, tables, charts, shapes, fitted freeforms, canonical SVG assets, native connectors, source notes, and PowerPoint package validation. Microsoft PowerPoint for Mac can add a final Office render comparison.
 
 The agent workflow is ready for local use. The 1.0 quality program will expand certification across clean machines and more presentation patterns.
 
@@ -10,7 +10,7 @@ The agent workflow is ready for local use. The 1.0 quality program will expand c
 - Windows and Linux construction and package-validation coverage
 - A larger gold-deck quality suite covering dense tables, charts, screenshots, and irregular visuals
 
-MCP, CLI, and Python integrations expose the same project capabilities. The agent app guides each session. `workflow_status` reports the project record without prescribing the next action.
+MCP exposes six complete presentation tools. Python integrations provide the same six workflows, and lower-level capabilities remain available for advanced extensions. The Agent app guides each session. Reopening a project returns its saved progress without prescribing the next action.
 
 ## Acceptance policy
 

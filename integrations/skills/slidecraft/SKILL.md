@@ -1,6 +1,6 @@
 ---
 name: slidecraft
-description: Create, revise, reconstruct, validate, and resume traceable editable slide decks with the Slidecraft capability framework. Use when a user provides presentation materials or asks to work on an existing Slidecraft project.
+description: Use Slidecraft tools to create, revise, validate, resume, and deliver editable PowerPoint presentations. Use when a user shares presentation material or asks to continue an existing Slidecraft project.
 ---
 
 # Slidecraft
@@ -19,16 +19,16 @@ Do not recreate reasoning inside Python or ask Slidecraft to infer a decision th
 
 ## Start or continue
 
-- When the user supplies a project name, ID, or folder, call `resolve_project` first. Use `create_if_missing` only when the user clearly intends new work.
+- When the user supplies a project name, ID, or folder, call `slidecraft_open_project` first. Use `create_if_missing` only when the user clearly intends new work. For a new project, pass the Agent's current workspace as `location` unless the user chose another folder.
 - For a new body of work, create a project in the user's chosen folder. Use the managed default location when they express no preference.
-- Convert the agreed conversation, audience, materials, constraints, desired result, density, and optional slide count into one `set_deck_brief` call. This lets an MCP-only host begin without writing internal files.
+- Convert the agreed conversation, audience, materials, constraints, desired result, density, and optional slide count into `slidecraft_prepare_deck`. Author the plan from the returned planning brief, then call the same tool with `deck_plan`.
 - For existing work, inspect the workspace before calling any mutating capability.
 - Treat `deliverables/` and `sources/` as user-facing. Treat `.slidecraft/` as durable Agent evidence that stays hidden during ordinary interaction.
 - Never infer progress from filenames alone. Use artifact freshness, lifecycle, validation, and dependencies.
 
 ## Clarify before planning
 
-Reason over the complete request and materials. Decide whether any unanswered question could materially change the deck. If so, author up to three concise questions and pass them to `prepare_clarifications` for validation and storage. Passing an empty question list is valid.
+Reason over the complete request and materials. Decide whether any unanswered question could materially change the deck. If so, ask up to three concise questions through the Agent app before preparing the brief. Record the answers, skipped choices, and delegated decisions in the brief.
 
 Keep the set small. Avoid visual-style questions, details already answered by source material, and questions the Agent can safely decide. Make every question easy to answer and offer delegation to the Agent. If the user skips, record the delegation and continue using best judgment.
 
@@ -40,7 +40,7 @@ Use a host-native structured input surface when one is available. Ordinary conve
 - Choose low-information structural slide roles when a stable system layout serves the communication job. Choose image generation for information-bearing slides. Supply the compatible route and layout ID in the plan.
 - Author slide-specific header and footer content when deck chrome is enabled. Geometry and style come from configuration.
 - For each generated slide, author the semantic design using the prepared prompt.
-- Call `search_resources` to obtain visual-reference, icon, and reusable-component candidates. Inspect their metadata and previews when useful.
+- Call `slidecraft_generate_slide` with the semantic design to obtain visual-reference, icon, and reusable-component candidates. Inspect their metadata and previews when useful.
 - Author `resource_selection` with `authored_by: agent_reasoning`, stable candidate IDs, and a concise rationale for each choice. Select no more than the configured visual-reference limit.
 - Use exact user or upstream assets when their identity is known. Choose canonical icon substitutions only through agent reasoning over the full affected set.
 
@@ -52,14 +52,15 @@ Use a host-native structured input surface when one is available. Ordinary conve
 - Keep candidate revisions separate until the applicable acceptance policy passes.
 - Recompute stale descendants before publishing.
 - Let image generation own informative slide composition. Use deterministic system layouts for covers and section dividers.
-- After deck planning, call `prepare_slide` for each information-bearing job. Use its semantic-planning prompt with the host reasoning model. Search and select resources, then call `prepare_generation` with both structured decisions.
-- Assemble only when every planned slide has a fresh constructor scene. Let `render_pptx` derive and validate deck-plan order.
+- After deck planning, call `slidecraft_generate_slide` for each information-bearing job. Follow its returned semantic-design, resource-selection, and image-generation phases.
+- Call `slidecraft_measure_slide` with the Agent-authored visual analysis. It compiles the semantic scene and runs deterministic measurement.
+- Assemble only when every planned slide has been reconstructed. Let `slidecraft_render_deck` derive and validate deck-plan order.
 - During semantic mapping, identify authored objects and groups at PowerPoint granularity. Select a reconstruction route for every entity. Map icon slots to the exact Agent-selected upstream asset. Audit connector ownership, topology, direction, and clean native routing from relationship meaning and layout feasibility.
 - After measurement, reason over the slide as a designed system. Author a refinement plan with `authored_by: agent_reasoning`. Name only peer groups that should align or normalize. An empty `alignment_groups` list is correct when no movement is warranted.
-- Call `build_reconstruction_contract` with that plan. Slidecraft will reject movements that break containment, clearance, text fit, z-order, semantic order, or connector topology.
+- Call `slidecraft_reconstruct_slide` with that plan. Slidecraft will reject movements that break containment, clearance, text fit, z-order, semantic order, or connector topology.
 - Preserve the slide-understanding and editable-reconstruction contracts for text, canonical assets, icon slots, connectors, grouping, measurement evidence, native reconstruction, and validation.
 - Return editable PowerPoint files and user-relevant reports under `deliverables/`.
-- Call `workflow_status` when you need durable project facts. Interpret its artifact inventory and validation attention yourself. It never chooses the next action.
+- Call `slidecraft_open_project` again when you need fresh project facts. Interpret its progress and validation attention yourself. It never chooses the next action.
 - Treat semantic reasoning and visual understanding as host-Agent work. The only configurable model connection in the current product is image generation. Register every Agent-authored result, inspect project facts when useful, and continue through your own reasoning.
 - Review generated-image candidates autonomously against content, design, and reconstruction contracts. Accept strong candidates. When a material failure exists, reject the candidate and regenerate with a focused preservation-first correction.
 - Never request operating-system authorization, credentials, or downloads during an active run. Report a structured capability state and use an available fallback.
@@ -74,6 +75,8 @@ When the user asks to use a newly available asset, inspect its semantic role and
 
 If the user asks to stop, stop invoking capabilities. If they later ask to continue, inspect the workspace and proceed from the latest valid artifacts. Do not expose internal masks, contours, OCR fragments, or logs unless the user asks for technical evidence or diagnosis.
 
-Use MCP tools when the host provides the Slidecraft server. Otherwise use the Python capability API or `slidecraft agent-call`. The business behavior and artifact contracts are the same across transports.
+Use the six workflow tools when the host provides the Slidecraft MCP server. Python integrations can import the matching functions from `slidecraft.agent_workflows`.
 
-When the user asks for an output, call `project_detail` and select from its deliverables and reviewable artifacts. Return the editable PowerPoint for final-deck requests. Return plans, generated slides, decisions, or reports for progress reviews. Do not require the user to know artifact keys or local paths.
+The guided installer registers the MCP server so the Agent app starts it when needed. If the MCP connection is unavailable and shell access exists, import the six public functions from `slidecraft` and continue through the same workflow. Do not ask the user to manage an internal server process. When the user asks to see the dashboard, run `slidecraft console` and open the local page for them.
+
+When the user asks for an output, call `slidecraft_open_project` and select from its deliverables and reviewable artifacts. Return the editable PowerPoint for final-deck requests. Return plans, generated slides, decisions, or reports for progress reviews. Do not require the user to know artifact keys or local paths.

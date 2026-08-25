@@ -42,7 +42,7 @@ Future profiles can include `academic_explanatory`, `product_strategy`, `investo
 
 [`consulting.json`](../src/slidecraft/guidance_profiles/consulting.json) extends the base profile. Recursive dictionaries merge. Lists append with de-duplication. The resolved profile records its lineage and merge policy.
 
-The loader is [`guidance_profiles.py`](../orchestration/guidance_profiles.py). The schema is [`guidance_profile.schema.json`](../schemas/guidance_profile.schema.json).
+The loader is [`guidance_profiles.py`](../src/slidecraft/orchestration/guidance_profiles.py). The schema is [`guidance_profile.schema.json`](../schemas/guidance_profile.schema.json).
 
 ## Consulting guidance
 

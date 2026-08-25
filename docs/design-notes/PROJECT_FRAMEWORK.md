@@ -2,7 +2,7 @@
 
 ## Recommended product form
 
-Build the system as an Agent-native slide compiler with four access surfaces.
+Build the system so people can create editable presentations through the Agent app they already use, with four access surfaces.
 
 1. A Python SDK for direct integration and testing
 2. A CLI for individual users and automation
@@ -13,7 +13,7 @@ All four surfaces call the same capability layer and read the same durable proje
 
 The runtime is a modular local package with typed contracts, ordinary project files, and separate workers only where execution requirements differ. This keeps installation understandable while allowing image generation, local computer vision, and PowerPoint rendering to evolve independently.
 
-The conversational and resumable execution contract is defined in [`AGENTIC_RUN_MODEL.md`](AGENTIC_RUN_MODEL.md). The user normally speaks to an Agent. CLI, SDK, and MCP expose the same typed capabilities and versioned artifacts. The dashboard presents a human-readable view of the same state.
+The conversational and resumable execution contract is defined in [`AGENTIC_RUN_MODEL.md`](../AGENTIC_RUN_MODEL.md). The user normally speaks to an Agent. CLI, SDK, and MCP expose the same typed capabilities and versioned artifacts. The dashboard presents a human-readable view of the same state.
 
 ## Core architectural decision
 
@@ -63,17 +63,17 @@ The normal path needs one initial interaction and no routine intervention.
 
 Optional checkpoints can be enabled at semantic plan approval, generated-image approval, or reconstruction approval. They are policies, not mandatory architecture stages.
 
-### Capability surfaces
+### Integration surfaces
 
-The CLI exposes the same atomic capabilities for process-oriented Agent hosts, local debugging, and CI.
+The CLI supports installation, configuration, the dashboard, local debugging, and CI.
 
 ```text
 slidecraft init
-slidecraft agent-capabilities
-slidecraft agent-call --request capability-request.json
+slidecraft console
+slidecraft check-install
 ```
 
-The MCP server exposes discovery, workspace creation, workspace inspection, and generic typed capability invocation. The host Agent decides when to call each operation. Interruption simply stops further calls. Continuation starts with workspace inspection.
+The MCP server exposes six complete presentation tools for opening a project, preparing a deck, generating a slide, measuring a slide, reconstructing a slide, and rendering the deck. The host Agent decides when to call each tool. Interruption simply stops further calls. Continuation starts by reopening the project.
 
 ## Configuration system
 
@@ -260,38 +260,19 @@ Each reasoning task has a narrow prompt, typed input, structured output, validat
 | PowerPoint renderer | Export through Microsoft PowerPoint where available |
 | Validation worker | Run text, asset, connector, hierarchy, and package checks |
 
-## Model provider interfaces
+## Model connection
 
-The framework should define capabilities instead of hard-coding providers.
+The Agent application owns language reasoning and visual understanding. Slidecraft accepts the resulting structured decisions through MCP and validates them before use.
+
+Image generation is the only separately configurable model connection. The Agent can use its own image tool. When that tool is unavailable, or when the user selects a connected service, Slidecraft calls the configured OpenAI or OpenAI-compatible image endpoint.
 
 ```python
-class ReasoningProvider(Protocol):
-    async def generate_structured(self, request: ReasoningRequest) -> StructuredResult: ...
-
-class VisionLanguageProvider(Protocol):
-    async def analyze(self, images: list[ImageRef], request: VisionRequest) -> StructuredResult: ...
-
 class ImageGenerationProvider(Protocol):
     async def generate(self, request: ImageGenerationRequest) -> ImageArtifact: ...
     async def edit(self, request: ImageEditRequest) -> ImageArtifact: ...
-
-class SegmentationProvider(Protocol):
-    async def segment(self, image: ImageRef, prompts: list[RegionPrompt]) -> MaskSet: ...
 ```
 
-Provider profiles declare model IDs, supported modalities, structured-output support, maximum image dimensions, timeout, retry policy, cost policy, and credential reference.
-
-### Managed-brain mode
-
-The framework calls configured reasoning, vision, and image-generation APIs. This mode works as a standalone service.
-
-### Host-brain mode
-
-An Agent host such as Codex owns reasoning and workflow decisions through the MCP interface. Slidecraft supplies validation, assets, computer vision, construction, and a passive artifact ledger.
-
-The two modes share the same typed contracts. A run can use a host agent for semantic planning and a configured provider for image generation.
-
-The OpenAI implementation can use current agent tooling for bounded model activities and tracing. The generic domain layer should remain independent from a single vendor SDK.
+The image connection records its model ID, supported dimensions, timeout, credential reference, and provenance. The presentation domain remains independent from a single vendor SDK.
 
 ## OpenCV and segmentation execution
 
@@ -482,13 +463,13 @@ Automate VLM semantic mapping, native PowerPoint render comparison, bounded refi
 
 The first real project increment should implement one vertical path.
 
-1. `slidecraft agent-capabilities`
-2. `slidecraft agent-call --request capability-request.json`
+1. Six task-oriented MCP tools
+2. Matching Python workflows for shell-capable Agent fallback
 3. Typed request, configuration, semantic scene, and constructor scene contracts
 4. Versioned artifact graph with candidate, active, superseded, rejected, fresh, and stale semantics
-5. Existing end-to-end pipeline workers exposed through composable capabilities
+5. Existing end-to-end workers hidden behind the six workflows
 6. Local folder providers for visual references, Tabler icons, known components, and user assets
 7. Automatic OpenCV and SAM capability detection
-8. Optional MCP v2 stdio adapter over the same Python capability API
+8. MCP v2 STDIO integration registered by the guided installer
 
 This slice supports Agent-controlled local operation before distributed infrastructure is introduced.

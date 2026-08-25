@@ -1,4 +1,4 @@
-"""Canonical framework naming and temporary migration aliases."""
+"""Canonical names and migrations for legacy project artifacts."""
 
 from __future__ import annotations
 
@@ -34,8 +34,10 @@ def migrate_deck_and_slide(deck: dict[str, Any], slide: dict[str, Any]) -> tuple
     return deck, slide, notices
 
 
-def migrate_orchestration_state(state: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
-    state = deepcopy(state)
+def migrate_generation_context(context: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+    """Update a legacy generation record to the current vocabulary."""
+
+    state = deepcopy(context)
     notices: list[str] = []
     if "deck_configuration" in state and "deck_design_configuration" not in state:
         state["deck_design_configuration"] = state.pop("deck_configuration")

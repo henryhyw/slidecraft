@@ -12,7 +12,7 @@ The installed package completed this sequence.
 
 1. Prepare generation inputs and register the generation handoff.
 2. Register a generated image.
-3. Compile a structured semantic scene through the host-result provider boundary.
+3. Compile a structured semantic scene from visual analysis recorded by the host Agent.
 4. Measure the scene locally with OpenCV.
 5. Build a reconstruction contract with semantic routes and canonical icon resolution.
 6. Compile the constructor scene with text fitting, containment, z-order, and conformance gates.

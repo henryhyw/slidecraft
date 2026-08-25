@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 from slidecraft.orchestration.edit_prompt import build_edit_prompt, load_review_result, validate_review_result
-from slidecraft.orchestration.naming import migrate_orchestration_state
+from slidecraft.orchestration.naming import migrate_generation_context
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
     args = parser.parse_args()
 
     state = json.loads(Path(args.state).resolve().read_text(encoding="utf-8"))
-    state, naming_migration_notices = migrate_orchestration_state(state)
+    state, naming_migration_notices = migrate_generation_context(state)
     config = json.loads(Path(args.review_config).resolve().read_text(encoding="utf-8"))
     result = load_review_result(Path(args.review_result).resolve())
     validate_review_result(result, config)

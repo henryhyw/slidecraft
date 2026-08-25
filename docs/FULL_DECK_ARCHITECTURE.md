@@ -2,7 +2,7 @@
 
 ## Planning contract
 
-The host Agent starts from audience, desired outcome, project materials, explicit constraints, density, and an optional page-count range. It records that conversational result through `set_deck_brief`, which works through MCP without direct hidden-file access. `plan_deck` asks a structured reasoning model to compare plausible storylines, choose one governing thought, create purposeful sections, allocate every authoritative source atom, and assign one communication job to every slide.
+The host Agent starts from audience, desired outcome, project materials, explicit constraints, density, and an optional page-count range. It records that conversational result through `slidecraft_prepare_deck`. The Agent compares plausible storylines, chooses one governing thought, creates purposeful sections, allocates every authoritative source atom, and assigns one communication job to every slide. A second call validates and stores the authored plan.
 
 Visual source material is interpreted by the host's visual understanding before planning. The interpretation remains paired with the original path and hash. Path-only images remain explicitly pending, so filename and dimension metadata cannot masquerade as semantic evidence.
 
@@ -25,7 +25,7 @@ Every generated content slide and every deterministic structural slide consumes 
 
 Low-information structural roles use packaged native layouts. The supported roles are cover, agenda, section divider, statement, closing, and appendix divider. Their scenes are created during deck planning, use normalized layout recipes, and pass the same Office-safe text-fit policy used by reconstructed content.
 
-Every information-bearing slide uses image generation. `prepare_slide` compiles its deck job and allocated source atoms into an authoritative slide request plus a semantic-planning prompt. The host Agent creates the structured semantic design, searches the configured collections, selects the final resources, then asks `prepare_generation` to assemble the image-generation and reconstruction handoffs.
+Every information-bearing slide uses image generation. `slidecraft_generate_slide` compiles its deck job and allocated source atoms into semantic-design guidance. The host Agent creates the structured semantic design, reviews candidates from the configured collections, and selects the final resources. The same tool then assembles the image-generation and reconstruction handoffs.
 
 This routing keeps covers and transitions consistent across the deck. It also lets the image model choose the most effective visual form for substantive content.
 
@@ -46,7 +46,7 @@ The dashboard does not own this progression. It reads and edits the same project
 
 ## Assembly and coherence
 
-`render_pptx` reads the active deck plan and derives the required constructor-scene keys in page order. It rejects missing, extra, reordered, stale, or invalid scenes. It then checks the frozen design identity, shared canvas, background, structural routing, repeated typography roles, canonical asset roles, connector visibility policy, and exact header and footer geometry before invoking the certified PptxGenJS constructor.
+`slidecraft_render_deck` reads the active deck plan and derives the required reconstructed slides in page order. It rejects missing, extra, reordered, stale, or invalid slides. It then checks the frozen design identity, shared canvas, background, structural routing, repeated typography roles, canonical asset roles, connector visibility policy, and exact header and footer geometry before invoking the certified PowerPoint constructor.
 
 Package integrity and constructor conformance remain mandatory. Native Microsoft PowerPoint rendering is an optional additional gate when the user has authorized local automation.
 

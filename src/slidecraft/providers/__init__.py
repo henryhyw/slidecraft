@@ -1,12 +1,10 @@
-"""Provider contracts and bundled implementations."""
+"""Image-generation providers and Agent-result loaders."""
 
-from .base import ImageGenerationProvider, StructuredReasoningProvider, StructuredVisionProvider
-from .file import FileStructuredReasoningProvider, FileStructuredVisionProvider
+from .base import ImageGenerationProvider
+from .file import RecordedDeckPlan, RecordedVisualAnalysis
 
 __all__ = [
-    "FileStructuredReasoningProvider",
-    "FileStructuredVisionProvider",
     "ImageGenerationProvider",
-    "StructuredReasoningProvider",
-    "StructuredVisionProvider",
+    "RecordedDeckPlan",
+    "RecordedVisualAnalysis",
 ]

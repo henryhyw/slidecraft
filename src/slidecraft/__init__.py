@@ -1,15 +1,20 @@
-"""Slidecraft public package API."""
+"""Slidecraft public workflow API."""
 
-from .agent import call_capability, list_capabilities, safe_call_capability
-from .runtime.artifacts import ArtifactWorkspace
-from .semantic_mapping.compiler import SemanticMapCompiler, compile_semantic_map
+from .agent_workflows import (
+    generate_slide,
+    measure_slide,
+    open_project,
+    prepare_deck,
+    reconstruct_slide,
+    render_deck,
+)
 
 __all__ = [
-    "ArtifactWorkspace",
-    "SemanticMapCompiler",
-    "call_capability",
-    "compile_semantic_map",
-    "list_capabilities",
-    "safe_call_capability",
+    "generate_slide",
+    "measure_slide",
+    "open_project",
+    "prepare_deck",
+    "reconstruct_slide",
+    "render_deck",
 ]
 __version__ = "0.1.0a1"

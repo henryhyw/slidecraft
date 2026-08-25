@@ -1,40 +1,9 @@
-"""Vendor-neutral model capability contracts."""
+"""Image-generation contracts used by Slidecraft."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
-
-
-@runtime_checkable
-class StructuredVisionProvider(Protocol):
-    """Extract schema-constrained data from one image and grounded context."""
-
-    provider_id: str
-
-    def extract(
-        self,
-        *,
-        image_path: Path,
-        prompt: str,
-        schema: dict[str, Any],
-        operation: str,
-    ) -> dict[str, Any]: ...
-
-
-@runtime_checkable
-class StructuredReasoningProvider(Protocol):
-    """Produce a schema-constrained planning or review artifact from text context."""
-
-    provider_id: str
-
-    def reason(
-        self,
-        *,
-        prompt: str,
-        schema: dict[str, Any],
-        operation: str,
-    ) -> dict[str, Any]: ...
 
 
 @runtime_checkable

@@ -24,4 +24,4 @@ The framework separates visual evidence, governing configuration, deterministic 
 
 External provider identifiers remain unchanged. For example, a Tabler icon file may retain an upstream glyph name containing the word `template`. That identifier describes the external icon asset and is never used as framework terminology.
 
-Existing saved runs created before this change may contain former numbered field names. Temporary input adapters migrate those legacy names when loading old deck settings, slide requests, orchestration states, and reconstruction handoffs. Migration notices are recorded. New outputs use only the canonical terms above.
+Existing projects created before this change may contain former numbered field names. Input adapters migrate those legacy names when loading old deck settings, slide requests, generation contexts, and reconstruction handoffs. Migration notices are recorded. New outputs use only the canonical terms above.

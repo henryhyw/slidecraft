@@ -1,4 +1,4 @@
-"""Provider-neutral semantic mapping prompt assembly."""
+"""Build visual-analysis instructions for the host Agent."""
 
 from __future__ import annotations
 

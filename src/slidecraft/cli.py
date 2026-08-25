@@ -27,7 +27,7 @@ from slidecraft.configuration import (
 )
 from slidecraft.deck.manager import DeckManager
 from slidecraft.intake import normalize_deck_intake
-from slidecraft.providers.file import FileStructuredVisionProvider
+from slidecraft.providers.file import RecordedVisualAnalysis
 from slidecraft.reconstruction.conformance import ConstructorConformanceError, validate_backend_capabilities
 from slidecraft.reconstruction.scene import build_reconstruction_scene
 from slidecraft.runtime.doctor import collect_diagnostics
@@ -105,9 +105,9 @@ def _read_json(path: Path) -> dict[str, Any]:
 
 
 def _semantic_map(args: argparse.Namespace) -> int:
-    provider = FileStructuredVisionProvider(Path(args.result))
+    analysis = RecordedVisualAnalysis(Path(args.result))
     compiled = compile_semantic_map(
-        provider=provider,
+        analysis=analysis,
         image_path=Path(args.image),
         upstream_handoff=_read_json(Path(args.handoff)),
         segmentation_mode=args.segmentation,
@@ -254,10 +254,10 @@ def _plan_deck(args: argparse.Namespace) -> int:
     request = apply_dotted_overrides(request, args.set)
     intake = normalize_deck_intake(request, request_path.parent)
     design = _read_json(Path(args.design).resolve())
-    from slidecraft.providers.file import FileStructuredReasoningProvider
+    from slidecraft.providers.file import RecordedDeckPlan
 
-    provider = FileStructuredReasoningProvider(Path(args.result))
-    manifest = DeckManager(Path(args.run_dir), provider).initialize(
+    authored_plan = RecordedDeckPlan(Path(args.result)).read()
+    manifest = DeckManager(Path(args.run_dir), authored_plan).initialize(
         request=request,
         intake=intake,
         design_system=design,

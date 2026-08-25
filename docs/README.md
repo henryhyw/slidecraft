@@ -19,5 +19,6 @@
 - [Agent integration](AGENT_INTEGRATION.md) defines the MCP, CLI, Python, and project-artifact interfaces.
 - [Connector contract](CONNECTOR_CONTRACT.md) documents relationship reasoning and native connector construction.
 - [Normalization contract](NORMALIZATION_CONTRACT.md) documents bounded alignment and typography refinement.
+- [Reasoning boundaries](REASONING_BOUNDARIES.md) explains which decisions belong to the Agent and which operations Slidecraft validates or executes.
 
 `design-notes/` contains longer-term product and distribution proposals. Use the documents above for features available in the current release.

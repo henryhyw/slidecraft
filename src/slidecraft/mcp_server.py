@@ -5,25 +5,31 @@ from __future__ import annotations
 from typing import Any
 
 from slidecraft import __version__
-from slidecraft.agent import list_capabilities, safe_call_capability
+from slidecraft.agent_workflows import (
+    generate_slide,
+    measure_slide,
+    open_project,
+    prepare_deck,
+    reconstruct_slide,
+    render_deck,
+)
 
 SERVER_INSTRUCTIONS = """
-Slidecraft creates and revises editable PowerPoint presentations through local project folders.
-The agent app interprets the conversation and chooses each action. Slidecraft organizes sources,
-decisions, generated work, editable reconstruction, validation, and deliverables.
+Slidecraft turns source material into editable PowerPoint presentations. Work through ordinary
+conversation and use these tools as complete presentation tasks. Open the project first. Prepare
+the agreed brief and Agent-authored deck plan. Generate each information-bearing slide, measure its
+accepted image with Agent-authored visual analysis, reconstruct it, then render the complete deck.
 
-When a user names a project, call slidecraft_resolve_project and then slidecraft_workflow_status.
-Create the project when they are starting new work. Record a new presentation brief with
-slidecraft_set_deck_brief. The host agent owns clarifications, planning, retrieval choices, semantic
-mapping, reconstruction routes, connector intent, and refinement decisions. Slidecraft supplies
-search evidence, typed storage, deterministic processing, validation, and PowerPoint construction.
-Use slidecraft_workflow_status to inspect durable facts. Choose the next operation through your own
-reasoning over those facts and the user's current request. Register model results before using them
-in later operations. Use slidecraft_project_detail to return the final PowerPoint, previews, plans,
-or reports requested by the user. Technical reconstruction evidence is available on request.
+The Agent owns questions, source interpretation, storyline, resource choices, visual analysis,
+connector meaning, reconstruction routes, and refinement decisions. Slidecraft stores those
+decisions, performs deterministic measurement and construction, and validates the result. Tools may
+return a brief or candidate set for the Agent to complete, then accept that authored result on the
+next call. Return the editable PowerPoint or requested review artifact to the user. Keep internal
+masks, contours, caches, and logs hidden unless technical evidence is requested.
 
-Call slidecraft_capabilities when an operation or its arguments are unknown. Use slidecraft_call
-for capabilities that do not have a dedicated MCP tool.
+For new work, place the project in the Agent's current workspace unless the user chose another
+folder. Pass that workspace as `location` when calling `slidecraft_open_project`. Existing projects
+can be reopened by name, stable ID, or folder.
 """.strip()
 
 
@@ -42,51 +48,86 @@ def build_server() -> Any:
     )
 
     @server.tool()
-    def slidecraft_capabilities(
-        workflow: str | None = None,
-        capability: str | None = None,
-    ) -> dict[str, Any]:
-        """Show compact workflows, expand one workflow, or inspect one capability."""
-        return list_capabilities(workflow=workflow, capability=capability)
-
-    @server.tool()
-    def slidecraft_resolve_project(
+    def slidecraft_open_project(
         identifier: str,
         create_if_missing: bool = False,
         location: str | None = None,
+        description: str = "",
     ) -> dict[str, Any]:
-        """Find a Slidecraft project by name, ID, or folder. Create it only when the user intends new work."""
-        return safe_call_capability(
-            "resolve_project",
-            {
-                "identifier": identifier,
-                "create_if_missing": create_if_missing,
-                "location": location,
-            },
+        """Open or create a presentation project. New projects default to the current workspace."""
+        return open_project(
+            identifier=identifier,
+            create_if_missing=create_if_missing,
+            location=location,
+            description=description,
         )
 
     @server.tool()
-    def slidecraft_project_detail(location: str, include_internal: bool = False) -> dict[str, Any]:
-        """Return user-facing project progress, sources, deliverables, and reviewable intermediate artifacts."""
-        return safe_call_capability(
-            "project_detail",
-            {"location": location, "include_internal": include_internal},
+    def slidecraft_prepare_deck(
+        project: str,
+        brief: dict[str, Any] | None = None,
+        deck_plan: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Record the brief, prepare deck-planning guidance, or validate and store the Agent-authored plan."""
+        return prepare_deck(project=project, brief=brief, deck_plan=deck_plan)
+
+    @server.tool()
+    def slidecraft_generate_slide(
+        project: str,
+        slide_id: str,
+        semantic_design: dict[str, Any] | None = None,
+        resource_selection: dict[str, Any] | None = None,
+        generated_image: str | None = None,
+        host_supports_image_generation: bool = True,
+    ) -> dict[str, Any]:
+        """Prepare, generate, or register one planned content-slide image."""
+        return generate_slide(
+            project=project,
+            slide_id=slide_id,
+            semantic_design=semantic_design,
+            resource_selection=resource_selection,
+            generated_image=generated_image,
+            host_supports_image_generation=host_supports_image_generation,
         )
 
     @server.tool()
-    def slidecraft_set_deck_brief(workspace: str, brief: dict[str, Any]) -> dict[str, Any]:
-        """Create or revise the authoritative presentation brief from the Agent conversation."""
-        return safe_call_capability("set_deck_brief", {"workspace": workspace, "brief": brief})
+    def slidecraft_measure_slide(
+        project: str,
+        slide_id: str,
+        visual_analysis: dict[str, Any] | None = None,
+        segmentation: str = "auto",
+        checkpoint: str | None = None,
+        device: str = "auto",
+    ) -> dict[str, Any]:
+        """Prepare visual-analysis guidance or measure an Agent-understood slide image."""
+        return measure_slide(
+            project=project,
+            slide_id=slide_id,
+            visual_analysis=visual_analysis,
+            segmentation=segmentation,
+            checkpoint=checkpoint,
+            device=device,
+        )
 
     @server.tool()
-    def slidecraft_workflow_status(workspace: str, include_history: bool = False) -> dict[str, Any]:
-        """Show durable project facts and artifacts for Agent interpretation."""
-        return safe_call_capability("workflow_status", {"workspace": workspace, "include_history": include_history})
+    def slidecraft_reconstruct_slide(
+        project: str,
+        slide_id: str,
+        refinement_plan: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Build one editable slide from measured evidence and Agent-authored refinement intent."""
+        return reconstruct_slide(project=project, slide_id=slide_id, refinement_plan=refinement_plan)
 
     @server.tool()
-    def slidecraft_call(capability: str, arguments: dict[str, Any]) -> dict[str, Any]:
-        """Call one discovered Slidecraft capability with its typed argument object."""
-        return safe_call_capability(capability, arguments)
+    def slidecraft_render_deck(
+        project: str,
+        output: str | None = None,
+        title: str = "Slidecraft presentation",
+        company: str = "",
+        language: str = "en-US",
+    ) -> dict[str, Any]:
+        """Validate every planned slide and export the complete editable PowerPoint deck."""
+        return render_deck(project=project, output=output, title=title, company=company, language=language)
 
     return server
 

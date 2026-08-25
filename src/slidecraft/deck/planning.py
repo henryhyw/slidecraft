@@ -8,8 +8,6 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from slidecraft.providers.base import StructuredReasoningProvider
-
 
 def load_deck_plan_schema() -> dict[str, Any]:
     return json.loads(files("slidecraft.schemas").joinpath("deck_plan_minimal.schema.json").read_text(encoding="utf-8"))
@@ -191,7 +189,7 @@ def validate_and_normalize_plan(
 
 
 def plan_deck(
-    provider: StructuredReasoningProvider,
+    authored_plan: dict[str, Any],
     *,
     request: dict[str, Any],
     intake: dict[str, Any],
@@ -199,13 +197,8 @@ def plan_deck(
     routing_policy: dict[str, Any] | None = None,
     system_layouts: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    plan = provider.reason(
-        prompt=build_deck_prompt(request, intake, design),
-        schema=load_deck_plan_schema(),
-        operation="slidecraft_deck_plan",
-    )
     return validate_and_normalize_plan(
-        plan,
+        authored_plan,
         intake,
         request,
         routing_policy=routing_policy,

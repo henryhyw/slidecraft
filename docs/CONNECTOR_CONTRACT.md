@@ -58,4 +58,4 @@ Synthetic routing tests use arbitrary component IDs and geometry. They provide a
 
 ## Automatic recovery boundary
 
-When a model endpoint is available, the focused audit is a second schema-constrained model call. Host-agent mode supports the same two-pass contract through an operation-result bundle. Intermediate audit artifacts remain inspectable and resumable.
+The host Agent performs a focused second visual audit when a slide contains connectors. It records the semantic scene and connector audit in one operation-result bundle. Intermediate audit artifacts remain inspectable and resumable.

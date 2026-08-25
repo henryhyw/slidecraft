@@ -1,4 +1,4 @@
-"""Host-agent bridge for schema-constrained JSON artifacts."""
+"""Load structured results authored by the host Agent."""
 
 from __future__ import annotations
 
@@ -7,46 +7,36 @@ from pathlib import Path
 from typing import Any
 
 
-class FileStructuredVisionProvider:
-    """Read a VLM result produced by Codex, another agent host, or a fixture.
+class RecordedVisualAnalysis:
+    """Read visual analysis produced by an Agent or stored in a test fixture.
 
-    This provider is also the stable boundary used by the future MCP server. The
-    host performs the model call, saves the strict JSON artifact, and the local
-    Slidecraft process performs validation and deterministic compilation.
+    The Agent performs the interpretation. Slidecraft validates and compiles the
+    recorded result into deterministic downstream contracts.
     """
 
-    provider_id = "host_file"
+    source_id = "agent_record"
 
     def __init__(self, result_path: Path):
         self.result_path = result_path.resolve()
         payload = json.loads(self.result_path.read_text(encoding="utf-8"))
         self.supports_connector_audit = "operation_results" in payload
 
-    def extract(
-        self,
-        *,
-        image_path: Path,
-        prompt: str,
-        schema: dict[str, Any],
-        operation: str,
-    ) -> dict[str, Any]:
-        del image_path, prompt, schema
+    def result_for(self, operation: str) -> dict[str, Any]:
         payload = json.loads(self.result_path.read_text(encoding="utf-8"))
         if "operation_results" in payload:
             return payload["operation_results"][operation]
         return payload
 
 
-class FileStructuredReasoningProvider:
-    """Read a strict planning artifact emitted by an external agent host."""
+class RecordedDeckPlan:
+    """Read a deck plan authored by the host Agent."""
 
-    provider_id = "host_file"
+    source_id = "agent_record"
 
     def __init__(self, result_path: Path):
         self.result_path = result_path.resolve()
 
-    def reason(self, *, prompt: str, schema: dict[str, Any], operation: str) -> dict[str, Any]:
-        del prompt, schema, operation
+    def read(self) -> dict[str, Any]:
         return json.loads(self.result_path.read_text(encoding="utf-8"))
 
 
