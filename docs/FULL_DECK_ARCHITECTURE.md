@@ -23,9 +23,9 @@ Every generated content slide and deterministic structural slide consumes the re
 
 ## Slide routing
 
-Low-information structural roles use packaged native layouts. The supported roles are cover, agenda, section divider, statement, closing, and appendix divider. Their scenes are created during deck planning, use normalized layout recipes, and pass the same Office-safe text-fit policy used by reconstructed content.
+Packaged native layouts are limited to covers and section transitions, including appendix dividers. Their scenes are created during deck planning, use normalized layout recipes, and pass the same Office-safe text-fit policy used by reconstructed content.
 
-Information-bearing slides can use image generation. The host Agent creates the structured semantic design, reads the resources selected in the shared project context, and chooses the final visual inputs. It authors the image-generation and reconstruction handoffs according to the skill.
+Every information-bearing slide uses image generation. The host Agent creates the structured semantic design, reads the resources selected in the shared project context, and chooses the final visual inputs. It authors the image-generation and reconstruction handoffs according to the skill. Technical precision changes the semantic and reconstruction requirements. It does not remove the image-generation stage.
 
 This routing keeps covers and transitions consistent across the deck. It also lets the image model choose the most effective visual form for substantive content.
 

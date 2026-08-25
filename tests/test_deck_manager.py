@@ -26,6 +26,56 @@ class DeckManagerTests(unittest.TestCase):
         self.assertIn("A reader should be able to recover the core argument from slide messages alone.", prompt)
         self.assertIn("target_semantic_units_per_content_slide", prompt)
         self.assertIn("Avoid a product tour or internal component inventory", prompt)
+        self.assertIn("Use image generation for every information-bearing slide", prompt)
+
+    def test_only_cover_and_transition_roles_use_system_layouts(self) -> None:
+        policy = json.loads(
+            (ROOT / "src" / "slidecraft" / "defaults" / "deck_planning_config.json").read_text()
+        )
+        self.assertEqual(
+            set(policy["routing"]["system_layout_roles"]),
+            {"title_slide", "section_divider", "appendix_divider"},
+        )
+        for role, role_policy in policy["slide_roles"].items():
+            expected = "system_layout" if role in policy["routing"]["system_layout_roles"] else "image_generation"
+            self.assertEqual(role_policy["default_route"], expected)
+
+    def test_information_bearing_role_cannot_bypass_image_generation(self) -> None:
+        request = {
+            "schema_version": "1.0.0",
+            "deck_id": "demo_deck",
+            "objective": "Explain one answer",
+            "audience": {"description": "Executives"},
+            "materials": [
+                {
+                    "material_id": "M1",
+                    "modality": "text",
+                    "content": "Authoritative evidence",
+                    "authority": "authoritative",
+                }
+            ],
+        }
+        intake = normalize_deck_intake(request, ROOT)
+        plan = RecordedDeckPlan(ROOT / "tests" / "fixtures" / "unit" / "deck_plan_fixture.json").read()
+        plan["slides"][1].update(
+            role="agenda",
+            route="system_layout",
+            system_layout_id="agenda_clean_v1",
+        )
+        with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(
+            ValueError,
+            "must use route 'image_generation'",
+        ):
+            DeckManager(Path(directory), plan).initialize(
+                request=request,
+                intake=intake,
+                design_system={
+                    "config_id": "test",
+                    "full_slide_px": [1000, 562],
+                    "style": {},
+                    "deck_chrome": {"enabled": False},
+                },
+            )
 
     def test_manager_routes_and_emits_jobs(self) -> None:
         request = {

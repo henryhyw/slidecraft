@@ -35,7 +35,7 @@ Slidecraft applies the selected communication style, information density, typogr
 
 ### 4. Design each slide
 
-Every slide begins with a communication contract that defines what the audience should understand and what the visual must make clear. Information-rich pages can be composed visually, while structural pages and straightforward arrangements use native layouts.
+Every slide begins with a communication contract that defines what the audience should understand and what the visual must make clear. Every information-bearing slide uses image generation for composition, including technical structures, tables, comparisons, and process diagrams. Covers and section transitions use consistent native layouts.
 
 Each candidate is reviewed for message fidelity, evidence accuracy, hierarchy, grouping, relationships, legibility, and consistency with the deck.
 

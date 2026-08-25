@@ -120,12 +120,13 @@ def _validate_agent_route(
     role_policy = routing_policy.get("slide_roles", {}).get(role)
     if role_policy is None:
         raise ValueError(f"Slide {slide['slide_id']} uses an unconfigured role {role!r}")
-    allowed_routes = {role_policy["default_route"]}
-    if role_policy.get("image_generation_allowed"):
-        allowed_routes.add("image_generation")
-    if route not in allowed_routes:
+    route_policy = routing_policy.get("routing", {})
+    system_roles = set(route_policy.get("system_layout_roles", []))
+    information_route = route_policy.get("information_bearing_route", "image_generation")
+    expected_route = "system_layout" if role in system_roles else information_route
+    if route != expected_route:
         raise ValueError(
-            f"Slide {slide['slide_id']} uses route {route!r}, which is incompatible with role {role!r}"
+            f"Slide {slide['slide_id']} with role {role!r} must use route {expected_route!r}"
         )
     layout_id = slide.get("system_layout_id")
     if route == "image_generation":

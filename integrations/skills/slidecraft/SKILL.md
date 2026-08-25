@@ -43,7 +43,9 @@ Default to collaborative planning unless the user explicitly delegates uninterru
 
 ## Create slide images
 
-Author each slide's communication contract and semantic visual design. Use the host's image-generation capability for information-bearing compositions. Use native layouts or direct PowerPoint objects for structural pages and straightforward arrangements.
+Author each slide's communication contract and semantic visual design. Use image generation for every information-bearing slide. This includes agendas, executive summaries, comparisons, tables, charts, process diagrams, technical architecture, statements, closing pages, appendix content, and visually straightforward arrangements.
+
+Use deterministic native layouts only for covers and section transitions, including appendix dividers. Do not directly author any other slide in PowerPoint. Structured technical content is a reason to preserve exact semantics and reconstruct clean native objects after generation. It is never a reason to skip image generation.
 
 Review every generated candidate visually. Select the candidate with the strongest message fidelity, hierarchy, grouping, relationships, legibility, and deck-style coherence.
 

@@ -29,41 +29,6 @@
         {"kind": "parallelogram", "box": [0.0, 0.22, 0.34, 0.5], "fill_role": "accent_primary"},
         {"kind": "parallelogram", "box": [0.18, 0.22, 0.18, 0.5], "fill_role": "accent_secondary"}
       ]
-    },
-    {
-      "system_layout_id": "agenda_clean_v1",
-      "slide_roles": ["agenda"],
-      "description": "A deterministic agenda using deck section numbers, names, and concise promises with consistent spacing.",
-      "slots": [
-        {"name": "title", "kind": "textbox", "box": [0.06, 0.08, 0.82, 0.12], "style_role": "slide_title"},
-        {"name": "agenda_items", "kind": "repeating_group", "box": [0.1, 0.25, 0.8, 0.58], "style_role": "agenda_item"}
-      ],
-      "decorative_recipe": []
-    },
-    {
-      "system_layout_id": "statement_slide_v1",
-      "slide_roles": ["quote_or_statement"],
-      "description": "A high-emphasis statement slide with one message, optional attribution, and restrained accent geometry.",
-      "slots": [
-        {"name": "statement", "kind": "textbox", "box": [0.1, 0.25, 0.8, 0.34], "style_role": "statement"},
-        {"name": "attribution", "kind": "textbox", "box": [0.1, 0.64, 0.55, 0.08], "style_role": "metadata"}
-      ],
-      "decorative_recipe": [
-        {"kind": "rectangle", "box": [0.1, 0.19, 0.12, 0.012], "fill_role": "accent_primary"}
-      ]
-    },
-    {
-      "system_layout_id": "closing_next_steps_v1",
-      "slide_roles": ["closing"],
-      "description": "A closing page with the requested decision or next step, optional contacts, and a stable final accent treatment.",
-      "slots": [
-        {"name": "closing_message", "kind": "textbox", "box": [0.08, 0.24, 0.75, 0.2], "style_role": "section_title"},
-        {"name": "next_steps", "kind": "textbox", "box": [0.08, 0.5, 0.66, 0.2], "style_role": "body"},
-        {"name": "contact", "kind": "textbox", "box": [0.08, 0.76, 0.5, 0.08], "style_role": "metadata"}
-      ],
-      "decorative_recipe": [
-        {"kind": "parallelogram", "box": [0.76, 0.55, 0.24, 0.24], "fill_role": "accent_primary"}
-      ]
     }
   ]
 }

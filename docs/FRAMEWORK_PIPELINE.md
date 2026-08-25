@@ -29,7 +29,7 @@ slidecraft project record /absolute/path/project \
 
 Each slide begins with a communication contract that defines its audience question, message, evidence, consequence, visual job, and transition. Relevant project assets and reusable visual resources are selected from the shared context.
 
-Information-bearing slides can use image generation for composition. Structural pages and straightforward arrangements can use native PowerPoint layouts directly. Candidate review covers message fidelity, hierarchy, grouping, relationships, legibility, and deck-style coherence.
+Every information-bearing slide uses image generation for composition. This includes technical structures, tables, comparisons, process diagrams, agendas, statements, and closing pages. Covers and section transitions use native PowerPoint layouts directly. Candidate review covers message fidelity, hierarchy, grouping, relationships, legibility, and deck-style coherence.
 
 ## Semantic reconstruction
 

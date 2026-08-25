@@ -12,6 +12,8 @@ For a new deck, inspect the supplied material and research only what can improve
 
 Treat required topics as evidence obligations. Create a slide only when it advances the governing argument. Keep research in the background when it only informs the reasoning.
 
+Use image generation for every information-bearing slide. Technical structure, tables, comparisons, process stages, and simple arrangements still require an image-generation composition before reconstruction. Deterministic native layouts are limited to the cover and section-transition roles, including appendix dividers. Never bypass this route by authoring a content slide directly in PowerPoint.
+
 ## Build with local commands
 
 Use ordinary project files. Keep planning artifacts, generated images, visual analyses, measurements, constructor scenes, and deliverables in paths that are clear to the Agent and user.

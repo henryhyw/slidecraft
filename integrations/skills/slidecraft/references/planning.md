@@ -86,7 +86,9 @@ Allocate slides only after choosing the narrative. Each slide is one necessary m
           "evidence": ["Facts, examples, or demonstrations"],
           "consequence": "Why the answer matters",
           "visual_job": "The relationship the visual must make clear",
-          "transition": "Why the next slide follows"
+          "transition": "Why the next slide follows",
+          "role": "title_slide | section_divider | appendix_divider | information-bearing role",
+          "route": "system_layout for a cover or transition, otherwise image_generation"
         }
       ]
     }
@@ -97,6 +99,8 @@ Allocate slides only after choosing the narrative. Each slide is one necessary m
 ```
 
 Derive message titles from these communication contracts. Make every message specific enough to identify this project and its consequence.
+
+Route every information-bearing slide through image generation before reconstruction. The visual form may ultimately reconstruct as native text, a native table, an editable chart, canonical assets, standard shapes, connectors, fitted geometry, or a raster image region. That downstream representation does not change the generation route. Covers and section transitions, including appendix dividers, are the only deterministic native-layout exceptions.
 
 Treat required topics as evidence obligations. Integrate them where they prove feasibility, economics, risk, mechanism, or implications. Give a topic a dedicated slide when that movement is necessary to the audience journey.
 

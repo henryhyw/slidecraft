@@ -50,19 +50,19 @@
   "storyline_archetypes": {},
   "slide_roles": {
     "title_slide": {"default_route": "system_layout", "image_generation_allowed": false},
-    "agenda": {"default_route": "system_layout", "image_generation_allowed": false},
+    "agenda": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
     "executive_summary": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
     "section_divider": {"default_route": "system_layout", "image_generation_allowed": false},
     "content": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
-    "quote_or_statement": {"default_route": "system_layout", "image_generation_allowed": false},
-    "closing": {"default_route": "system_layout", "image_generation_allowed": false},
+    "quote_or_statement": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
+    "closing": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true},
     "appendix_divider": {"default_route": "system_layout", "image_generation_allowed": false},
     "appendix_content": {"default_route": "image_generation", "image_generation_allowed": true, "information_bearing": true}
   },
   "routing": {
     "quality_precedes_cost": true,
     "pre_generation_routes": ["system_layout", "image_generation"],
-    "system_layout_roles": ["title_slide", "agenda", "section_divider", "quote_or_statement", "closing", "appendix_divider"],
+    "system_layout_roles": ["title_slide", "section_divider", "appendix_divider"],
     "information_bearing_route": "image_generation",
     "image_model_owns_visual_form": true,
     "forbidden_pre_generation_form_assumptions": [

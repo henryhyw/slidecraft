@@ -25,11 +25,10 @@ When the user delegates execution, the Agent performs the same reasoning and con
 
 ## Prepare each slide
 
-Each slide receives a communication contract with its audience question, message, evidence, consequence, visual job, and transition. The Agent then selects the construction approach.
+Each slide receives a communication contract with its audience question, message, evidence, consequence, visual job, and transition. The route follows the deck architecture.
 
-- Image generation for information-rich composition
-- Native layout for structural pages
-- Direct PowerPoint objects for straightforward arrangements
+- Image generation for every information-bearing slide
+- Native layout only for covers and section transitions, including appendix dividers
 
 The generation brief includes exact text and data, semantic relationships, relevant assets, selected visual inspiration, and the resolved deck design.
 
