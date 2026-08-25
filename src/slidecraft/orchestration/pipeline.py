@@ -460,6 +460,12 @@ def _apply_user_defaults(deck: dict[str, Any], config_root: Path) -> dict[str, A
         "icon_root": resolve_library(libraries["icons"]),
         "known_component_root": resolve_library(libraries["components"]),
     })
+    deck.setdefault("resource_policy", {})["icons"] = application.get("resources", {}).get("icons", {
+        "allow_online_retrieval": True,
+        "provider": "tabler",
+        "release": "latest",
+        "max_online_candidates_per_role": 8,
+    })
     return deck
 
 

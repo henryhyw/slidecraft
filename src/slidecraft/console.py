@@ -137,7 +137,14 @@ def _library_summary(config: dict[str, Any]) -> list[dict[str, Any]]:
         count = list_library_items(name)["item_count"] if name in {"visual_references", "icons", "components"} else (
             len([item for item in path.glob("**/*") if item.is_file()]) if path.is_dir() else 0
         )
-        result.append({"name": name, "path": str(path), "available": path.is_dir(), "item_count": count})
+        record = {"name": name, "path": str(path), "available": path.is_dir(), "item_count": count}
+        if name == "icons":
+            icon_policy = config.get("resources", {}).get("icons", {})
+            record["online_retrieval"] = {
+                "enabled": bool(icon_policy.get("allow_online_retrieval", True)),
+                "provider": "Tabler Icons",
+            }
+        result.append(record)
     return result
 
 

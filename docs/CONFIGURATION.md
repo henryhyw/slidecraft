@@ -35,6 +35,7 @@ The user or organization configuration owns these values.
 - Image-generation connection, model, and selection policy
 - Model IDs and credential environment-variable names
 - Local visual-reference, icon, component, and style libraries
+- Icon search scope, with local-only or local plus official Tabler retrieval
 - Segmentation policy, checkpoint, and device selection
 - Constructor backend and quality policy
 - Validation policy
@@ -80,6 +81,12 @@ The console is a user control surface. Its primary views are Overview, Projects,
 - Components include retrieved reusable editable constructions.
 
 The resource catalog is a derived project view. It preserves provenance and reports the slide IDs that cite each source atom or canonical resource. Long-lived visual, icon, component, and style libraries remain global. Items retrieved from those libraries become project-specific selected resources.
+
+### Icon search scope
+
+`resources.icons.allow_online_retrieval` is enabled by default. When enabled, an Agent request for icon candidates searches the configured local collection and the official Tabler Icons outline collection. Matching SVG candidates are downloaded into the local collection with their release and source provenance. The Agent evaluates those candidates in slide context and records the final choice.
+
+When the option is disabled, icon discovery remains inside the local collection. The Resources screen exposes this setting as **Find icons online**. The same value can be changed in the user configuration file or through a runtime configuration override.
 
 A project has three filesystem visibility layers.
 

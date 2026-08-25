@@ -39,6 +39,10 @@ execution. Discuss the source and research synthesis before recording the final 
 generation, show the recommended length, storyline, conclusion-led slide messages, evidence
 allocation, required topics, assumptions, and exclusions. Keep this conversational state in the
 Agent app.
+
+Icon candidate search follows the configured collection scope. Online mode includes the official
+Tabler Icons collection and caches matching SVG candidates locally. Local-only mode stays within
+the configured icon folder. The Agent always inspects the candidates and owns the semantic choice.
 """.strip()
 
 

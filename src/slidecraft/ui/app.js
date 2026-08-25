@@ -402,7 +402,10 @@ function renderLibraries() {
     icons: "Canonical icons that remain clean and editable",
     components: "Reusable maps, diagrams and structured elements",
   };
-  $("#library-grid").innerHTML = visible.map(item => `<article class="library-card" data-library="${item.name}"><button class="card-hit-target library-card-open" type="button" aria-label="Open ${names[item.name]}"></button><div class="library-symbol">${symbols[item.name]}</div><h4>${names[item.name]}</h4><p>${descriptions[item.name]}</p><code class="library-path" title="${escapeHtml(item.path)}">${escapeHtml(item.path)}</code><span class="library-count">${item.item_count ? `${item.item_count} ${item.item_count === 1 ? "item" : "items"}` : "No items yet"}</span><div class="library-card-actions"><button class="open-folder-button library-open-folder" type="button" data-library-folder="${item.name}"><span aria-hidden="true">↗</span> Open folder</button><span class="library-card-hint">Open collection <b aria-hidden="true">›</b></span></div></article>`).join("");
+  $("#library-grid").innerHTML = visible.map(item => {
+    const sourceNote = item.name === "icons" ? ` · ${item.online_retrieval?.enabled ? "Local + Tabler" : "Local only"}` : "";
+    return `<article class="library-card" data-library="${item.name}"><button class="card-hit-target library-card-open" type="button" aria-label="Open ${names[item.name]}"></button><div class="library-symbol">${symbols[item.name]}</div><h4>${names[item.name]}</h4><p>${descriptions[item.name]}</p><code class="library-path" title="${escapeHtml(item.path)}">${escapeHtml(item.path)}</code><span class="library-count">${item.item_count ? `${item.item_count} ${item.item_count === 1 ? "item" : "items"}` : "No items yet"}${sourceNote}</span><div class="library-card-actions"><button class="open-folder-button library-open-folder" type="button" data-library-folder="${item.name}"><span aria-hidden="true">↗</span> Open folder</button><span class="library-card-hint">Open collection <b aria-hidden="true">›</b></span></div></article>`;
+  }).join("");
   $$(".library-card[data-library]").forEach(card => {
     card.querySelector(".library-card-open")?.addEventListener("click", () => openLibrary(card.dataset.library));
   });
@@ -575,12 +578,32 @@ async function refreshProjectPicker() {
 
 async function openLibrary(name) {
   state.selectedLibrary = name;
+  $(".library-shell").classList.toggle("with-icon-source", name === "icons");
   $("#library-dialog-title").textContent = libraryNames[name];
   $("#library-dialog-description").textContent = libraryDescriptions[name];
+  const iconPolicy = state.overview?.libraries.find(item => item.name === "icons")?.online_retrieval;
+  $("#icon-source-setting").hidden = name !== "icons";
+  $("#icon-online-retrieval").checked = Boolean(iconPolicy?.enabled);
   $("#library-item-grid").innerHTML = `<div class="preview-loading">Loading collection…</div>`;
   $("#library-dialog").showModal();
   await refreshLibrary();
 }
+
+$("#icon-online-retrieval").addEventListener("change", async event => {
+  const enabled = event.target.checked;
+  try {
+    await api("/api/config", { method: "POST", body: JSON.stringify({
+      key: "resources.icons.allow_online_retrieval",
+      value: enabled,
+      scope: "user",
+    }) });
+    await loadOverview();
+    showToast(enabled ? "Your Agent can now search Tabler Icons" : "Icon search is now limited to this collection");
+  } catch (error) {
+    event.target.checked = !enabled;
+    showToast(error.message);
+  }
+});
 
 function libraryThumbnail(item) {
   const preview = item.preview_path ? "&preview=1" : "";

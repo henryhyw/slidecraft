@@ -26,6 +26,12 @@ icons = "libraries/icons"
 components = "libraries/components"
 styles = "libraries/styles"
 
+[resources.icons]
+allow_online_retrieval = true
+provider = "tabler"
+release = "latest"
+max_online_candidates_per_role = 8
+
 [design]
 guidance_profile = "consulting"
 density_profile = "high_consulting"

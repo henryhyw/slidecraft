@@ -9,7 +9,7 @@
 | User assets | Canonical files, semantic roles, hashes, provenance, and mandatory status are retained |
 | Semantic planning | The host Agent considers plausible structures, selects the strongest one, and records exact-source traceability |
 | Visual-reference retrieval | Local metadata search returns candidates. The host Agent selects up to three and records rationales |
-| Icon retrieval | Local semantic search returns candidates. Exact identities resolve directly and the host Agent selects coherent substitutions |
+| Icon retrieval | Local and optional official Tabler search return canonical SVG candidates. Exact identities resolve directly and the host Agent selects coherent substitutions |
 | Known-component retrieval | Local manifest search returns candidates and implementation status for host-Agent selection |
 | Generation handoff | Intake, constraints, source atoms, retrieved candidates, exact content, style, assets, and policy reach Slide understanding |
 | Evidence separation | OCR, contours, masks, edge fragments, and generated glyphs remain reconstruction evidence |
@@ -75,7 +75,7 @@ Search ordering uses semantic metadata as discovery evidence. The Agent chooses 
 
 ### Icon query
 
-Each asset need contains semantic role, purpose, concepts, requirement status, and semantic size role. Search ranks local icon metadata. Exact user or upstream assets bypass substitution. The Agent selects remaining roles jointly to maintain distinction and one coherent style family.
+Each asset need contains semantic role, purpose, concepts, requirement status, and semantic size role. Search ranks local icon metadata and, when enabled, retrieves matching official Tabler SVGs into the local collection. Exact user or upstream assets bypass substitution. The Agent selects remaining roles jointly to maintain distinction and one coherent style family.
 
 ### Known-component query
 

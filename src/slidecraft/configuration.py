@@ -222,6 +222,13 @@ def validate_config(config: dict[str, Any]) -> None:
         raise ValueError("Unsupported reconstruction backend")
     if config["segmentation"]["device"] not in {"auto", "cpu", "mps", "cuda"}:
         raise ValueError("Unsupported segmentation device")
+    icon_resources = config.get("resources", {}).get("icons", {})
+    if not isinstance(icon_resources.get("allow_online_retrieval", True), bool):
+        raise TypeError("Icon online retrieval must be true or false")
+    if icon_resources.get("provider", "tabler") != "tabler":
+        raise ValueError("The current online icon provider must be Tabler Icons")
+    if int(icon_resources.get("max_online_candidates_per_role", 8)) < 1:
+        raise ValueError("Icon online retrieval must allow at least one candidate per role")
     if config["interaction"]["prompt_during_run"]:
         raise ValueError("Production runs must remain non-interactive")
 

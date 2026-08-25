@@ -49,6 +49,7 @@ When the user explicitly delegates the work, make the same decisions with the sa
 - Author slide-specific header and footer content when deck chrome is enabled. Geometry and style come from configuration.
 - For each generated slide, author the semantic design using the prepared prompt.
 - Call `slidecraft_generate_slide` with the semantic design to obtain visual-reference, icon, and reusable-component candidates. Inspect their metadata and previews when useful.
+- Respect the configured icon search scope returned with the icon candidates. When online retrieval is enabled, Slidecraft searches the official Tabler collection and caches candidate SVGs locally. When it is disabled, choose only from the local icon collection. In both modes, inspect the candidate set and make the semantic choice yourself.
 - Author `resource_selection` with `authored_by: agent_reasoning`, stable candidate IDs, and a concise rationale for each choice. Select no more than the configured visual-reference limit.
 - Use exact user or upstream assets when their identity is known. Choose canonical icon substitutions only through agent reasoning over the full affected set.
 

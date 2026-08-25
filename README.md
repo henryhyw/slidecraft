@@ -96,6 +96,8 @@ project/
 
 Visual inspiration, canonical icons, and reusable editable components live in shared local collections. Selections made in chat or in the dashboard stay attached to the project and are ready when the project is opened again.
 
+Icon search can also include the official Tabler Icons collection. This option is enabled by default under Resources. Slidecraft downloads matching SVG candidates into the local icon collection, then the Agent chooses the icon that best expresses each role. Turn the option off when a project must use only locally approved icons.
+
 Configuration follows packaged defaults, user configuration, an optional project overlay, environment variables, and explicit runtime arguments. Use these commands to inspect every resolved value and its source.
 
 ```bash

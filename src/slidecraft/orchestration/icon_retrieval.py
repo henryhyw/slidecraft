@@ -46,7 +46,8 @@ def _rank(description: str, catalog: list[dict[str, Any]]) -> list[dict[str, Any
     for record in catalog:
         overlap = requested & set(record["concepts"])
         score = 4 * len(overlap)
-        if record["icon_id"].replace("-", " ") in description.lower():
+        normalized_name = record["icon_id"].replace("-", " ")
+        if f" {normalized_name} " in f" {description.lower()} ":
             score += 12
         ranked.append({
             "icon_id": record["icon_id"],
@@ -62,19 +63,27 @@ def search_icons(
     library_root: Path,
     asset_needs: list[dict[str, Any]] | None = None,
     excluded_semantic_roles: set[str] | None = None,
+    online_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return canonical icon candidates for Agent selection."""
     manifest, catalog = _load_catalog(library_root)
     excluded = excluded_semantic_roles or set()
     requests = asset_needs or []
     candidate_sets = []
+    policy = online_policy or {}
+    online_enabled = bool(policy.get("allow_online_retrieval", False))
+    online_status: dict[str, Any] = {
+        "enabled": online_enabled,
+        "provider": policy.get("provider", "tabler"),
+        "status": "disabled" if not online_enabled else "ready",
+    }
     for request in requests:
         role = request["semantic_role"]
         if role in excluded:
             continue
         dimension_role = request.get("dimension_role", "module_icon")
         description = " ".join([request.get("purpose", ""), request.get("query", ""), " ".join(request.get("concepts", []))]).strip()
-        candidates = _rank(description, catalog)
+        candidates = [candidate for candidate in _rank(description, catalog) if candidate["score"] > 0][:12]
         records = []
         for candidate in candidates:
             asset_path = (library_root / candidate["file"]).resolve()
@@ -84,7 +93,25 @@ def search_icons(
                 **candidate,
                 "asset_id": f"TABLER_OUTLINE_{candidate['icon_id'].upper().replace('-', '_')}",
                 "canonical_file": str(asset_path),
+                "provenance": "local_icon_collection",
             })
+        if online_enabled:
+            try:
+                from slidecraft.orchestration.tabler_icons import retrieve_tabler_candidates
+
+                remote = retrieve_tabler_candidates(
+                    query=description,
+                    library_root=library_root,
+                    release=str(policy.get("release", "latest")),
+                    limit=int(policy.get("max_online_candidates_per_role", 8)),
+                )
+                online_status.update(status="ready", release=remote["release"], source=remote["source"])
+                by_asset_id = {item["asset_id"]: item for item in records}
+                for candidate in remote["candidates"]:
+                    by_asset_id[candidate["asset_id"]] = candidate
+                records = sorted(by_asset_id.values(), key=lambda item: (-item["score"], item["icon_id"]))
+            except (OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+                online_status.update(status="unavailable", reason=str(error))
         candidate_sets.append({
             "semantic_role": role,
             "semantic_intent": description,
@@ -99,5 +126,7 @@ def search_icons(
         "retrieval_mode": "semantic_metadata_first",
         "style_family": manifest["style_family"],
         "decision_owner": "host_agent",
+        "search_scope": "local_and_online" if online_enabled else "local_only",
+        "online_retrieval": online_status,
         "candidate_sets": candidate_sets,
     }

@@ -118,7 +118,7 @@ Library search returns metadata-ranked candidates from the Visual Reference Libr
 
 ### Icons and pictograms
 
-The current framework searches Tabler Icons Outline by semantic metadata. The Agent considers the full icon-role set and chooses a coherent set with distinct meanings and consistent visual language.
+The current framework searches Tabler Icons Outline by semantic metadata. By default, candidate discovery covers the local icon collection and the official Tabler collection. Matching official SVGs are cached locally with their source release. Users can switch to local-only retrieval in the dashboard or configuration. The Agent considers the full icon-role set and chooses a coherent set with distinct meanings and consistent visual language.
 
 The Agent follows this order.
 

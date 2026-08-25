@@ -431,8 +431,21 @@ dialog[open] { animation: dialog-in 280ms cubic-bezier(.2,.8,.2,1); }
 .table-scroll td { padding: 8px 10px; border: 1px solid var(--line); white-space: nowrap; }
 .library-dialog { width: min(960px, calc(100vw - 64px)); height: min(720px, calc(100vh - 64px)); }
 .library-shell { height: 100%; display: grid; grid-template-rows: auto auto auto minmax(0,1fr); padding: 23px; }
+.library-shell.with-icon-source { grid-template-rows: auto auto auto auto minmax(0,1fr); }
 .library-location-editor { display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: end; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(0,0,0,.03); }
 .library-location-editor label { margin: 0; }
+.icon-source-setting { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-top: 10px; padding: 13px 14px; border: 1px solid rgba(217,79,20,.1); border-radius: 12px; background: #fff8f3; }
+.icon-source-setting[hidden] { display: none; }
+.icon-source-setting strong, .icon-source-setting span { display: block; }
+.icon-source-setting strong { font-size: 10px; }
+.icon-source-setting > div span { max-width: 520px; margin-top: 3px; color: var(--faint); font-size: 8px; line-height: 1.45; }
+.switch-control { display: flex; align-items: center; gap: 9px; margin: 0; color: var(--muted); font-size: 9px; white-space: nowrap; cursor: pointer; }
+.switch-control input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.switch-control > span { position: relative; width: 34px; height: 20px; border-radius: 999px; background: #c9c5c0; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); transition: background 160ms ease; }
+.switch-control > span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.22); transition: transform 180ms cubic-bezier(.2,.8,.2,1); }
+.switch-control input:checked + span { background: var(--accent); }
+.switch-control input:checked + span::after { transform: translateX(14px); }
+.switch-control input:focus-visible + span { outline: 2px solid rgba(217,79,20,.35); outline-offset: 3px; }
 .library-actions { display: flex; align-items: center; gap: 12px; padding: 14px 0; }
 .library-actions span { color: var(--faint); font-size: 10px; }
 .library-item-grid { min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); align-content: start; gap: 8px; }

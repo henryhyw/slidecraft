@@ -820,6 +820,7 @@ def search_resources(**arguments: Any) -> dict[str, Any]:
             _resolve_from(design_path.parent, libraries["icon_root"]),
             plan.get("asset_needs"),
             excluded_semantic_roles=exact_roles,
+            online_policy=deck.get("resource_policy", {}).get("icons"),
         ),
         "components": search_known_components(
             _resolve_from(design_path.parent, libraries["known_component_root"]), plan
