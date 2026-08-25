@@ -10,14 +10,54 @@ from typing import Any
 from PIL import ImageFont
 
 FONT_PATHS = {
-    ("Arial", False, False): "/System/Library/Fonts/Supplemental/Arial.ttf",
-    ("Arial", True, False): "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-    ("Arial", False, True): "/System/Library/Fonts/Supplemental/Arial Italic.ttf",
-    ("Arial", True, True): "/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf",
-    ("Georgia", False, False): "/System/Library/Fonts/Supplemental/Georgia.ttf",
-    ("Georgia", True, False): "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
-    ("Georgia", False, True): "/System/Library/Fonts/Supplemental/Georgia Italic.ttf",
-    ("Georgia", True, True): "/System/Library/Fonts/Supplemental/Georgia Bold Italic.ttf",
+    ("Arial", False, False): (
+        "/System/Library/Fonts/Supplemental/Arial.ttf",
+        "C:/Windows/Fonts/arial.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ),
+    ("Arial", True, False): (
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    ),
+    ("Arial", False, True): (
+        "/System/Library/Fonts/Supplemental/Arial Italic.ttf",
+        "C:/Windows/Fonts/ariali.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Italic.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Oblique.ttf",
+    ),
+    ("Arial", True, True): (
+        "/System/Library/Fonts/Supplemental/Arial Bold Italic.ttf",
+        "C:/Windows/Fonts/arialbi.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-BoldItalic.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-BoldOblique.ttf",
+    ),
+    ("Georgia", False, False): (
+        "/System/Library/Fonts/Supplemental/Georgia.ttf",
+        "C:/Windows/Fonts/georgia.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSerif-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
+    ),
+    ("Georgia", True, False): (
+        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
+        "C:/Windows/Fonts/georgiab.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+    ),
+    ("Georgia", False, True): (
+        "/System/Library/Fonts/Supplemental/Georgia Italic.ttf",
+        "C:/Windows/Fonts/georgiai.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSerif-Italic.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Italic.ttf",
+    ),
+    ("Georgia", True, True): (
+        "/System/Library/Fonts/Supplemental/Georgia Bold Italic.ttf",
+        "C:/Windows/Fonts/georgiaz.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSerif-BoldItalic.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-BoldItalic.ttf",
+    ),
 }
 
 ROLE_LIMITS_PX = {
@@ -82,12 +122,17 @@ def _authored_text(entity: dict[str, Any]) -> str:
     return "\n".join(part for part in paragraphs if part)
 
 
-def _font_path(family: str, bold: bool, italic: bool) -> str:
-    preferred = FONT_PATHS.get((family, bold, italic))
-    if preferred and Path(preferred).exists():
-        return preferred
-    fallback = FONT_PATHS[("Arial", bold, italic)]
-    return fallback if Path(fallback).exists() else FONT_PATHS[("Arial", False, False)]
+def _font_path(family: str, bold: bool, italic: bool) -> str | None:
+    candidates = FONT_PATHS.get((family, bold, italic), ()) + FONT_PATHS[("Arial", bold, italic)]
+    candidates += FONT_PATHS[("Arial", False, False)]
+    return next((candidate for candidate in candidates if Path(candidate).exists()), None)
+
+
+def _load_font(family: str, bold: bool, italic: bool, size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    path = _font_path(family, bold, italic)
+    if path:
+        return ImageFont.truetype(path, size)
+    return ImageFont.load_default(size=size)
 
 
 def _wrap(text: str, font: ImageFont.FreeTypeFont, width_px: float) -> list[str]:
@@ -133,7 +178,7 @@ def _fits(entity: dict[str, Any], style: dict[str, Any], size_px: float) -> dict
     usable_width = max(1.0, width - 2 * inset)
     usable_height = max(1.0, height - 2 * inset)
     scaled = max(4, round(size_px * 4))
-    font = ImageFont.truetype(_font_path(style["family"], style["bold"], style["italic"]), scaled)
+    font = _load_font(style["family"], style["bold"], style["italic"], scaled)
     office_width = usable_width * 4 * 0.90
     authored = _authored_text(entity)
     if entity.get("bullet_style"):
