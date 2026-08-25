@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import io
+import tempfile
 from pathlib import Path
 from typing import Any
 from urllib.request import urlopen
@@ -62,6 +63,27 @@ class OpenAIImageGenerationProvider:
                 final.alpha_composite(fitted, offset)
             final.convert("RGB").save(output_path, format="PNG")
 
+    @staticmethod
+    def _provider_input(path: Path, directory: Path, index: int) -> Path:
+        """Create a provider-compatible preview while leaving the canonical asset untouched."""
+        source = path.resolve()
+        if source.suffix.lower() == ".svg":
+            try:
+                import cairosvg
+            except ImportError as exc:
+                raise RuntimeError(
+                    "SVG project visuals need the Slidecraft OpenAI extra. Install slidecraft-ai[openai]."
+                ) from exc
+            converted = directory / f"input_{index:02d}.png"
+            cairosvg.svg2png(url=str(source), write_to=str(converted))
+            return converted
+        if source.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+            return source
+        converted = directory / f"input_{index:02d}.png"
+        with Image.open(source) as image:
+            image.convert("RGBA").save(converted, format="PNG")
+        return converted
+
     def generate(
         self,
         *,
@@ -72,15 +94,21 @@ class OpenAIImageGenerationProvider:
     ) -> dict[str, Any]:
         size = f"{canvas_px[0]}x{canvas_px[1]}"
         opened = []
-        try:
-            if reference_images:
-                opened = [path.resolve().open("rb") for path in reference_images]
-                response = self.client.images.edit(model=self.model, image=opened, prompt=prompt, size=size, quality=self.quality, output_format="png")
-            else:
-                response = self.client.images.generate(model=self.model, prompt=prompt, size=size, quality=self.quality, output_format="png")
-        finally:
-            for stream in opened:
-                stream.close()
+        with tempfile.TemporaryDirectory(prefix="slidecraft-image-inputs-") as directory_value:
+            directory = Path(directory_value)
+            try:
+                if reference_images:
+                    provider_inputs = [
+                        self._provider_input(path, directory, index)
+                        for index, path in enumerate(reference_images, start=1)
+                    ]
+                    opened = [path.open("rb") for path in provider_inputs]
+                    response = self.client.images.edit(model=self.model, image=opened, prompt=prompt, size=size, quality=self.quality, output_format="png")
+                else:
+                    response = self.client.images.generate(model=self.model, prompt=prompt, size=size, quality=self.quality, output_format="png")
+            finally:
+                for stream in opened:
+                    stream.close()
         datum = response.data[0]
         output_path = output_path.resolve()
         output_path.parent.mkdir(parents=True, exist_ok=True)

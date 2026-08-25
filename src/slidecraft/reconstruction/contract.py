@@ -29,24 +29,28 @@ def _asset_catalog(handoff: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return result
 
 
-def _resolve_icon(entity: dict[str, Any], handoff: dict[str, Any]) -> dict[str, Any]:
+def _resolve_asset(entity: dict[str, Any], handoff: dict[str, Any]) -> dict[str, Any]:
     catalog = _asset_catalog(handoff)
     requested = entity.get("upstream_asset_id")
     if requested not in catalog:
         raise ValueError(
-            f"Icon slot {entity['id']} has no exact Agent-selected upstream asset mapping. "
+            f"Entity {entity['id']} has no exact Agent-selected upstream asset mapping. "
             "Semantic mapping must choose from the assets retained in the generation handoff."
         )
     selected = catalog[requested]
     path = selected.get("canonical_file")
     if not path or not Path(path).is_file():
-        raise FileNotFoundError(f"Canonical asset for icon slot {entity['id']} is unavailable: {path}")
+        raise FileNotFoundError(f"Canonical asset for {entity['id']} is unavailable: {path}")
+    asset_kind = "icon_slot" if entity["kind"] in {"icon", "icon_slot"} else "project_image"
     return {
         "entity_id": entity["id"],
         "selected_asset_id": selected["asset_id"],
         "selected_asset_path": selected["canonical_file"],
+        "asset_kind": asset_kind,
         "selection_mode": selected.get("selection_mode", "exact_agent_selected_asset"),
-        "target_bbox_source_px": entity.get("slot_bbox_hint") or entity["measurement"]["layout_bbox"]["px"],
+        "target_bbox_source_px": (
+            entity.get("slot_bbox_hint") if asset_kind == "icon_slot" else None
+        ) or entity["measurement"]["layout_bbox"]["px"],
         "preserve_aspect_ratio": True,
         "fit": "contain",
         "alignment": "center",
@@ -109,8 +113,11 @@ def build_reconstruction_contract(
             "render_owner": entity.get("render_owner", entity["id"]),
             "bbox_px": entity["measurement"]["layout_bbox"]["px"],
         })
-        if emits and kind in {"icon", "icon_slot"}:
-            assets.append(_resolve_icon(entity, handoff))
+        if emits and (
+            kind in {"icon", "icon_slot"}
+            or (kind == "image" and entity.get("upstream_asset_id"))
+        ):
+            assets.append(_resolve_asset(entity, handoff))
         if emits and kind == "connector":
             connectors.append(_connector_plan(entity))
     chrome_configuration = dict(handoff.get("deck_chrome_configuration", design.get("deck_chrome", {})))

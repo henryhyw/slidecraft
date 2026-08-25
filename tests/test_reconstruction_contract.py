@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from slidecraft.reconstruction.contract import build_reconstruction_contract
+from slidecraft.reconstruction.scene import build_reconstruction_scene
 
 
 def _empty_refinement_plan() -> dict:
@@ -81,3 +82,51 @@ def test_contract_merges_resolved_header_and_footer_content_into_chrome() -> Non
     assert contract["deck_chrome_configuration"]["footer"]["left_text"] == "INTERNAL"
     assert contract["deck_chrome_configuration"]["footer"]["center_text"] == "Project"
     assert contract["deck_chrome_configuration"]["footer"]["right_text"] == "25 August 2026 | 2"
+
+
+def test_project_image_uses_canonical_file_without_an_icon_slot_surface(tmp_path) -> None:
+    from PIL import Image
+
+    canonical = tmp_path / "product.png"
+    Image.new("RGB", (800, 400), "white").save(canonical)
+    measured = {
+        "source": {"width_px": 1000, "height_px": 500, "path": str(tmp_path / "slide.png")},
+        "upstream_handoff": {
+            "full_slide_dimensions_px": [1000, 500],
+            "generation_region": {"offset_y_px": 0, "dimensions_px": [1000, 500]},
+            "selected_assets": [{
+                "internal": {
+                    "asset_id": "PROJECT_IMAGE",
+                    "canonical_file": str(canonical),
+                    "selection_mode": "exact_upstream_asset",
+                }
+            }],
+        },
+        "groups": [],
+        "relationships": [],
+        "entities": [{
+            "id": "P_product",
+            "kind": "image",
+            "role": "product screenshot",
+            "upstream_asset_id": "PROJECT_IMAGE",
+            "reconstruction_route": "canonical_icon_or_image_asset",
+            "reconstruction_significance": "independent_object",
+            "measurement": {
+                "layout_bbox": {"px": [100, 100, 500, 300]},
+                "image_object": {"screenshot_crop_absolute": str(tmp_path / "crop.png")},
+            },
+        }],
+    }
+    contract = build_reconstruction_contract(measured, {}, _empty_refinement_plan())
+    assert contract["canonical_asset_mappings"][0]["asset_kind"] == "project_image"
+    scene = build_reconstruction_scene(
+        measured_scene=measured,
+        contract=contract,
+        design={"normalization": {"constraints": {}}},
+        slide_id="S1",
+    )
+    by_id = {item["id"]: item for item in scene["objects"]}
+    assert by_id["P_product"]["source_path"] == str(canonical)
+    assert by_id["P_product"]["fit"] == "contain"
+    assert by_id["P_product"]["bbox_px"] == [100, 125, 500, 250]
+    assert "P_product.icon_slot_surface" not in by_id

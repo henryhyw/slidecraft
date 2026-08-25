@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
+import shutil
 import uuid
 from datetime import datetime, timezone
 from importlib.resources import files
@@ -13,7 +15,8 @@ from typing import Any
 from slidecraft.configuration import data_root
 from slidecraft.runtime.artifacts import ArtifactWorkspace
 
-PROJECT_FILE = "slidecraft.project.json"
+PROJECT_FILE = ".slidecraft/project.json"
+LEGACY_PROJECT_FILE = "slidecraft.project.json"
 REGISTRY_FILE = "project_registry.json"
 
 
@@ -49,6 +52,76 @@ def _write_registry(value: dict[str, Any]) -> None:
     _atomic_write(registry_path(), value)
 
 
+def _existing_manifest(root: Path) -> Path | None:
+    current = root / PROJECT_FILE
+    if current.is_file():
+        return current
+    legacy = root / LEGACY_PROJECT_FILE
+    return legacy if legacy.is_file() else None
+
+
+def _unique_destination(path: Path, payload: bytes) -> Path:
+    if not path.exists() or path.read_bytes() == payload:
+        return path
+    digest = hashlib.sha256(payload).hexdigest()[:8]
+    return path.with_name(f"{path.stem}_{digest}{path.suffix}")
+
+
+def _rewrite_internal_paths(root: Path, replacements: dict[str, str]) -> None:
+    if not replacements:
+        return
+
+    def rewrite(value: object) -> object:
+        if isinstance(value, str):
+            return replacements.get(value, value)
+        if isinstance(value, list):
+            return [rewrite(item) for item in value]
+        if isinstance(value, dict):
+            return {key: rewrite(item) for key, item in value.items()}
+        return value
+
+    for path in (root / ".slidecraft").rglob("*.json"):
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
+        updated = rewrite(value)
+        if updated != value:
+            _atomic_write(path, updated)
+
+
+def _ensure_visible_project_layout(root: Path) -> None:
+    """Keep user files visible and engineering state under .slidecraft."""
+    assets = root / "assets"
+    materials = root / "materials"
+    deliverables = root / "deliverables"
+    for directory in (assets, materials, deliverables):
+        directory.mkdir(parents=True, exist_ok=True)
+    legacy_sources = root / "sources"
+    replacements: dict[str, str] = {}
+    if legacy_sources.is_dir():
+        for source in sorted(legacy_sources.rglob("*")):
+            if not source.is_file():
+                continue
+            relative = source.relative_to(legacy_sources)
+            destination = assets / Path(*relative.parts[1:]) if relative.parts[:1] == ("assets",) else materials / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            payload = source.read_bytes()
+            destination = _unique_destination(destination, payload)
+            if not destination.exists():
+                shutil.move(str(source), str(destination))
+            else:
+                source.unlink()
+            replacements[str(source)] = str(destination)
+            replacements[str(Path("sources") / relative)] = str(destination.relative_to(root))
+        for directory in sorted(legacy_sources.rglob("*"), key=lambda item: len(item.parts), reverse=True):
+            if directory.is_dir() and not any(directory.iterdir()):
+                directory.rmdir()
+        if not any(legacy_sources.iterdir()):
+            legacy_sources.rmdir()
+    _rewrite_internal_paths(root, replacements)
+
+
 def create_project(
     *,
     name: str,
@@ -62,13 +135,13 @@ def create_project(
         if location
         else (data_root() / "projects" / _slug(name)).resolve()
     )
-    if (root / PROJECT_FILE).exists():
+    if _existing_manifest(root):
         return register_project(root)
     root.mkdir(parents=True, exist_ok=True)
     for relative in (
         "deliverables",
-        "sources",
-        "sources/assets",
+        "assets",
+        "materials",
         ".slidecraft/artifacts",
         ".slidecraft/assets",
         ".slidecraft/cache",
@@ -87,7 +160,8 @@ def create_project(
         "workspace_path": str(root),
         "visibility": {
             "primary_outputs": "deliverables",
-            "user_sources": "sources",
+            "project_assets": "assets",
+            "working_materials": "materials",
             "internal_state": ".slidecraft",
             "internal_state_default_visibility": "hidden",
         },
@@ -118,10 +192,27 @@ def create_project(
 
 def register_project(location: str | Path) -> dict[str, Any]:
     root = Path(location).expanduser().resolve()
-    manifest_path = root / PROJECT_FILE
-    if not manifest_path.exists():
+    manifest_path = _existing_manifest(root)
+    if manifest_path is None:
         raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    if manifest_path.name == LEGACY_PROJECT_FILE:
+        target = root / PROJECT_FILE
+        target.parent.mkdir(parents=True, exist_ok=True)
+        manifest_path.replace(target)
+        manifest_path = target
+    _ensure_visible_project_layout(root)
     project = json.loads(manifest_path.read_text(encoding="utf-8"))
+    expected_visibility = {
+        "primary_outputs": "deliverables",
+        "project_assets": "assets",
+        "working_materials": "materials",
+        "internal_state": ".slidecraft",
+        "internal_state_default_visibility": "hidden",
+    }
+    if project.get("visibility") != expected_visibility:
+        project["visibility"] = expected_visibility
+        project["updated_at"] = _now()
+        _atomic_write(manifest_path, project)
     design_path = root / ".slidecraft" / "deck_design.json"
     if not design_path.exists():
         design_path.parent.mkdir(parents=True, exist_ok=True)
@@ -160,17 +251,17 @@ def list_projects() -> list[dict[str, Any]]:
     result = []
     for entry in registry["projects"]:
         root = Path(entry["path"])
-        available = root.is_dir() and (root / PROJECT_FILE).is_file()
+        manifest_path = _existing_manifest(root) if root.is_dir() else None
+        available = manifest_path is not None
         item = {**entry, "available": available}
         if available:
-            project = json.loads((root / PROJECT_FILE).read_text(encoding="utf-8"))
+            project = json.loads(manifest_path.read_text(encoding="utf-8"))
             item.update({
                 "description": project.get("description", ""),
                 "deck_id": project.get("deck_id"),
                 "updated_at": project.get("updated_at"),
                 "source_material_count": len([
-                    path for path in (root / "sources").glob("**/*")
-                    if path.is_file() and "assets" not in path.relative_to(root / "sources").parts
+                    path for path in (root / "materials").glob("**/*") if path.is_file()
                 ]),
             })
             try:
@@ -199,9 +290,9 @@ def resolve_project(
         raise ValueError("A project name, ID, or folder is required")
 
     candidate_path = Path(raw_identifier).expanduser()
-    if candidate_path.name == PROJECT_FILE:
-        candidate_path = candidate_path.parent
-    if candidate_path.exists() and candidate_path.is_dir() and (candidate_path / PROJECT_FILE).is_file():
+    if candidate_path.name in {Path(PROJECT_FILE).name, LEGACY_PROJECT_FILE}:
+        candidate_path = candidate_path.parent.parent if candidate_path.parent.name == ".slidecraft" else candidate_path.parent
+    if candidate_path.exists() and candidate_path.is_dir() and _existing_manifest(candidate_path):
         project = register_project(candidate_path)
         return {
             "resolution": "found",
@@ -248,14 +339,29 @@ def resolve_project(
 
 
 def _project_progress(root: Path, state: dict[str, Any]) -> dict[str, Any]:
-    kinds = {item["kind"] for item in state.get("active_artifacts", [])}
+    active = {item["logical_key"]: item for item in state.get("active_artifacts", [])}
+    kinds = {item["kind"] for item in active.values()}
     deliverables = [
         path for path in (root / "deliverables").glob("**/*")
         if path.is_file() and not path.name.startswith((".", "~$"))
     ]
     editable = [path for path in deliverables if path.suffix.lower() == ".pptx"]
-    if editable:
+    legacy_final = any(
+        path.parent == root / "deliverables" and path.name != "current_deck.pptx"
+        for path in editable
+    )
+    final_record = active.get("deck/editable_pptx")
+    current_record = active.get("deck/current_pptx")
+    final_editable = final_record if final_record and final_record["freshness"]["fresh"] else None
+    current_editable = current_record if current_record and current_record["freshness"]["fresh"] else None
+    if final_editable or legacy_final:
         status, label, index = "complete", "Editable presentation ready", 5
+    elif current_editable:
+        validation = current_editable.get("validation", {})
+        completed = int(validation.get("slide_count", 0))
+        planned = int(validation.get("planned_slide_count", 0))
+        count = f"{completed} of {planned}" if planned else str(completed)
+        status, label, index = "building", f"Current deck includes {count} planned slides", 4
     elif kinds & {"constructor_scene", "editable_presentation", "reconstruction_scene"}:
         status, label, index = "building", "Building the editable presentation", 4
     elif kinds & {"measurement_report", "visual_measurement", "semantic_map", "semantic_scene"}:
@@ -277,16 +383,19 @@ def _project_progress(root: Path, state: dict[str, Any]) -> dict[str, Any]:
 
 def project_detail(location: str | Path, *, include_internal: bool = False) -> dict[str, Any]:
     root = Path(location).expanduser().resolve()
-    project = json.loads((root / PROJECT_FILE).read_text(encoding="utf-8"))
+    manifest_path = _existing_manifest(root)
+    if manifest_path is None:
+        raise FileNotFoundError(f"No {PROJECT_FILE} exists at {root}")
+    project = json.loads(manifest_path.read_text(encoding="utf-8"))
     state = ArtifactWorkspace(root).inspect(include_history=include_internal)
     deliverables = [
         str(path) for path in sorted((root / "deliverables").glob("**/*"))
         if path.is_file() and not path.name.startswith((".", "~$"))
     ]
-    sources = [
+    materials = [
         str(path)
-        for path in sorted((root / "sources").glob("**/*"))
-        if path.is_file() and "assets" not in path.relative_to(root / "sources").parts
+        for path in sorted((root / "materials").glob("**/*"))
+        if path.is_file()
     ]
     reviewable_kinds = {
         "clarification_package": "Planning questions",
@@ -295,6 +404,7 @@ def project_detail(location: str | Path, *, include_internal: bool = False) -> d
         "semantic_design": "Communication plan",
         "generation_prompt": "Image generation brief",
         "generated_image": "Generated slide",
+        "editable_deck_progress": "Current editable deck",
         "editable_powerpoint": "Editable presentation",
         "reconstruction_report": "Reconstruction report",
     }
@@ -314,7 +424,7 @@ def project_detail(location: str | Path, *, include_internal: bool = False) -> d
         "project": project,
         "state": state,
         "deliverables": deliverables,
-        "sources": sources,
+        "materials": materials,
         "reviewable_artifacts": reviewable_artifacts,
         "internal_visible": include_internal,
         "progress": _project_progress(root, state),

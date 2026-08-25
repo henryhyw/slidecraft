@@ -90,8 +90,9 @@ When the option is disabled, icon discovery remains inside the local collection.
 
 A project has three filesystem visibility layers.
 
-- `deliverables/` contains final PPTX files, previews, reports, and other user-facing outputs.
-- `sources/` contains copied or linked source material with provenance.
+- `assets/` contains project-specific visuals that may appear directly in slides.
+- `materials/` contains briefs, documents, data, notes, and other working sources with provenance.
+- `deliverables/` contains editable slide files, combined PPTX files, previews, reports, and other user-facing outputs.
 - `.slidecraft/` contains prompts, semantic plans, measurements, masks, revision history, logs, and the artifact graph. It is hidden by default and remains available to the Agent.
 
 The local project registry keeps the project path and recent status. If a user deletes or moves the folder, the registry reports it as unavailable and does not recreate or overwrite it.

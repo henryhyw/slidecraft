@@ -81,7 +81,7 @@
     "retain_on_change": ["diagnostic_notes", "nonmaterial_report_wording"]
   },
   "asset_ingestion": {
-    "project_store": "sources/assets/ingested",
+    "project_store": "assets/ingested",
     "storage_mode": "copy_to_project_store",
     "filename_policy": "sha256_prefix_plus_sanitized_original_name",
     "deduplicate_by_sha256": true,

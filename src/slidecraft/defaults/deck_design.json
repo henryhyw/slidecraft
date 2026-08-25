@@ -144,9 +144,8 @@
     }
   },
   "user_asset_policy": {
-    "generation_attachment_mode": "description_only",
+    "generation_attachment_mode": "attach_selected_project_visuals",
     "default_requirement": "optional",
-    "mandatory_asset_ids": ["USER_LOGO_OPENAI", "USER_LOGO_OPENCV", "USER_LOGO_POWERPOINT"],
     "downstream_restore_exact_canonical_asset": true
   },
   "text_reconstruction": {

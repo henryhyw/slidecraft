@@ -32,7 +32,7 @@ def _file_resource(path: Path, root: Path) -> dict[str, Any]:
         "path": str(path),
         "project_relative_path": str(path.relative_to(root)),
         "sha256": digest,
-        "provenance": "project_sources_folder",
+        "provenance": "project_materials_folder",
     }
 
 
@@ -46,10 +46,10 @@ def _active_artifacts(root: Path) -> dict[str, dict[str, Any]]:
 
 def _source_materials(root: Path, active: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     records = []
-    source_root = root / "sources"
+    source_root = root / "materials"
     if source_root.is_dir():
         for path in sorted(source_root.rglob("*")):
-            if path.is_file() and "assets" not in path.relative_to(source_root).parts:
+            if path.is_file():
                 records.append(_file_resource(path, root))
     clarification_artifact = active.get("deck/clarification_answers")
     clarifications = _read_json(clarification_artifact["path"]) if clarification_artifact else None
@@ -72,14 +72,24 @@ def _source_materials(root: Path, active: dict[str, dict[str, Any]]) -> list[dic
     return records
 
 
-def _deliverables(root: Path) -> list[dict[str, Any]]:
+def _deliverables(root: Path, active: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
     records = []
     deliverables_root = root / "deliverables"
+    final_path = Path(active["deck/editable_pptx"]["path"]).resolve() if "deck/editable_pptx" in active else None
     if deliverables_root.is_dir():
         for path in sorted(deliverables_root.rglob("*")):
             if path.is_file() and not path.name.startswith((".", "~$")):
                 record = _file_resource(path, root)
                 record.update(kind="deliverable", provenance="project_deliverables")
+                if path.suffix.lower() == ".pptx":
+                    if final_path and path.resolve() == final_path:
+                        record["presentation_role"] = "final"
+                    elif path.parent == deliverables_root and path.name == "current_deck.pptx":
+                        record["presentation_role"] = "current_progress"
+                    elif path.parent == deliverables_root / "slides":
+                        record["presentation_role"] = "individual_slide"
+                    else:
+                        record["presentation_role"] = "archived_output"
                 records.append(record)
     return records
 
@@ -159,7 +169,7 @@ def project_resource_catalog(location: str | Path) -> dict[str, Any]:
     active = _active_artifacts(root)
     retrieved = apply_project_resource_selections(root, _retrieved_resources(active))
     categories = {
-        "deliverables": _deliverables(root),
+        "deliverables": _deliverables(root, active),
         "materials": _source_materials(root, active),
         "visual_assets": list_project_assets(root, sync_folder=True)["assets"],
         **retrieved,
@@ -169,7 +179,10 @@ def project_resource_catalog(location: str | Path) -> dict[str, Any]:
     plan = _read_json(plan_artifact["path"]) if plan_artifact else None
     if plan:
         for slide in plan.get("slides", []):
-            for resource_id in [*slide.get("source_atom_ids", []), *slide.get("asset_ids", [])]:
+            for resource_id in [
+                *slide.get("source_atom_ids", []),
+                *(item["asset_id"] for item in slide.get("asset_allocations", [])),
+            ]:
                 usage.setdefault(resource_id, []).append(slide["slide_id"])
     for records in categories.values():
         for record in records:

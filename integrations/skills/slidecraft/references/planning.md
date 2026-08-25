@@ -33,6 +33,14 @@ Read every source before preparing the brief. Preserve each source path and auth
       "provenance": "agent_source_analysis"
     }
   ],
+  "visual_assets": [
+    {
+      "asset_id": "PROJECT_ABC123",
+      "description": "A screenshot showing the source application with a nested table parsing result.",
+      "semantic_role": "nested table extraction example",
+      "usage_policy": "available"
+    }
+  ],
   "constraints": [
     {
       "text": "A classified instruction",

@@ -92,6 +92,49 @@ def test_prepare_deck_accepts_agent_authored_evidence_without_parsing_source_fil
     assert "The workflow has five connected capabilities" in prepared["planning_brief"]
 
 
+def test_open_project_exposes_visuals_and_prepare_deck_records_agent_annotations() -> None:
+    with tempfile.TemporaryDirectory() as directory, patch.dict(
+        os.environ,
+        {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")},
+    ):
+        root = Path(directory) / "visual-project"
+        root.mkdir()
+        assets = root / "assets"
+        assets.mkdir()
+        screenshot = assets / "example.svg"
+        screenshot.write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect width="400" height="200"/></svg>',
+            encoding="utf-8",
+        )
+        opened = open_project(
+            identifier="Visual Project",
+            create_if_missing=True,
+            location=str(root),
+        )
+        discovered = opened["resources"]["categories"]["visual_assets"][0]
+        prepare_deck(
+            project=str(root),
+            brief={
+                "objective": "Explain the example",
+                "materials": [{"modality": "text", "content": "Grounded source fact"}],
+                "visual_assets": [{
+                    "asset_id": discovered["asset_id"],
+                    "description": "A dark rectangular screenshot used to illustrate the processing result.",
+                    "semantic_role": "processing result example",
+                    "usage_policy": "preferred",
+                }],
+            },
+        )
+        reopened = open_project(identifier=str(root))
+        annotated = reopened["resources"]["categories"]["visual_assets"][0]
+
+    assert discovered["semantic_metadata_status"] == "needs_agent_description"
+    assert annotated["description"].startswith("A dark rectangular screenshot")
+    assert annotated["semantic_role"] == "processing result example"
+    assert annotated["usage_policy"] == "preferred"
+    assert annotated["semantic_metadata_status"] == "ready"
+
+
 def test_new_project_defaults_to_the_agent_current_workspace() -> None:
     with tempfile.TemporaryDirectory() as directory, patch.dict(
         os.environ,

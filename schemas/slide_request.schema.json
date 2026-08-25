@@ -70,12 +70,20 @@
         "properties": {
           "asset_id": {"type": "string"},
           "semantic_role": {"type": "string"},
+          "visual_kind": {"enum": ["vector_image", "raster_image", "other"]},
+          "media_type": {"type": ["string", "null"]},
+          "placement": {"enum": ["icon_slot", "image_region"]},
           "dimension_role": {"type": "string"},
           "name": {"type": "string"},
           "description": {"type": "string"},
           "canonical_file": {"type": "string"},
           "required_usage": {"type": "boolean"},
           "mandatory": {"type": "boolean"},
+          "intrinsic_width": {"type": ["number", "null"]},
+          "intrinsic_height": {"type": ["number", "null"]},
+          "intrinsic_aspect_ratio": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "preserve_exact_content": {"type": "boolean"},
+          "preserve_aspect_ratio": {"type": "boolean"},
           "allowed_transformations": {
             "type": "array",
             "items": {"type": "string"}

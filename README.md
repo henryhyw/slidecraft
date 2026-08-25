@@ -88,10 +88,10 @@ A project can live in a user-selected directory or in Slidecraft's managed data 
 
 ```text
 project/
-  slidecraft.project.json
-  sources/           user material and direct-use visual assets
-  deliverables/      editable presentations, previews, and reports
-  .slidecraft/       durable Agent evidence and resource assignments
+  assets/            logos, screenshots, photographs, and other slide visuals
+  materials/         briefs, documents, data, notes, and working sources
+  deliverables/      editable slide files, the combined deck, previews, and reports
+  .slidecraft/       hidden project identity, Agent evidence, and processing state
 ```
 
 Visual inspiration, canonical icons, and reusable editable components live in shared local collections. Selections made in chat or in the dashboard stay attached to the project and are ready when the project is opened again.
@@ -119,9 +119,9 @@ The Agent guides the work from the first conversation to the finished deck. Slid
 4. Design content slides. The Agent prepares an image-generation brief with exact content and project style. It uses its own image tool when available or the image service connected in Slidecraft.
 5. Understand the result. The Agent identifies meaningful text, groups, icons, diagrams, images, and relationships. OpenCV measures their exact placement and appearance. SAM 2 is available for irregular filled boundaries.
 6. Rebuild the slide. Slidecraft creates native PowerPoint text, tables, charts, shapes, connectors, canonical SVG icons, reusable components, and carefully fitted custom geometry.
-7. Refine and assemble. The Agent identifies alignments and peer typography that should be normalized. Slidecraft applies bounded corrections, checks every planned page, and exports the editable deck in the approved order.
+7. Refine and assemble. The Agent identifies alignments and peer typography that should be normalized. Slidecraft applies bounded corrections and writes an editable file for the reconstructed slide. It also refreshes `deliverables/current_deck.pptx` from every completed slide in planned order. When the plan is complete, the Agent asks Slidecraft to validate every page and export the final editable deck.
 
-The generated image provides visual design. Exact source text and data remain authoritative. Icons return to clean library assets. Connectors are rebuilt from their relationship meaning. OCR fragments, masks, and contours remain measurement evidence and never become stray PowerPoint objects.
+The generated image provides visual design. Exact source text and data remain authoritative. Icons return to clean library assets. Supplied project images return to their exact source files. Image content created during generation becomes a clean screenshot object. Connectors are rebuilt from their relationship meaning. OCR fragments, masks, and contours remain measurement evidence and never become stray PowerPoint objects.
 
 The system contract is documented in [Framework pipeline](docs/FRAMEWORK_PIPELINE.md). Connector reasoning is documented in [Connector contract](docs/CONNECTOR_CONTRACT.md). Refinement constraints are documented in [Normalization contract](docs/NORMALIZATION_CONTRACT.md).
 

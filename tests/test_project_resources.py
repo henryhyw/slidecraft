@@ -23,8 +23,8 @@ class ProjectResourceTests(unittest.TestCase):
         ):
             root = Path(directory) / "deck"
             create_project(name="Deck", location=root)
-            (root / "sources/brief.txt").write_text("Authoritative brief", encoding="utf-8")
-            (root / "sources/assets/logo.svg").write_text("<svg/>", encoding="utf-8")
+            (root / "materials/brief.txt").write_text("Authoritative brief", encoding="utf-8")
+            (root / "assets/logo.svg").write_text("<svg/>", encoding="utf-8")
             intake = root / ".slidecraft/intake.json"
             intake.write_text(json.dumps({"source_atoms": [{
                 "atom_id": "ATOM_1", "locator": "user_message:1", "modality": "structured_text",
@@ -49,7 +49,7 @@ class ProjectResourceTests(unittest.TestCase):
             "icons": 1,
             "components": 1,
         })
-        self.assertEqual(catalog["categories"]["materials"][0]["provenance"], "project_sources_folder")
+        self.assertEqual(catalog["categories"]["materials"][0]["provenance"], "project_materials_folder")
         self.assertEqual(catalog["internal_evidence"]["normalized_source_item_count"], 1)
         self.assertFalse(catalog["internal_evidence"]["user_visible"])
 

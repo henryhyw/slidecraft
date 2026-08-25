@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import sysconfig
@@ -54,7 +55,7 @@ CAPABILITIES = {
     "add_project_asset": {
         "description": "Add a user asset from chat or a local path to the shared project asset catalog.",
         "required": ["location", "source"],
-        "optional": ["semantic_role", "usage_policy", "slide_ids", "provenance"],
+        "optional": ["semantic_role", "description", "usage_policy", "slide_ids", "provenance"],
         "mutates": True,
     },
     "add_project_material": {
@@ -72,7 +73,7 @@ CAPABILITIES = {
     "update_project_asset": {
         "description": "Update the semantic role or deck usage policy for one project asset.",
         "required": ["location", "asset_id"],
-        "optional": ["semantic_role", "usage_policy", "slide_ids"],
+        "optional": ["semantic_role", "description", "usage_policy", "slide_ids"],
         "mutates": True,
     },
     "remove_project_asset": {
@@ -395,7 +396,9 @@ def set_deck_brief(**arguments: Any) -> dict[str, Any]:
         material.setdefault("modality", "text")
         if "content" not in material and "path" not in material:
             raise ValueError(f"Material {material['material_id']} requires content or a local path")
-    manifest_path = workspace_path / "slidecraft.project.json"
+    from slidecraft.projects import PROJECT_FILE
+
+    manifest_path = workspace_path / PROJECT_FILE
     project = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.is_file() else {}
     brief.setdefault("schema_version", "1.0.0")
     brief.setdefault("deck_id", project.get("deck_id") or f"deck_{uuid.uuid4().hex[:12]}")
@@ -437,6 +440,7 @@ def add_project_asset(**arguments: Any) -> dict[str, Any]:
         arguments["location"],
         arguments["source"],
         semantic_role=arguments.get("semantic_role"),
+        description=arguments.get("description"),
         usage_policy=arguments.get("usage_policy", "available"),
         slide_ids=arguments.get("slide_ids"),
         provenance=arguments.get("provenance", "agent_host_attachment"),
@@ -462,6 +466,7 @@ def update_project_asset(**arguments: Any) -> dict[str, Any]:
         arguments["location"],
         arguments["asset_id"],
         semantic_role=arguments.get("semantic_role"),
+        description=arguments.get("description"),
         usage_policy=arguments.get("usage_policy"),
         slide_ids=arguments.get("slide_ids"),
         actor="agent_host",
@@ -608,12 +613,17 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
         (
             path for path in (workspace_root / "deliverables").glob("**/*.pptx")
             if path.is_file() and not path.name.startswith((".", "~$"))
+            and path.parent == workspace_root / "deliverables"
+            and path.name != "current_deck.pptx"
         ),
         key=lambda path: path.stat().st_mtime,
         reverse=True,
     ) if (workspace_root / "deliverables").is_dir() else []
-    completed_output = active.get("deck/editable_pptx")
-    if completed_output is None and existing_deliverables:
+    final_record = active.get("deck/editable_pptx")
+    current_record = active.get("deck/current_pptx")
+    completed_output = final_record if final_record and final_record["freshness"]["fresh"] else None
+    current_output = current_record if current_record and current_record["freshness"]["fresh"] else None
+    if final_record is None and existing_deliverables:
         completed_output = {
             "logical_key": "deck/editable_pptx",
             "kind": "editable_powerpoint",
@@ -638,6 +648,7 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
         "measured_scene",
         "reconstruction_contract",
         "constructor_scene",
+        "editable_pptx",
     )
     slides = []
     for slide_id in slide_ids:
@@ -658,6 +669,7 @@ def workflow_status(**arguments: Any) -> dict[str, Any]:
         "status": status,
         "workspace_id": inspection["workspace_id"],
         "completed_output": completed_output,
+        "current_output": current_output,
         "project_facts": {
             "brief_recorded": "deck/request" in active,
             "clarifications_recorded": "deck/clarification_questions" in active,
@@ -976,7 +988,7 @@ def plan_deck(**arguments: Any) -> dict[str, Any]:
         request["project_assets"] = project_assets(workspace_path, sync_folder=True)["assets"]
     else:
         request.setdefault("project_assets", [])
-    intake_base = workspace_path if (workspace_path / "slidecraft.project.json").is_file() else request_path.parent
+    intake_base = workspace_path if (workspace_path / PROJECT_FILE).is_file() else request_path.parent
     intake = normalize_deck_intake(request, intake_base)
     design = json.loads(Path(arguments["design"]).expanduser().read_text(encoding="utf-8"))
     authored_plan = RecordedDeckPlan(Path(arguments["result"]).expanduser().resolve()).read()
@@ -1162,8 +1174,145 @@ def compile_reconstruction_scene(**arguments: Any) -> dict[str, Any]:
     return {"artifact": record, "objects": len(scene["objects"]), "compiler_report": scene.get("compiler_report", {})}
 
 
-def render_pptx(**arguments: Any) -> dict[str, Any]:
+def _run_powerpoint_constructor(
+    *, scene_paths: list[Path], output: Path, arguments: dict[str, Any]
+) -> tuple[str, int]:
     from slidecraft.configuration import constructor_node_modules
+
+    command = [sys.executable, "-m", "slidecraft.cli", "render-scenes"]
+    for path in scene_paths:
+        command.extend(["--scene", str(path)])
+    command.extend([
+        "--output", str(output),
+        "--title", arguments.get("title", "Slidecraft presentation"),
+        "--company", arguments.get("company", ""),
+        "--language", arguments.get("language", "en-US"),
+        "--display-font", arguments.get("display_font", "Georgia"),
+        "--body-font", arguments.get("body_font", "Arial"),
+        "--backend", arguments.get("backend", "auto"),
+    ])
+    node_modules = Path(arguments["node_modules"]).expanduser().resolve() if arguments.get("node_modules") else constructor_node_modules()
+    if node_modules.exists():
+        command.extend(["--node-modules", str(node_modules)])
+    process = subprocess.run(command, capture_output=True, text=True, check=False)
+    if process.returncode:
+        raise RuntimeError(process.stderr.strip() or process.stdout.strip() or "PowerPoint construction failed")
+    with zipfile.ZipFile(output) as archive:
+        damaged = archive.testzip()
+        names = set(archive.namelist())
+        if damaged:
+            raise RuntimeError(f"PowerPoint package contains a damaged entry: {damaged}")
+        required = {"[Content_Types].xml", "ppt/presentation.xml"}
+        missing_package_parts = sorted(required - names)
+        slides = sorted(name for name in names if name.startswith("ppt/slides/slide") and name.endswith(".xml"))
+        if missing_package_parts or not slides:
+            raise RuntimeError(f"PowerPoint package validation failed. Missing parts: {missing_package_parts}")
+    return process.stdout.strip(), len(slides)
+
+
+def render_slide_pptx(**arguments: Any) -> dict[str, Any]:
+    """Render the active constructor scene for one slide as an editable intermediate file."""
+    workspace = _workspace(arguments["workspace"])
+    slide_id = arguments["slide_id"]
+    key = f"slides/{slide_id}/constructor_scene"
+    active = {item["logical_key"]: item for item in workspace.inspect()["active_artifacts"]}
+    if key not in active:
+        raise KeyError(f"Active constructor scene is missing for {slide_id}")
+    if not active[key]["freshness"]["fresh"]:
+        raise ValueError(f"Refusing to render a stale constructor scene for {slide_id}")
+    output = Path(arguments["output"]).expanduser().resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    constructor_output, slide_count = _run_powerpoint_constructor(
+        scene_paths=[Path(active[key]["path"])], output=output, arguments=arguments
+    )
+    if slide_count != 1:
+        raise RuntimeError(f"Single-slide construction produced {slide_count} slides")
+    validation = {"status": "passed", "package_integrity": "passed", "slide_count": 1}
+    record = workspace.register(
+        logical_key=f"slides/{slide_id}/editable_pptx",
+        kind="editable_slide_powerpoint",
+        path=output,
+        dependencies=[key],
+        producer="render_slide_pptx",
+        slide_id=slide_id,
+        validation=validation,
+    )
+    return {"artifact": record, "constructor_output": constructor_output, "validation": validation}
+
+
+def render_current_pptx(**arguments: Any) -> dict[str, Any]:
+    """Refresh the editable deck snapshot from every fresh completed slide."""
+    from slidecraft.deck.coherence import validate_constructor_deck
+
+    workspace = _workspace(arguments["workspace"])
+    inspection = workspace.inspect(include_history=True)
+    active = {item["logical_key"]: item for item in inspection["active_artifacts"]}
+    planned_slides: list[dict[str, Any]] = []
+    if "deck/plan" in active:
+        planned_slides = json.loads(Path(active["deck/plan"]["path"]).read_text(encoding="utf-8"))["slides"]
+    ordered_plan = sorted(planned_slides, key=lambda item: item["ordinal"])
+    completed_plan = []
+    scene_keys = []
+    for item in ordered_plan:
+        key = f"slides/{item['slide_id']}/constructor_scene"
+        if key in active and active[key]["freshness"]["fresh"]:
+            completed_plan.append(item)
+            scene_keys.append(key)
+    if not scene_keys:
+        raise ValueError("No fresh reconstructed slides are available for the current deck")
+
+    scenes = [json.loads(Path(active[key]["path"]).read_text(encoding="utf-8")) for key in scene_keys]
+    design = json.loads(Path(active["deck/design"]["path"]).read_text(encoding="utf-8")) if "deck/design" in active else {}
+    coherence = validate_constructor_deck(
+        scenes=scenes,
+        planned_slides=completed_plan,
+        deck_design=design,
+    )
+    display_output = Path(arguments["output"]).expanduser().resolve()
+    display_output.parent.mkdir(parents=True, exist_ok=True)
+    revision_output = (
+        workspace.root
+        / ".slidecraft"
+        / "deck"
+        / "current_revisions"
+        / f"current_deck_{uuid.uuid4().hex[:12]}.pptx"
+    )
+    revision_output.parent.mkdir(parents=True, exist_ok=True)
+    constructor_output, slide_count = _run_powerpoint_constructor(
+        scene_paths=[Path(active[key]["path"]) for key in scene_keys],
+        output=revision_output,
+        arguments=arguments,
+    )
+    temporary_display = display_output.with_suffix(display_output.suffix + ".tmp")
+    shutil.copy2(revision_output, temporary_display)
+    temporary_display.replace(display_output)
+    validation = {
+        "status": "passed" if coherence["passed"] else "needs_review",
+        "package_integrity": "passed",
+        "slide_count": slide_count,
+        "completed_slide_ids": [item["slide_id"] for item in completed_plan],
+        "planned_slide_count": len(ordered_plan),
+        "deck_complete": len(completed_plan) == len(ordered_plan),
+        "cross_slide_coherence": coherence,
+    }
+    record = workspace.register(
+        logical_key="deck/current_pptx",
+        kind="editable_deck_progress",
+        path=revision_output,
+        dependencies=scene_keys,
+        producer="render_current_pptx",
+        provenance={"display_path": str(display_output), "backend": arguments.get("backend", "auto")},
+        validation=validation,
+    )
+    return {
+        "artifact": record,
+        "display_path": str(display_output),
+        "constructor_output": constructor_output,
+        "validation": validation,
+    }
+
+
+def render_pptx(**arguments: Any) -> dict[str, Any]:
     from slidecraft.deck.coherence import validate_constructor_deck
 
     workspace = _workspace(arguments["workspace"])
@@ -1187,44 +1336,14 @@ def render_pptx(**arguments: Any) -> dict[str, Any]:
     coherence = validate_constructor_deck(scenes=scenes, planned_slides=planned_slides, deck_design=design)
     if not coherence["passed"]:
         raise ValueError(f"Deck coherence validation failed: {coherence['issues']}")
-    command = [
-        sys.executable,
-        "-m",
-        "slidecraft.cli",
-        "render-scenes",
-    ]
-    for key in scene_keys:
-        command.extend(["--scene", active[key]["path"]])
-    command.extend([
-        "--output", str(Path(arguments["output"]).expanduser().resolve()),
-        "--title", arguments.get("title", "Slidecraft presentation"),
-        "--company", arguments.get("company", ""),
-        "--language", arguments.get("language", "en-US"),
-        "--display-font", arguments.get("display_font", "Georgia"),
-        "--body-font", arguments.get("body_font", "Arial"),
-        "--backend", arguments.get("backend", "auto"),
-    ])
-    node_modules = Path(arguments["node_modules"]).expanduser().resolve() if arguments.get("node_modules") else constructor_node_modules()
-    if node_modules.exists():
-        command.extend(["--node-modules", str(node_modules)])
-    process = subprocess.run(command, capture_output=True, text=True, check=False)
-    if process.returncode:
-        raise RuntimeError(process.stderr.strip() or process.stdout.strip() or "PowerPoint construction failed")
     output = Path(arguments["output"]).expanduser().resolve()
-    with zipfile.ZipFile(output) as archive:
-        damaged = archive.testzip()
-        names = set(archive.namelist())
-        if damaged:
-            raise RuntimeError(f"PowerPoint package contains a damaged entry: {damaged}")
-        required = {"[Content_Types].xml", "ppt/presentation.xml"}
-        missing_package_parts = sorted(required - names)
-        slides = sorted(name for name in names if name.startswith("ppt/slides/slide") and name.endswith(".xml"))
-        if missing_package_parts or not slides:
-            raise RuntimeError(f"PowerPoint package validation failed. Missing parts: {missing_package_parts}")
+    constructor_output, slide_count = _run_powerpoint_constructor(
+        scene_paths=[Path(active[key]["path"]) for key in scene_keys], output=output, arguments=arguments
+    )
     validation = {
         "status": "passed",
         "package_integrity": "passed",
-        "slide_count": len(slides),
+        "slide_count": slide_count,
         "constructor_conformance": "passed",
         "native_powerpoint_render": "optional_not_run",
         "cross_slide_coherence": coherence,
@@ -1238,7 +1357,7 @@ def render_pptx(**arguments: Any) -> dict[str, Any]:
         provenance={"backend": arguments.get("backend", "auto")},
         validation=validation,
     )
-    return {"artifact": record, "constructor_output": process.stdout.strip(), "validation": validation}
+    return {"artifact": record, "constructor_output": constructor_output, "validation": validation}
 
 
 _HANDLERS: dict[str, Callable[..., dict[str, Any]]] = {

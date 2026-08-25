@@ -15,6 +15,8 @@ Slidecraft gives an AI Agent six tools for creating editable PowerPoint presenta
 
 Several tools support a short exchange. For example, `slidecraft_generate_slide` first returns semantic-design guidance. A later call with `semantic_design` returns resource candidates. A call with the selected resources returns the final image brief or uses the connected image service. This keeps reasoning with the Agent and keeps internal file operations out of the conversation.
 
+`slidecraft_open_project` also returns the discovered materials and project visuals. The Agent reads the presentation, visually inspects the images, and records concise descriptions and semantic roles through the `visual_assets` field of the next `slidecraft_prepare_deck` brief. Slidecraft stores those annotations and intrinsic image measurements. The Agent then decides which slides can benefit from each visual and whether each use is optional or mandatory.
+
 ## Automatic connection
 
 The guided installer registers Slidecraft with detected Agent apps. Those apps start the local STDIO MCP server when its tools are needed. Users do not start a server for each project.
@@ -63,6 +65,8 @@ Slidecraft stores and validates those decisions. It manages file provenance, can
 
 When the Agent app has an image tool, `slidecraft_generate_slide` returns the assembled prompt, references, and canvas dimensions. The Agent generates the image and calls the same tool with `generated_image`.
 
+Each successful `slidecraft_reconstruct_slide` call returns an editable one-slide file and refreshes `deliverables/current_deck.pptx`. The current deck contains every fresh reconstructed slide in plan order, so the Agent and dashboard always have one consolidated view of progress. `slidecraft_render_deck` remains the final assembly call and accepts the deck only when every planned slide is ready.
+
 When the Agent app has no image tool, Slidecraft uses the OpenAI or OpenAI-compatible image service configured in the dashboard. A user can also select that service as the required route.
 
 ## Python fallback
@@ -90,6 +94,6 @@ The lower-level Python capabilities remain available to Slidecraft itself and to
 
 ## Project visibility
 
-People normally see `sources/` and `deliverables/`. Slidecraft stores prompts, measurements, revision records, and construction evidence under `.slidecraft/`. The dashboard presents the same project and resource information without controlling workflow progression.
+People normally see `assets/`, `materials/`, and `deliverables/`. Slidecraft stores project identity, prompts, measurements, revision records, and construction evidence under `.slidecraft/`. The dashboard presents the same project and resource information without controlling workflow progression.
 
 The Agent should return the editable PowerPoint for final-deck requests. It can return plans, generated slides, previews, or decisions when the user asks to review progress. Masks, OCR fragments, contours, caches, and logs stay hidden unless technical evidence is requested.

@@ -128,11 +128,13 @@ The Agent follows this order.
 
 Each selected asset retains its stable ID, semantic role, candidate alternatives, library provenance, canonical SVG path, intrinsic aspect ratio, and requirement status.
 
-### User-provided assets
+### Project visuals
 
-User assets follow the same normalized asset contract as library icons. A configurable requirement field marks each asset as mandatory or optional. The current OpenAI, OpenCV, and PowerPoint assets are mandatory and are restored from their exact SVG files during reconstruction.
+Project visuals include logos, screenshots, photographs, illustrations, and other images that may appear directly in slides. The Agent allocates them slide by slide. Each allocation records whether the visual is optional or mandatory and whether it should use an icon slot or an image region.
 
-Image generation receives semantic descriptions of these assets. It does not require their source files as attached images. The canonical files remain available downstream.
+Every visual allocated to a slide is attached to the image-generation request. The generation package supplies its identity, semantic role, content hash, intrinsic dimensions, intrinsic aspect ratio, and usage requirement. The image model may omit optional visuals. Every visual it uses must retain the supplied content and aspect ratio without redrawing, restyling, stretching, or unrequested cropping.
+
+The exact canonical file remains available downstream. During slide understanding, the Agent decides whether each detected image maps to one of the selected project visuals. An exact mapping restores the canonical file. Image content created by the image model uses a measured screenshot crop.
 
 ## Asset normalization and icon slots
 
@@ -439,7 +441,7 @@ The policies above are explicit and versioned. Current coverage has these bounda
 - Native PowerPoint rendering exists as an optional explicitly authorized validation route. An automatic compare-and-refit loop is outside the certified direct-construction path.
 - Reusable component manifests and previews are supported. Direct editable component import stays disabled until that implementation route passes constructor conformance tests.
 
-Unsupported optional routes remain search evidence. The Agent selects a supported reconstruction path before construction. Partial output is never published as successful.
+Unsupported optional routes remain search evidence. The Agent selects a supported reconstruction path before construction. Completed slides are published as individual editable files and as a clearly labeled current deck. Only a complete plan can be published as the final deck.
 
 ## Acceptance definition
 
@@ -453,4 +455,5 @@ The framework is ready as a pipeline architecture when these conditions hold.
 - Connectors use semantic graphs and native PowerPoint connectors.
 - Text uses authored blocks and passes native PowerPoint overflow checks.
 - Deck chrome is deterministic and excluded from image generation.
+- Every reconstructed slide refreshes one consolidated current deck in planned order while preserving its individual editable file.
 - All quality gates produce inspectable reports.

@@ -10,7 +10,15 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from slidecraft.projects import PROJECT_FILE, create_project, list_projects, project_detail, resolve_project
+from slidecraft.projects import (
+    LEGACY_PROJECT_FILE,
+    PROJECT_FILE,
+    create_project,
+    list_projects,
+    project_detail,
+    register_project,
+    resolve_project,
+)
 
 
 class ProjectWorkspaceTests(unittest.TestCase):
@@ -22,14 +30,16 @@ class ProjectWorkspaceTests(unittest.TestCase):
             detail = project_detail(root)
             project_file_exists = (root / PROJECT_FILE).exists()
             deliverables_exists = (root / "deliverables").is_dir()
-            sources_exists = (root / "sources").is_dir()
+            materials_exists = (root / "materials").is_dir()
+            assets_exists = (root / "assets").is_dir()
             artifact_manifest_exists = (root / ".slidecraft" / "artifact_manifest.json").exists()
             deck_design_exists = (root / ".slidecraft" / "deck_design.json").exists()
 
         self.assertEqual(project["workspace_path"], str(root.resolve()))
         self.assertTrue(project_file_exists)
         self.assertTrue(deliverables_exists)
-        self.assertTrue(sources_exists)
+        self.assertTrue(materials_exists)
+        self.assertTrue(assets_exists)
         self.assertTrue(artifact_manifest_exists)
         self.assertTrue(deck_design_exists)
         self.assertNotIn("history", detail["state"])
@@ -59,6 +69,33 @@ class ProjectWorkspaceTests(unittest.TestCase):
 
         self.assertEqual(resolved["resolution"], "created")
         self.assertEqual(resolved["project"]["name"], "New Strategy Deck")
+
+    def test_existing_sources_are_migrated_into_visible_materials_and_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}
+        ):
+            root = Path(directory) / "legacy"
+            created = create_project(name="Legacy", location=root)
+            current_manifest = root / PROJECT_FILE
+            legacy_manifest = root / LEGACY_PROJECT_FILE
+            current_manifest.replace(legacy_manifest)
+            (root / "sources/assets").mkdir(parents=True)
+            (root / "sources/brief.txt").write_text("Brief", encoding="utf-8")
+            (root / "sources/assets/logo.svg").write_text("<svg/>", encoding="utf-8")
+
+            registered = register_project(root)
+            legacy_sources_exists = (root / "sources").exists()
+            material_exists = (root / "materials/brief.txt").is_file()
+            asset_exists = (root / "assets/logo.svg").is_file()
+            manifest_exists = (root / PROJECT_FILE).is_file()
+            legacy_manifest_exists = (root / LEGACY_PROJECT_FILE).exists()
+
+        self.assertEqual(registered["project_id"], created["project_id"])
+        self.assertFalse(legacy_sources_exists)
+        self.assertTrue(material_exists)
+        self.assertTrue(asset_exists)
+        self.assertTrue(manifest_exists)
+        self.assertFalse(legacy_manifest_exists)
 
 
 if __name__ == "__main__":

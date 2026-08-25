@@ -39,7 +39,9 @@ class DeckManager:
     ) -> dict[str, Any]:
         self.run_dir = self.run_dir.resolve()
         self.run_dir.mkdir(parents=True, exist_ok=True)
-        storage_dir = self.run_dir / ".slidecraft" if (self.run_dir / "slidecraft.project.json").exists() else self.run_dir
+        from slidecraft.projects import PROJECT_FILE
+
+        storage_dir = self.run_dir / ".slidecraft" if (self.run_dir / PROJECT_FILE).exists() else self.run_dir
         storage_dir.mkdir(parents=True, exist_ok=True)
         resolved_layouts_path = system_layouts_path or Path(
             str(files("slidecraft.defaults").joinpath("system_slide_layouts.json"))
@@ -77,7 +79,7 @@ class DeckManager:
                 "source_atoms": [atom for atom in intake["source_atoms"] if atom["atom_id"] in slide["source_atom_ids"]],
                 "relationships": slide["relationships"],
                 "dependencies": slide.get("dependencies", []),
-                "asset_ids": slide.get("asset_ids", []),
+                "asset_allocations": slide.get("asset_allocations", []),
                 "terminology": slide.get("terminology", []),
                 "cross_slide_requirements": slide.get("cross_slide_requirements", []),
                 "chrome_content_proposal": slide.get("chrome_content_proposal", {}),

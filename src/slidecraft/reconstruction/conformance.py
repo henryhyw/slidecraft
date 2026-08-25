@@ -27,10 +27,15 @@ def validate_contract_consumption(
     text_ids = {entity["id"] for entity in measured_scene.get("entities", []) if entity.get("kind") == "text" and entity["id"] not in non_emitting}
     emitted_text_ids = {item["id"] for item in objects if item.get("kind") == "textbox" and not item["id"].startswith("CHROME_")}
     asset_ids = {item["entity_id"] for item in contract.get("canonical_asset_mappings", [])}
+    icon_asset_ids = {
+        item["entity_id"]
+        for item in contract.get("canonical_asset_mappings", [])
+        if item.get("asset_kind", "icon_slot") == "icon_slot"
+    }
     emitted_asset_ids = {item["id"] for item in objects if item.get("kind") == "image" and item.get("selected_asset_id")}
     connector_ids = {item["entity_id"] for item in contract.get("connector_reconstruction_plans", [])}
     emitted_connector_ids = {item["id"] for item in objects if item.get("kind") == "connector_graph"}
-    missing_surfaces = sorted(identifier for identifier in asset_ids if f"{identifier}.icon_slot_surface" not in by_id)
+    missing_surfaces = sorted(identifier for identifier in icon_asset_ids if f"{identifier}.icon_slot_surface" not in by_id)
     icon_containment_failures = []
     for identifier in sorted(asset_ids & emitted_asset_ids):
         surface = by_id.get(f"{identifier}.icon_slot_surface")
@@ -179,14 +184,14 @@ def validate_contract_consumption(
         "required_counts": {
             "text_entities": len(text_ids),
             "canonical_assets": len(asset_ids),
-            "icon_slot_surfaces": len(asset_ids),
+            "icon_slot_surfaces": len(icon_asset_ids),
             "connector_graphs": len(connector_ids),
             "deck_chrome_objects": len(required_chrome),
         },
         "emitted_counts": {
             "text_entities": len(text_ids & emitted_text_ids),
             "canonical_assets": len(asset_ids & emitted_asset_ids),
-            "icon_slot_surfaces": len(asset_ids) - len(missing_surfaces),
+            "icon_slot_surfaces": len(icon_asset_ids) - len(missing_surfaces),
             "connector_graphs": len(connector_ids & emitted_connector_ids),
             "deck_chrome_objects": len(required_chrome & chrome_ids),
         },

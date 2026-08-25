@@ -59,3 +59,27 @@ def test_connection_check_uses_configured_model_without_generating() -> None:
     client.models.retrieve.assert_called_once_with("gpt-image-2")
     client.images.generate.assert_not_called()
     assert result == {"status": "ready", "provider": "openai_images", "model": "gpt-image-2"}
+
+
+def test_image_edit_receives_every_ordered_generation_input(tmp_path: Path) -> None:
+    first = tmp_path / "reference.png"
+    second = tmp_path / "project-visual.png"
+    Image.new("RGB", (400, 300), "white").save(first)
+    Image.new("RGB", (800, 400), "white").save(second)
+    client = Mock()
+    client.images.edit.return_value = SimpleNamespace(
+        data=[SimpleNamespace(b64_json=_png_payload((1024, 1024)), url=None)]
+    )
+    with patch("openai.OpenAI", return_value=client):
+        provider = OpenAIImageGenerationProvider(model="gpt-image-2", api_key="test-key")
+        result = provider.generate(
+            prompt="Use the ordered visual inputs",
+            output_path=tmp_path / "generated.png",
+            reference_images=[first, second],
+            canvas_px=(1600, 900),
+        )
+
+    call = client.images.edit.call_args.kwargs
+    assert [Path(stream.name).name for stream in call["image"]] == ["reference.png", "project-visual.png"]
+    assert call["prompt"] == "Use the ordered visual inputs"
+    assert result["reference_image_count"] == 2

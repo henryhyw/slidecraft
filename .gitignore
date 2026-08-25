@@ -9,6 +9,9 @@ build/
 dist/
 *.egg-info/
 .slidecraft/
+/assets/
+/materials/
+/deliverables/
 outputs/
 node_modules/
 js/node_modules

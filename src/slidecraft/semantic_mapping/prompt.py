@@ -16,6 +16,10 @@ def _compact_upstream(handoff: dict[str, Any]) -> dict[str, Any]:
             {
                 "asset_id": item.get("internal", item).get("asset_id"),
                 "semantic_role": item.get("internal", item).get("semantic_role"),
+                "source_kind": item.get("internal", item).get("source_kind"),
+                "visual_kind": item.get("internal", item).get("visual_kind"),
+                "placement": item.get("internal", item).get("placement"),
+                "intrinsic_aspect_ratio": item.get("internal", item).get("intrinsic_aspect_ratio"),
                 "prompt_name": item.get("name"),
                 "required_usage": item.get("required_usage"),
             }
@@ -47,14 +51,14 @@ SEMANTIC GRANULARITY
 4. Treat charts as chart entities when authoritative data can be mapped upstream.
 5. Treat replaceable icons and logos as icon_slot entities. The slot is placement authority. The generated glyph is evidence only.
 6. Treat ordinary arrows and lines that communicate relationships as connector entities. Capture source and target objects, topology, direction, junctions, routing family, corridor, stroke, and arrowheads. Do not trace raster imperfections.
-7. Treat a meaningful photograph, illustration, screenshot, or embedded preview as one image entity.
+7. Treat a meaningful photograph, illustration, screenshot, or embedded preview as one image entity. Decide whether it is an exact supplied project visual or image content created by the image model.
 8. Use shape or novel_visual only for independently authored visual objects. Mark irregular filled silhouettes with an appropriate segmentation_role.
 
 RECONSTRUCTION ROUTING
-For every meaningful entity, select its intended editable reconstruction route. Use native textboxes, tables, and charts when their authored structure is recoverable. Use the exact selected canonical asset for icon slots. Use a known reusable element only when the upstream component identity is supported. Use standard PowerPoint primitives and connectors for ordinary shapes and relationships. Use custom fitted geometry only when standard primitives cannot express a meaningful designed object. Use raster fallback for genuine image content or when editability cannot preserve the visual meaning.
+For every meaningful entity, select its intended editable reconstruction route. Use native textboxes, tables, and charts when their authored structure is recoverable. Use the exact selected canonical asset for icon slots and supplied project images. Use a known reusable element only when the upstream component identity is supported. Use standard PowerPoint primitives and connectors for ordinary shapes and relationships. Use custom fitted geometry only when standard primitives cannot express a meaningful designed object. Use raster fallback for image content created by the image model or when editability cannot preserve the visual meaning.
 
 SOURCE GROUNDING
-Map text entities to authoritative_source_path whenever upstream source contains the text. Preserve visible text separately so deterministic validation can compare them. Map every icon slot to the exact upstream asset ID selected before generation. If the image implies a different role, record the uncertainty and keep candidate IDs, but do not invent a canonical substitution.
+Map text entities to authoritative_source_path whenever upstream source contains the text. Preserve visible text separately so deterministic validation can compare them. Map every icon slot to the exact upstream asset ID selected before generation. For every image entity, reason from its visible content, upstream semantic role, and selected asset list. When it is a supplied project visual, set upstream_asset_id to that exact selected asset and use canonical_icon_or_image_asset. When it is image content created by the image model, leave upstream_asset_id null and use raster_fallback. Never infer a match from bounding-box similarity alone. If the evidence is ambiguous, record the uncertainty instead of silently replacing the image with a project file.
 
 RELATIONSHIPS AND STACKING
 Return containment through groups. Return explicit flow, contribution, comparison, sequence, branch, merge, overlap, and back-to-front relationships where visible or supported by upstream intent. Every connector endpoint must reference an existing entity or group.

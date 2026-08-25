@@ -30,6 +30,15 @@ def _svg_ratio(path: Path) -> float:
     return 1.0
 
 
+def _image_ratio(path: Path) -> float:
+    if path.suffix.lower() == ".svg":
+        return _svg_ratio(path)
+    from PIL import Image
+
+    with Image.open(path) as image:
+        return image.width / image.height if image.height else 1.0
+
+
 def _contain(box: list[int], ratio: float, inset_fraction: float = 0.14) -> list[int]:
     x, y, width, height = box
     available_width = width * (1 - 2 * inset_fraction)
@@ -190,7 +199,7 @@ def build_reconstruction_scene(
     transform = contract.get("coordinate_transform_to_full_slide", {})
     offset_y = int((transform.get("translation_px") or transform.get("full_slide_offset_px") or [0, 0])[1])
     scale_xy = [float(value) for value in transform.get("scale_xy", [1, 1])]
-    icon_mappings = {mapping["entity_id"]: mapping for mapping in contract.get("canonical_asset_mappings", [])}
+    asset_mappings = {mapping["entity_id"]: mapping for mapping in contract.get("canonical_asset_mappings", [])}
     connector_plans = {plan["entity_id"]: plan for plan in contract.get("connector_reconstruction_plans", [])}
     connector_configuration = contract.get("connector_configuration", design.get("connectors", {}))
     fitted_text = {record["id"]: record for record in contract.get("fitted_text_contracts", [])}
@@ -229,7 +238,7 @@ def build_reconstruction_scene(
                 "z": z,
             })
         elif kind in {"icon", "icon_slot"}:
-            mapping = icon_mappings.get(entity_id)
+            mapping = asset_mappings.get(entity_id)
             if not mapping:
                 raise ValueError(f"Icon entity {entity_id} has no canonical asset mapping")
             path = Path(mapping.get("selected_asset_path", ""))
@@ -263,9 +272,22 @@ def build_reconstruction_scene(
             })
         elif kind == "image":
             image = entity["measurement"].get("image_object", {})
-            source = entity.get("upstream_asset_mapping", {}).get("canonical_file") or image.get("screenshot_crop_absolute")
+            mapping = asset_mappings.get(entity_id)
+            source = mapping.get("selected_asset_path") if mapping else image.get("screenshot_crop_absolute")
             if source:
-                objects.append({"id": entity_id, "kind": "image", "bbox_px": box, "source_path": source, "fit": image.get("crop_mode", "fill"), "preserve_aspect_ratio": image.get("preserve_aspect_ratio", True), "z": z})
+                source_path = Path(source)
+                target_box = _contain(box, _image_ratio(source_path), 0) if mapping else box
+                objects.append({
+                    "id": entity_id,
+                    "kind": "image",
+                    "bbox_px": target_box,
+                    "source_path": str(source_path.resolve()),
+                    "selected_asset_id": mapping.get("selected_asset_id") if mapping else None,
+                    "fit": "contain" if mapping else image.get("crop_mode", "fill"),
+                    "preserve_aspect_ratio": True,
+                    "semantic_role": entity.get("role"),
+                    "z": z,
+                })
         elif kind == "connector":
             plan = connector_plans.get(entity_id)
             if plan:

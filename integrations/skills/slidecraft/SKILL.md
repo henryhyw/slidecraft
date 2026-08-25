@@ -25,7 +25,8 @@ Do not recreate reasoning inside Python or ask Slidecraft to infer a decision th
 - For a new or substantially replanned deck, read [references/planning.md](references/planning.md) for the brief contract and planning-quality standard.
 - Convert the agreed conversation, audience, Agent-authored source evidence, constraints, desired result, density, and optional slide count into `slidecraft_prepare_deck`. Author the plan from the returned planning brief, then call the same tool with `deck_plan`.
 - For existing work, inspect the workspace before calling any mutating capability.
-- Treat `deliverables/` and `sources/` as user-facing. Treat `.slidecraft/` as durable Agent evidence that stays hidden during ordinary interaction.
+- Treat `assets/`, `materials/`, and `deliverables/` as user-facing. Treat `.slidecraft/` as durable Agent evidence that stays hidden during ordinary interaction.
+- `slidecraft_open_project` returns the discovered project visuals. Visually inspect every item marked `needs_agent_description`. In the next `slidecraft_prepare_deck` brief, include a `visual_assets` entry with its `asset_id`, a concise source-grounded `description`, `semantic_role`, and deck-level `usage_policy`. This updates the existing catalog entry without copying the file. Use the description and source context when planning its slide allocation. Never plan from the filename alone.
 - Never infer progress from filenames alone. Use artifact freshness, lifecycle, validation, and dependencies.
 
 ## Work with the user before planning
@@ -63,8 +64,8 @@ When the user explicitly delegates the work, make the same decisions with the sa
 - Let image generation own informative slide composition. Use deterministic system layouts for covers and section dividers.
 - After deck planning, call `slidecraft_generate_slide` for each information-bearing job. Follow its returned semantic-design, resource-selection, and image-generation phases.
 - Call `slidecraft_measure_slide` with the Agent-authored visual analysis. It compiles the semantic scene and runs deterministic measurement.
-- Assemble only when every planned slide has been reconstructed. Let `slidecraft_render_deck` derive and validate deck-plan order.
-- During semantic mapping, identify authored objects and groups at PowerPoint granularity. Select a reconstruction route for every entity. Map icon slots to the exact Agent-selected upstream asset. Audit connector ownership, topology, direction, and clean native routing from relationship meaning and layout feasibility.
+- Reconstruct slides independently. Each `slidecraft_reconstruct_slide` call produces an editable one-slide PowerPoint under `deliverables/slides/` and refreshes `deliverables/current_deck.pptx` from every fresh reconstructed slide in plan order. Keep the current deck as the consolidated progress view. Let `slidecraft_render_deck` derive and validate final deck-plan completeness when every intended slide is ready.
+- During semantic mapping, identify authored objects and groups at PowerPoint granularity. Select a reconstruction route for every entity. Map icon slots and supplied project images to the exact Agent-selected upstream asset. Use a screenshot crop for image content created by the image model. Audit connector ownership, topology, direction, and clean native routing from relationship meaning and layout feasibility.
 - After measurement, reason over the slide as a designed system. Author a refinement plan with `authored_by: agent_reasoning`. Name only peer groups that should align or normalize. An empty `alignment_groups` list is correct when no movement is warranted.
 - Call `slidecraft_reconstruct_slide` with that plan. Slidecraft will reject movements that break containment, clearance, text fit, z-order, semantic order, or connector topology.
 - Preserve the slide-understanding and editable-reconstruction contracts for text, canonical assets, icon slots, connectors, grouping, measurement evidence, native reconstruction, and validation.
@@ -76,9 +77,13 @@ When the user explicitly delegates the work, make the same decisions with the sa
 
 ## Project assets
 
-Treat chat uploads, console uploads, and files placed directly in `sources/assets/` as entries in one project asset catalog. Adding an asset is catalog-only. It does not change the active deck plan, invalidate artifacts, or trigger generation.
+Treat chat uploads, console uploads, and files placed directly in `assets/` as entries in one project visual catalog. This includes logos, screenshots, photographs, illustrations, and other images that may appear in slides. Adding an asset is catalog-only. It does not change the active deck plan, invalidate artifacts, or trigger generation.
+
+The host Agent visually annotates newly discovered project visuals before deck planning. A useful annotation says what the image visibly contains, what role it can serve in the presentation, and whether it is simply available, preferred, or required. Actual slide selection remains a separate planning decision.
 
 When the user asks to use a newly available asset, inspect its semantic role and propose or apply the smallest planning change. In a multi-slide deck, `available` and `preferred` assets are allocated by the planner to suitable slides. `required_somewhere` means at least one suitable placement. It never means every slide. Slide-specific mandatory use exists only when the user explicitly names a slide or accepts a slide-level allocation.
+
+For each slide, author an asset allocation for every selected project visual. Mark it optional when the image model may use it and mandatory when it must appear. Choose `icon_slot` for a compact icon or identity mark. Choose `image_region` for a screenshot, photograph, illustration, or other full visual. Slidecraft attaches every selected project visual to the generation request with its intrinsic aspect ratio and exact-content protection. During reconstruction, map a detected image to the selected asset only when the visual evidence and upstream role support that exact identity.
 
 ## Interaction
 

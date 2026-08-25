@@ -6,10 +6,11 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from slidecraft.agent import safe_call_capability
+from slidecraft.agent import render_current_pptx, safe_call_capability
 from slidecraft.deck.manager import DeckManager
 from slidecraft.intake import normalize_deck_intake
 from slidecraft.providers.file import RecordedDeckPlan
+from slidecraft.runtime.artifacts import ArtifactWorkspace
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -61,6 +62,92 @@ def test_workflow_status_restores_completion_from_project_deliverables() -> None
         assert status["result"]["status"] == "complete"
         assert Path(status["result"]["completed_output"]["path"]).samefile(deliverable)
         assert status["result"]["completed_output"]["provenance"]["source"] == "project_deliverables"
+
+
+def test_current_deck_is_progress_without_claiming_final_completion() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        safe_call_capability("create_workspace", {"workspace": str(root), "deck_id": "demo"})
+        current = root / "deliverables" / "current_deck.pptx"
+        current.parent.mkdir()
+        current.write_bytes(b"pptx")
+        ArtifactWorkspace(root).register(
+            logical_key="deck/current_pptx",
+            kind="editable_deck_progress",
+            path=current,
+            producer="test",
+        )
+
+        status = safe_call_capability("workflow_status", {"workspace": str(root)})
+
+        assert status["status"] == "ok"
+        assert status["result"]["status"] == "in_progress"
+        assert status["result"]["completed_output"] is None
+
+
+def test_current_deck_uses_every_fresh_scene_in_planned_order() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        workspace = ArtifactWorkspace(root)
+        workspace.initialize(deck_id="demo")
+        plan_path = root / "plan.json"
+        design_path = root / "design.json"
+        first_scene = root / "first.json"
+        second_scene = root / "second.json"
+        plan = {
+            "slides": [
+                {"slide_id": "first", "ordinal": 1, "route": "image_generation"},
+                {"slide_id": "second", "ordinal": 2, "route": "image_generation"},
+            ]
+        }
+        design = {
+            "config_id": "design-1",
+            "full_slide_px": [1600, 900],
+            "style": {"background": "#FFFFFF"},
+        }
+        scene_template = {
+            "dimensions_px": [1600, 900],
+            "background": "#FFFFFF",
+            "design_config_id": "design-1",
+            "objects": [],
+        }
+        plan_path.write_text(json.dumps(plan), encoding="utf-8")
+        design_path.write_text(json.dumps(design), encoding="utf-8")
+        first_scene.write_text(json.dumps({**scene_template, "slide_id": "first"}), encoding="utf-8")
+        second_scene.write_text(json.dumps({**scene_template, "slide_id": "second"}), encoding="utf-8")
+        workspace.register(logical_key="deck/plan", kind="deck_plan", path=plan_path, producer="test")
+        workspace.register(logical_key="deck/design", kind="deck_design", path=design_path, producer="test")
+        workspace.register(
+            logical_key="slides/second/constructor_scene",
+            kind="constructor_scene",
+            path=second_scene,
+            producer="test",
+            slide_id="second",
+        )
+        workspace.register(
+            logical_key="slides/first/constructor_scene",
+            kind="constructor_scene",
+            path=first_scene,
+            producer="test",
+            slide_id="first",
+        )
+        seen: list[list[str]] = []
+
+        def fake_constructor(*, scene_paths: list[Path], output: Path, arguments: dict[str, object]) -> tuple[str, int]:
+            seen.append([path.name for path in scene_paths])
+            output.write_bytes(b"editable deck")
+            return "ok", len(scene_paths)
+
+        with patch("slidecraft.agent._run_powerpoint_constructor", side_effect=fake_constructor):
+            result = render_current_pptx(
+                workspace=str(root),
+                output=str(root / "deliverables" / "current_deck.pptx"),
+            )
+
+        assert seen == [["first.json", "second.json"]]
+        assert Path(result["display_path"]).read_bytes() == b"editable deck"
+        assert result["validation"]["completed_slide_ids"] == ["first", "second"]
+        assert result["validation"]["deck_complete"] is True
 
 
 def test_workflow_status_reports_an_unplanned_deck_without_choosing_an_action() -> None:

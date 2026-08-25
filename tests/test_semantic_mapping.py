@@ -55,6 +55,49 @@ class SemanticMappingTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "quality floor"):
                 compile_semantic_map(analysis=analysis, image_path=image_path, upstream_handoff={})
 
+    def test_agent_selected_project_image_maps_to_canonical_file(self) -> None:
+        fixture = json.loads((ROOT / "tests" / "fixtures" / "unit" / "semantic_scene_draft_fixture.json").read_text())
+        image_entity = dict(fixture["entities"][1])
+        image_entity.update({
+            "id": "P_product",
+            "kind": "image",
+            "role": "product screenshot",
+            "bbox_norm": [100, 200, 400, 300],
+            "reconstruction_route": "canonical_icon_or_image_asset",
+            "upstream_asset_id": "PROJECT_IMAGE",
+            "candidate_asset_ids": ["PROJECT_IMAGE"],
+            "shape": None,
+            "segmentation_role": "none",
+        })
+        fixture["entities"].append(image_entity)
+        fixture["slide"]["reading_order"].append("P_product")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result_path = root / "result.json"
+            result_path.write_text(json.dumps(fixture))
+            image_path = root / "slide.png"
+            canonical = root / "product.png"
+            Image.new("RGB", (1000, 500), "white").save(image_path)
+            Image.new("RGB", (800, 400), "white").save(canonical)
+            analysis = RecordedVisualAnalysis(result_path)
+            result = compile_semantic_map(
+                analysis=analysis,
+                image_path=image_path,
+                upstream_handoff={
+                    "selected_assets": [{
+                        "internal": {
+                            "asset_id": "PROJECT_IMAGE",
+                            "source_kind": "project_visual",
+                            "canonical_file": str(canonical),
+                        }
+                    }]
+                },
+            )
+
+        mapped = next(item for item in result["entities"] if item["id"] == "P_product")
+        self.assertEqual(mapped["asset_mapping_status"], "exact_agent_selected_project_visual")
+        self.assertEqual(mapped["upstream_asset_mapping"]["canonical_file"], str(canonical))
+
 
 if __name__ == "__main__":
     unittest.main()

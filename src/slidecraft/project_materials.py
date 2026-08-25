@@ -34,7 +34,7 @@ def add_uploaded_material(
     root = _root(location)
     payload = base64.b64decode(content_base64, validate=True)
     digest = hashlib.sha256(payload).hexdigest()
-    source_root = root / "sources"
+    source_root = root / "materials"
     source_root.mkdir(parents=True, exist_ok=True)
     safe_name = _safe_name(filename)
     destination = source_root / safe_name

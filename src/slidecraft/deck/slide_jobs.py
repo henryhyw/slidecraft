@@ -8,25 +8,39 @@ from typing import Any
 def build_slide_request(
     *, job: dict[str, Any], deck_request: dict[str, Any], project_assets: list[dict[str, Any]]
 ) -> dict[str, Any]:
-    requested_ids = set(job.get("asset_ids", []))
+    allocations = {item["asset_id"]: item for item in job.get("asset_allocations", [])}
     allocated_assets = []
     for asset in project_assets:
-        required_here = (
+        allocation = allocations.get(asset["asset_id"])
+        policy_requires_here = (
             asset.get("usage_policy") == "required_each_slide"
-            or asset["asset_id"] in requested_ids
-            or job["slide_id"] in asset.get("slide_ids", [])
+            or (
+                asset.get("usage_policy") == "required_on_slides"
+                and job["slide_id"] in asset.get("slide_ids", [])
+            )
         )
-        if asset["asset_id"] not in requested_ids and not required_here:
+        if allocation is None and not policy_requires_here:
             continue
+        required_here = policy_requires_here or (allocation or {}).get("usage") == "mandatory"
         allocated_assets.append({
             "asset_id": asset["asset_id"],
             "semantic_role": asset.get("semantic_role"),
-            "dimension_role": asset.get("dimension_role", "module_icon"),
+            "visual_kind": asset.get("visual_kind", "other"),
+            "media_type": asset.get("media_type"),
             "name": asset["name"],
             "description": asset.get("description") or asset.get("semantic_role") or asset["name"],
             "canonical_file": asset["stored_path"],
+            "sha256": asset.get("sha256"),
+            "intrinsic_width": asset.get("intrinsic_width"),
+            "intrinsic_height": asset.get("intrinsic_height"),
+            "intrinsic_aspect_ratio": asset.get("intrinsic_aspect_ratio"),
+            "preserve_exact_content": asset.get("preserve_exact_content", True),
+            "preserve_aspect_ratio": asset.get("preserve_aspect_ratio", True),
             "required_usage": required_here,
             "mandatory": required_here,
+            "slide_usage": "mandatory" if required_here else "optional",
+            "placement": (allocation or {}).get("placement", "image_region"),
+            "allocation_reason": (allocation or {}).get("reason", "User-required on this slide"),
         })
     metadata = deck_request.get("metadata", {})
     if not isinstance(metadata, dict):

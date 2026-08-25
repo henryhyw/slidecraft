@@ -75,6 +75,7 @@ def open_project(
         "project": project,
         "progress": agent.workflow_status(workspace=workspace),
         "contents": agent.project_detail(location=workspace, include_internal=False),
+        "resources": agent.project_resource_catalog(location=workspace),
     }
 
 
@@ -98,17 +99,38 @@ def prepare_deck(
             material["path"] = stored["path"]
             material.setdefault("source_locator", original)
         for asset in brief.pop("visual_assets", []):
+            asset_id = asset.get("asset_id")
+            if asset_id:
+                agent.update_project_asset(
+                    location=str(workspace),
+                    asset_id=asset_id,
+                    semantic_role=asset.get("semantic_role"),
+                    description=asset.get("description"),
+                    usage_policy=asset.get("usage_policy"),
+                    slide_ids=asset.get("slide_ids"),
+                )
+                continue
             source = asset.get("source") or asset.get("path")
             if not source:
-                raise ValueError("Each visual asset requires a source file")
-            agent.add_project_asset(
+                raise ValueError("Each visual asset requires an asset_id or source file")
+            record = agent.add_project_asset(
                 location=str(workspace),
                 source=str(_root(source)),
                 semantic_role=asset.get("semantic_role"),
+                description=asset.get("description"),
                 usage_policy=asset.get("usage_policy", "available"),
                 slide_ids=asset.get("slide_ids"),
                 provenance="agent_conversation_upload",
             )
+            if any(key in asset for key in ("semantic_role", "description", "usage_policy", "slide_ids")):
+                agent.update_project_asset(
+                    location=str(workspace),
+                    asset_id=record["asset_id"],
+                    semantic_role=asset.get("semantic_role"),
+                    description=asset.get("description"),
+                    usage_policy=asset.get("usage_policy"),
+                    slide_ids=asset.get("slide_ids"),
+                )
         agent.set_deck_brief(workspace=str(workspace), brief=brief)
     request_path = _artifact_path(workspace, "deck/request")
     design_path = _artifact_path(workspace, "deck/design")
@@ -209,10 +231,12 @@ def generate_slide(
         project_config=_project_config(workspace),
     )
     if route["route"] == "host":
+        image_inputs = _generation_image_inputs(slide_dir / "generation_context.json")
         return {
             "status": "ready_for_agent_image_generation",
             "prompt": prompt,
-            "reference_images": _selected_reference_paths(slide_dir / "reference_retrieval.json"),
+            "reference_images": [item["path"] for item in image_inputs],
+            "image_inputs": image_inputs,
             "canvas_px": package["generation_canvas_px"],
             "registration": {"project": str(workspace), "slide_id": slide_id},
         }
@@ -226,7 +250,7 @@ def generate_slide(
         prompt=prompt,
         output=str(image_path),
         canvas_px=package["generation_canvas_px"],
-        reference_images=_selected_reference_paths(slide_dir / "reference_retrieval.json"),
+        reference_images=[item["path"] for item in _generation_image_inputs(slide_dir / "generation_context.json")],
         host_supports_image_generation=host_supports_image_generation,
         project_config=_project_config(workspace),
         activate=True,
@@ -240,6 +264,13 @@ def _selected_reference_paths(path: Path) -> list[str]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     records = payload.get("visual_references", {}).get("selected", [])
     return [str(item["path"]) for item in records if item.get("path")]
+
+
+def _generation_image_inputs(path: Path) -> list[dict[str, Any]]:
+    if not path.is_file():
+        return []
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    return [item for item in payload.get("generation", {}).get("image_inputs", []) if item.get("path")]
 
 
 def measure_slide(
@@ -332,7 +363,31 @@ def reconstruct_slide(
         output=str(scene_path),
         scene_evidence=str(measured),
     )
-    return {"status": "slide_reconstructed", "contract": contract, "scene": scene}
+    active = _active(workspace)
+    plan_record = active.get("deck/plan")
+    ordinal = 1
+    if plan_record:
+        plan = json.loads(Path(plan_record["path"]).read_text(encoding="utf-8"))
+        planned = next((item for item in plan.get("slides", []) if item["slide_id"] == slide_id), None)
+        if planned:
+            ordinal = int(planned["ordinal"])
+    slide_output = workspace / "deliverables" / "slides" / f"{ordinal:02d}_{slide_id}.pptx"
+    editable = agent.render_slide_pptx(
+        workspace=str(workspace),
+        slide_id=slide_id,
+        output=str(slide_output),
+    )
+    current_deck = agent.render_current_pptx(
+        workspace=str(workspace),
+        output=str(workspace / "deliverables" / "current_deck.pptx"),
+    )
+    return {
+        "status": "slide_reconstructed",
+        "contract": contract,
+        "scene": scene,
+        "editable_slide": editable,
+        "current_deck": current_deck,
+    }
 
 
 def render_deck(

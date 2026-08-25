@@ -10,7 +10,8 @@ data_dir_env = "SLIDECRAFT_DATA_DIR"
 workspace_strategy = "user_selected_or_managed_default"
 internal_directory = ".slidecraft"
 deliverables_directory = "deliverables"
-sources_directory = "sources"
+materials_directory = "materials"
+assets_directory = "assets"
 
 [providers.image_generation]
 adapter = "host"

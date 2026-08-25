@@ -23,9 +23,9 @@ class ResourcePreviewTests(unittest.TestCase):
         ):
             root = Path(directory) / "deck"
             create_project(name="Deck", location=root)
-            brief = root / "sources/brief.txt"
+            brief = root / "materials/brief.txt"
             brief.write_text("Clear project brief", encoding="utf-8")
-            document = root / "sources/notes.docx"
+            document = root / "materials/notes.docx"
             with zipfile.ZipFile(document, "w") as archive:
                 archive.writestr("word/document.xml", '<w:document xmlns:w="x"><w:body><w:p><w:r><w:t>Decision memo</w:t></w:r></w:p></w:body></w:document>')
             catalog = project_resource_catalog(root)

@@ -7,6 +7,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -23,14 +25,20 @@ class ProjectAssetTests(unittest.TestCase):
             create_project(name="Deck", location=root)
             chat_asset = Path(directory) / "client-logo.svg"
             chat_asset.write_text("<svg xmlns='http://www.w3.org/2000/svg'/>", encoding="utf-8")
-            first = add_project_asset(root, chat_asset, semantic_role="client logo")
-            direct_asset = root / "sources/assets/product.png"
+            first = add_project_asset(
+                root,
+                chat_asset,
+                semantic_role="client logo",
+                description="The client's canonical identity mark.",
+            )
+            direct_asset = root / "assets/product.png"
             direct_asset.write_bytes(b"placeholder-image")
             catalog = list_project_assets(root)
             updated = update_project_asset(root, first["asset_id"], usage_policy="required_somewhere")
 
         self.assertEqual(len(catalog["assets"]), 2)
         self.assertEqual(updated["usage_policy"], "required_somewhere")
+        self.assertEqual(updated["semantic_metadata_status"], "ready")
         self.assertEqual(catalog["default_usage_policy"], "available")
         self.assertTrue(all("workflow_effect" not in item for item in catalog["assets"]))
 
@@ -48,6 +56,23 @@ class ProjectAssetTests(unittest.TestCase):
             second = add_project_asset(root, second_path)
 
         self.assertEqual(first["asset_id"], second["asset_id"])
+
+    def test_project_image_records_intrinsic_geometry_and_exact_content_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch.dict(
+            os.environ, {"SLIDECRAFT_DATA_DIR": str(Path(directory) / "data")}
+        ):
+            root = Path(directory) / "deck"
+            create_project(name="Deck", location=root)
+            source = Path(directory) / "screenshot.png"
+            Image.new("RGB", (1200, 600), "white").save(source)
+            record = add_project_asset(root, source, semantic_role="product screenshot")
+
+        self.assertEqual(record["visual_kind"], "raster_image")
+        self.assertEqual(record["intrinsic_width"], 1200)
+        self.assertEqual(record["intrinsic_height"], 600)
+        self.assertEqual(record["intrinsic_aspect_ratio"], 2.0)
+        self.assertTrue(record["preserve_exact_content"])
+        self.assertTrue(record["preserve_aspect_ratio"])
 
 
 if __name__ == "__main__":

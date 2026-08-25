@@ -26,7 +26,7 @@ cv = [
   "opencv-python>=4.10",
   "pytesseract>=0.3.13",
 ]
-openai = ["openai>=1.101"]
+openai = ["openai>=1.101", "CairoSVG>=2.7"]
 agent = ["mcp>=2,<3"]
 documents = ["pypdf>=5", "python-docx>=1.1", "openpyxl>=3.1"]
 segmentation = [
@@ -40,6 +40,7 @@ all = [
   "opencv-python>=4.10",
   "pytesseract>=0.3.13",
   "openai>=1.101",
+  "CairoSVG>=2.7",
   "mcp>=2,<3",
   "pypdf>=5",
   "python-docx>=1.1",

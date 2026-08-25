@@ -67,7 +67,7 @@ def build_review_input_manifest(state: dict[str, Any], generated_image: str | No
             for item in references
         ],
         "attached_canonical_assets": [],
-        "canonical_asset_policy": "Canonical SVGs remain internal. Review mandatory semantic role presence and icon-slot compliance. Editable reconstruction restores the exact assets.",
+        "canonical_asset_policy": "Selected project visuals are attached to generation with exact-content and aspect-ratio protection. Review mandatory presence, visual fidelity, and icon-slot compliance where applicable. Editable reconstruction restores the exact canonical files.",
         "recommended_attachment_order": [
             "generated candidate",
             "three visual reference images",

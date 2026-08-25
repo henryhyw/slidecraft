@@ -93,7 +93,7 @@ PLANNING METHOD
 7. Match the resolved density guidance. Consolidate overlapping ideas before adding pages, and avoid sparse concept-per-slide planning.
 8. Use deterministic system layouts only for low-information structural slides. Use image generation for every information-bearing slide so the image model can choose its visual form.
 9. Record dependencies, terminology obligations, repeated component roles, and cross-slide data consistency requirements.
-10. Consider project assets by semantic role. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. Record chosen asset IDs on their assigned slides and in asset_allocation.
+10. Consider every project visual by semantic role, including logos, screenshots, photographs, illustrations, and diagrams. An available asset may be unused. A preferred asset should be used when it strengthens a relevant slide. Required-somewhere assets need at least one suitable slide. Never interpret a deck-level requirement as use on every slide. For each selected visual, add an asset_allocations record to the slide. Set usage to optional when the image model may use it and mandatory only when it must appear on that slide. Choose icon_slot for a compact pictogram or identity mark whose allocated placement region matters. Choose image_region for a screenshot, photograph, illustration, or other visual that should appear as the exact supplied image. Record the same decision in the deck-level asset_allocation summary.
 11. Author the slide-specific header and footer content proposal for each slide when deck chrome is enabled. Choose its configured variant from the slide role and deck context. Empty text is valid only when intentional and must still be present as an explicit value.
 12. {count_instruction}
 13. Before returning, test the title chain, evidence support, distinction between adjacent slides, required-topic integration, and relevance to the audience decision. Return the requested JSON object only when these checks pass.
@@ -218,14 +218,42 @@ def validate_and_normalize_plan(
     required_atoms = {atom["atom_id"] for atom in intake.get("source_atoms", []) if atom.get("required_usage")}
     missing_required_atoms = sorted(required_atoms - used_atoms)
     project_assets = {item["asset_id"]: item for item in (request or {}).get("project_assets", [])}
-    used_assets = {asset_id for slide in normalized for asset_id in slide.get("asset_ids", [])}
+    used_assets = {
+        allocation["asset_id"]
+        for slide in normalized
+        for allocation in slide.get("asset_allocations", [])
+    }
+    for slide in normalized:
+        allocations = slide.get("asset_allocations", [])
+        allocated_ids = [item["asset_id"] for item in allocations]
+        if len(allocated_ids) != len(set(allocated_ids)):
+            raise ValueError(f"Slide {slide['slide_id']} allocates the same project asset more than once")
     unknown_assets = sorted(used_assets - set(project_assets))
     if unknown_assets:
         raise ValueError(f"Deck plan refers to unknown project assets: {unknown_assets}")
+    mandatory_assets = {
+        allocation["asset_id"]
+        for slide in normalized
+        for allocation in slide.get("asset_allocations", [])
+        if allocation.get("usage") == "mandatory"
+    }
     missing_required_assets = sorted(
         asset_id for asset_id, asset in project_assets.items()
-        if asset.get("usage_policy") == "required_somewhere" and asset_id not in used_assets
+        if asset.get("usage_policy") == "required_somewhere" and asset_id not in mandatory_assets
     )
+    missing_slide_required_assets = []
+    for asset_id, asset in project_assets.items():
+        required_slides = set(asset.get("slide_ids", [])) if asset.get("usage_policy") == "required_on_slides" else set()
+        if asset.get("usage_policy") == "required_each_slide":
+            required_slides = {slide["slide_id"] for slide in normalized}
+        for slide_id in sorted(required_slides):
+            slide = next((item for item in normalized if item["slide_id"] == slide_id), None)
+            allocations = {
+                item["asset_id"]: item["usage"]
+                for item in (slide or {}).get("asset_allocations", [])
+            }
+            if allocations.get(asset_id) != "mandatory":
+                missing_slide_required_assets.append({"asset_id": asset_id, "slide_id": slide_id})
     report = {
         "slide_count": len(normalized),
         "section_count": len(known_sections),
@@ -233,13 +261,16 @@ def validate_and_normalize_plan(
         "generated_slide_count": sum(slide["route"] == "image_generation" for slide in normalized),
         "missing_required_source_atoms": missing_required_atoms,
         "missing_required_assets": missing_required_assets,
+        "missing_slide_required_assets": missing_slide_required_assets,
         "slide_count_contract": _validate_requested_slide_count(request or {}, len(normalized)),
-        "passed": not missing_required_atoms and not missing_required_assets,
+        "passed": not missing_required_atoms and not missing_required_assets and not missing_slide_required_assets,
     }
     if missing_required_atoms:
         raise ValueError(f"Required source atoms are unallocated: {missing_required_atoms}")
     if missing_required_assets:
         raise ValueError(f"Required project assets are unallocated: {missing_required_assets}")
+    if missing_slide_required_assets:
+        raise ValueError(f"Slide-specific required project assets are unallocated: {missing_slide_required_assets}")
     return {**plan, "slides": normalized}, report
 
 

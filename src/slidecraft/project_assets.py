@@ -13,11 +13,46 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from PIL import Image
+
 from slidecraft.projects import PROJECT_FILE
 
-ASSET_DIRECTORY = Path("sources/assets")
+ASSET_DIRECTORY = Path("assets")
 ASSET_MANIFEST = Path(".slidecraft/assets/asset_manifest.json")
 USAGE_POLICIES = {"available", "preferred", "required_somewhere", "required_on_slides", "required_each_slide"}
+
+
+def _visual_metadata(path: Path, media_type: str) -> dict[str, Any]:
+    """Measure file facts without assigning a semantic meaning to the asset."""
+    width: float | None = None
+    height: float | None = None
+    visual_kind = "other"
+    if path.suffix.lower() == ".svg" or media_type == "image/svg+xml":
+        visual_kind = "vector_image"
+        text = path.read_text(encoding="utf-8", errors="ignore")[:8000]
+        view_box = re.search(r"viewBox=[\"']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)", text)
+        if view_box:
+            width, height = float(view_box.group(1)), float(view_box.group(2))
+        else:
+            width_match = re.search(r"\bwidth=[\"']([\d.]+)", text)
+            height_match = re.search(r"\bheight=[\"']([\d.]+)", text)
+            if width_match and height_match:
+                width, height = float(width_match.group(1)), float(height_match.group(1))
+    elif media_type.startswith("image/"):
+        visual_kind = "raster_image"
+        try:
+            with Image.open(path) as image:
+                width, height = float(image.width), float(image.height)
+        except OSError:
+            pass
+    return {
+        "visual_kind": visual_kind,
+        "intrinsic_width": width,
+        "intrinsic_height": height,
+        "intrinsic_aspect_ratio": round(width / height, 6) if width and height else None,
+        "preserve_exact_content": visual_kind in {"vector_image", "raster_image"},
+        "preserve_aspect_ratio": visual_kind in {"vector_image", "raster_image"},
+    }
 
 
 def _now() -> str:
@@ -56,6 +91,7 @@ def add_project_asset(
     source: str | Path,
     *,
     semantic_role: str | None = None,
+    description: str | None = None,
     usage_policy: str = "available",
     slide_ids: list[str] | None = None,
     provenance: str = "user_local_file",
@@ -78,17 +114,19 @@ def add_project_asset(
     existing = next((item for item in manifest["assets"] if item["sha256"] == digest), None)
     if existing:
         return existing
+    media_type = mimetypes.guess_type(source_path.name)[0] or "application/octet-stream"
     record = {
         "asset_id": f"PROJECT_{digest[:12].upper()}",
         "name": source_path.name,
         "stored_path": str(destination),
         "sha256": digest,
-        "media_type": mimetypes.guess_type(source_path.name)[0] or "application/octet-stream",
+        "media_type": media_type,
         "semantic_role": semantic_role,
-        "semantic_metadata_status": "ready" if semantic_role else "needs_agent_description",
+        "description": description,
+        "semantic_metadata_status": "ready" if semantic_role and description else "needs_agent_description",
         "usage_policy": usage_policy,
         "slide_ids": slide_ids or [],
-        "preserve_aspect_ratio": True,
+        **_visual_metadata(destination, media_type),
         "provenance": provenance,
         "created_at": _now(),
         "status": "active",
@@ -136,7 +174,22 @@ def scan_project_assets(location: str | Path) -> dict[str, Any]:
         record = add_project_asset(root, path, provenance="direct_project_folder")
         added.append(record)
         known.add(digest)
-    return {"added": added, "asset_count": len(_read(root)["assets"])}
+    manifest = _read(root)
+    enriched = False
+    for item in manifest["assets"]:
+        stored = Path(item["stored_path"])
+        if stored.is_file() and "visual_kind" not in item:
+            item.update(_visual_metadata(stored, item.get("media_type", "application/octet-stream")))
+            enriched = True
+        metadata_status = (
+            "ready" if item.get("semantic_role") and item.get("description") else "needs_agent_description"
+        )
+        if item.get("semantic_metadata_status") != metadata_status:
+            item["semantic_metadata_status"] = metadata_status
+            enriched = True
+    if enriched:
+        _write(root, manifest)
+    return {"added": added, "asset_count": len(manifest["assets"])}
 
 
 def list_project_assets(location: str | Path, *, sync_folder: bool = True) -> dict[str, Any]:
@@ -157,6 +210,7 @@ def update_project_asset(
     asset_id: str,
     *,
     semantic_role: str | None = None,
+    description: str | None = None,
     usage_policy: str | None = None,
     slide_ids: list[str] | None = None,
     actor: str | None = None,
@@ -174,8 +228,13 @@ def update_project_asset(
         changes["usage_policy"] = usage_policy
     if semantic_role is not None:
         record["semantic_role"] = semantic_role
-        record["semantic_metadata_status"] = "ready"
         changes["semantic_role"] = semantic_role
+    if description is not None:
+        record["description"] = description
+        changes["description"] = description
+    record["semantic_metadata_status"] = (
+        "ready" if record.get("semantic_role") and record.get("description") else "needs_agent_description"
+    )
     if slide_ids is not None:
         record["slide_ids"] = slide_ids
         changes["slide_ids"] = slide_ids

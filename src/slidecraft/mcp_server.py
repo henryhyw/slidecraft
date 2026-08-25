@@ -43,6 +43,11 @@ Agent app.
 Icon candidate search follows the configured collection scope. Online mode includes the official
 Tabler Icons collection and caches matching SVG candidates locally. Local-only mode stays within
 the configured icon folder. The Agent always inspects the candidates and owns the semantic choice.
+
+Opening a project returns its materials and project visuals. Inspect every visual whose metadata
+needs an Agent description. Record a concise visual description, semantic role, and usage policy in
+the next deck brief through visual_assets before planning. Use those annotations to decide whether
+and where each visual supports the story. Filenames and dimensions are never semantic evidence.
 """.strip()
 
 

@@ -96,7 +96,7 @@ def open_local_folder(path: str | Path) -> dict[str, Any]:
 
 
 def _latest_presentation(projects: list[dict[str, Any]]) -> dict[str, Any] | None:
-    candidates: list[tuple[float, dict[str, Any]]] = []
+    candidates: list[tuple[int, float, dict[str, Any]]] = []
     image_suffixes = {".png", ".jpg", ".jpeg", ".webp"}
     for project in projects:
         if not project.get("available"):
@@ -105,7 +105,11 @@ def _latest_presentation(projects: list[dict[str, Any]]) -> dict[str, Any] | Non
             deliverables = project_resource_catalog(project["path"])["categories"]["deliverables"]
         except (FileNotFoundError, KeyError, ValueError):
             continue
-        presentations = [item for item in deliverables if Path(item["path"]).suffix.lower() == ".pptx"]
+        presentations = [
+            item for item in deliverables
+            if Path(item["path"]).suffix.lower() == ".pptx"
+            and item.get("presentation_role") in {"final", "current_progress"}
+        ]
         images = [item for item in deliverables if Path(item["path"]).suffix.lower() in image_suffixes]
         for presentation in presentations:
             presentation_path = Path(presentation["path"])
@@ -118,14 +122,15 @@ def _latest_presentation(projects: list[dict[str, Any]]) -> dict[str, Any] | Non
                 ),
                 None,
             )
-            candidates.append((presentation_path.stat().st_mtime, {
+            presentation_priority = 2 if presentation.get("presentation_role") == "final" else 1
+            candidates.append((presentation_priority, presentation_path.stat().st_mtime, {
                 "project_name": project["name"],
                 "project_path": project["path"],
                 "resource_id": presentation["resource_id"],
                 "preview_resource_id": preview["resource_id"] if preview else None,
                 "name": presentation["name"],
             }))
-    return max(candidates, key=lambda item: item[0])[1] if candidates else None
+    return max(candidates, key=lambda item: (item[0], item[1]))[2] if candidates else None
 
 
 def _library_summary(config: dict[str, Any]) -> list[dict[str, Any]]:

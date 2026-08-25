@@ -84,6 +84,20 @@
           "communication_job": {"type": "string"},
           "message_title": {"type": "string"},
           "source_atom_ids": {"type": "array", "items": {"type": "string"}},
+          "asset_allocations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["asset_id", "usage", "placement", "reason"],
+              "properties": {
+                "asset_id": {"type": "string"},
+                "usage": {"enum": ["optional", "mandatory"]},
+                "placement": {"enum": ["icon_slot", "image_region"]},
+                "reason": {"type": "string", "minLength": 1}
+              },
+              "additionalProperties": true
+            }
+          },
           "relationships": {"type": "array"},
           "dependencies": {"type": "array", "items": {"type": "string"}},
           "complexity": {"type": "number", "minimum": 0, "maximum": 1},
@@ -120,6 +134,7 @@
         "additionalProperties": false
       }
     },
+    "asset_allocation": {"type": "array", "items": {"type": "object"}},
     "design_system_snapshot": {"type": "object"},
     "quality_evaluation": {
       "type": "object",

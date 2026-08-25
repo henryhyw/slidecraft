@@ -200,6 +200,32 @@ class SemanticMapCompiler:
                     entity["available_upstream_candidate_ids"] = candidates
                 else:
                     entity["asset_mapping_status"] = "unresolved_canonical_asset"
+            if raw["kind"] == "image":
+                requested = raw.get("upstream_asset_id")
+                if requested and requested in assets:
+                    selected = assets[requested]
+                    canonical_file = selected.get("canonical_file")
+                    if not canonical_file:
+                        raise ValueError(f"Mapped project visual {requested} has no canonical file")
+                    entity["upstream_asset_id"] = requested
+                    entity["upstream_asset_mapping"] = {
+                        "asset_id": requested,
+                        "canonical_file": canonical_file,
+                        "mapping_status": "exact_agent_selected_project_visual",
+                        "preserve_exact_content": True,
+                        "preserve_aspect_ratio": True,
+                    }
+                    entity["asset_mapping_status"] = "exact_agent_selected_project_visual"
+                elif requested:
+                    raise ValueError(
+                        f"Image entity {raw['id']} maps to {requested}, which was not selected for this slide"
+                    )
+                elif raw["reconstruction_route"] == "canonical_icon_or_image_asset":
+                    raise ValueError(
+                        f"Image entity {raw['id']} uses the canonical asset route without an Agent-selected upstream asset"
+                    )
+                else:
+                    entity["asset_mapping_status"] = "generated_image_screenshot_fallback"
             if raw["kind"] == "connector":
                 visual = dict(raw["visual_constraints"])
                 visual["start_anchors_px"] = [_scale_point(point, width, height) for point in visual.pop("start_anchors_norm")]

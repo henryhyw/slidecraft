@@ -184,7 +184,7 @@ def normalized_assets(icon_package: dict[str, Any], user_assets: list[dict[str, 
     exact_user_roles = {
         asset["semantic_role"]
         for asset in user_assets
-        if asset.get("required_usage", False) and asset.get("canonical_file")
+        if asset.get("canonical_file") and asset.get("semantic_role")
     }
     assets = []
     for index, asset in enumerate(icon_package["assets"], start=1):
@@ -197,6 +197,9 @@ def normalized_assets(icon_package: dict[str, Any], user_assets: list[dict[str, 
             "required_usage": bool(asset.get("required_usage", False)),
             "internal": asset,
         }
+        record["internal"]["source_kind"] = "library_icon"
+        record["internal"]["placement"] = "icon_slot"
+        record["internal"]["attach_to_generation"] = False
         record["dimensions"] = _calculate_dimensions(asset, canvas, slot_config)
         assets.append(record)
     for user_asset in user_assets:
@@ -205,6 +208,10 @@ def normalized_assets(icon_package: dict[str, Any], user_assets: list[dict[str, 
             "asset_id": user_asset["asset_id"],
             "semantic_role": user_asset["semantic_role"],
             "dimension_role": user_asset.get("dimension_role", "technology_logo"),
+            "source_kind": "project_visual",
+            "visual_kind": user_asset.get("visual_kind", "other"),
+            "media_type": user_asset.get("media_type"),
+            "placement": user_asset.get("placement", "image_region"),
             "selection_mode": "exact_upstream_asset",
             "provenance": "user_provided",
             "canonical_file": str(Path(canonical_file).resolve()) if canonical_file else None,
@@ -212,17 +219,34 @@ def normalized_assets(icon_package: dict[str, Any], user_assets: list[dict[str, 
             "intrinsic_aspect_ratio": user_asset.get("intrinsic_aspect_ratio", 1.0),
             "image_input_label": user_asset.get("image_input_label"),
             "generation_attachment_mode": user_asset.get("generation_attachment_mode", user_policy["generation_attachment_mode"]),
-            "mandatory": bool(user_asset.get("mandatory", user_asset["asset_id"] in user_policy["mandatory_asset_ids"])),
+            "mandatory": bool(
+                user_asset.get("mandatory", user_asset["asset_id"] in user_policy.get("mandatory_asset_ids", []))
+            ),
+            "attach_to_generation": bool(canonical_file),
+            "preserve_exact_content": bool(user_asset.get("preserve_exact_content", True)),
+            "preserve_aspect_ratio": bool(user_asset.get("preserve_aspect_ratio", True)),
+            "sha256": user_asset.get("sha256"),
         }
         record = {
             "prompt_id": f"ASSET_{len(assets) + 1:02d}",
             "name": user_asset["name"],
             "description": user_asset["description"],
-            "required_usage": user_asset.get("required_usage", True),
+            "required_usage": user_asset.get("required_usage", False),
             "internal": internal,
         }
-        record["dimensions"] = _calculate_dimensions(internal, canvas, slot_config)
-        internal["intrinsic_aspect_ratio"] = record["dimensions"]["intrinsic_aspect_ratio"]
+        if internal["placement"] == "icon_slot":
+            record["dimensions"] = _calculate_dimensions(internal, canvas, slot_config)
+            internal["intrinsic_aspect_ratio"] = record["dimensions"]["intrinsic_aspect_ratio"]
+        else:
+            intrinsic_width, intrinsic_height = _intrinsic_size(internal)
+            internal["intrinsic_aspect_ratio"] = round(intrinsic_width / intrinsic_height, 6)
+            record["dimensions"] = {
+                "intrinsic_size": [intrinsic_width, intrinsic_height],
+                "intrinsic_aspect_ratio": internal["intrinsic_aspect_ratio"],
+                "preserve_aspect_ratio": True,
+                "fit": "contain",
+                "sizing_subject": "exact_project_image",
+            }
         assets.append(record)
     return {
         "schema_version": "1.1.0",
@@ -280,30 +304,69 @@ def assemble_prompt(
 ) -> str:
     title = deck["title"]
     style = deck["style"]
-    asset_lines = []
+    icon_lines = []
+    project_visual_lines = []
+    attached_project_visuals = [
+        asset for asset in assets["assets"] if asset.get("internal", {}).get("attach_to_generation")
+    ]
+    attached_index = {
+        asset["internal"]["asset_id"]: len(references) + index
+        for index, asset in enumerate(attached_project_visuals, start=1)
+    }
     for asset in assets["assets"]:
         dimensions = asset["dimensions"]
+        internal = asset["internal"]
+        requirement = "mandatory on this slide" if asset.get("required_usage") else "optional on this slide"
+        if internal.get("source_kind") == "project_visual":
+            ratio = dimensions["intrinsic_aspect_ratio"]
+            lines = [
+                asset["prompt_id"],
+                f"Name: {asset['name']}",
+                f"Purpose: {asset['description']}",
+                f"Attached image input: {attached_index[internal['asset_id']]}",
+                f"Usage: {requirement}.",
+                f"Placement treatment: {internal['placement']}.",
+                f"Intrinsic aspect ratio: {ratio}:1.",
+                "Content protection: preserve the supplied image exactly. Do not redraw, restyle, recolor, retouch, alter text, replace details, or generate a lookalike.",
+                "Geometry protection: scale uniformly and preserve the supplied aspect ratio. Do not stretch, skew, or rotate it. Do not crop it unless an explicit human constraint requests cropping.",
+            ]
+            if internal["placement"] == "icon_slot":
+                width, height = dimensions["target_visual_footprint_px"]
+                slot_width, slot_height = dimensions["icon_slot"]["size_px"]
+                inset = dimensions["icon_slot"]["inset_px"]
+                lines.extend([
+                    f"Authoritative icon slot: {slot_width} × {slot_height} px, with up to ±{dimensions['prompt_tolerance_percent']}% dimensional tolerance.",
+                    f"Required internal inset: {inset['left']} px left, {inset['top']} px top, {inset['right']} px right, and {inset['bottom']} px bottom.",
+                    f"Maximum visible asset footprint: {width} × {height} px after proportional contain fitting and centering.",
+                ])
+            else:
+                lines.append("The body composition may choose the image region's location and scale. Keep the full image visible and use its boundary as the placement region.")
+            project_visual_lines.extend([*lines, ""])
+            continue
         width, height = dimensions["target_visual_footprint_px"]
         slot_width, slot_height = dimensions["icon_slot"]["size_px"]
         inset = dimensions["icon_slot"]["inset_px"]
-        requirement = "Requirement: mandatory. Include this semantic icon role exactly once." if asset.get("required_usage") else "Requirement: optional. Use it only when it supports the visual design."
-        asset_lines.extend([
+        icon_lines.extend([
             asset["prompt_id"],
             f"Name: {asset['name']}",
             f"Description: {asset['description']}",
+            f"Usage: {requirement}.",
             f"Authoritative icon slot: {slot_width} × {slot_height} px, with up to ±{dimensions['prompt_tolerance_percent']}% dimensional tolerance.",
             f"Required internal inset: {inset['left']} px left, {inset['top']} px top, {inset['right']} px right, and {inset['bottom']} px bottom.",
             f"Maximum visible glyph footprint after proportional contain fitting: {width} × {height} px.",
-            "Sizing rule: make the slot itself match the stated width and height. Center the icon in that slot. Scale the glyph uniformly until it is as large as possible inside the inset area. Never stretch, crop, rotate, or let it overflow.",
-            "Authority rule: the rectangular slot controls position, clearance, and spacing. The drawn glyph is only a semantic placeholder for later canonical SVG replacement.",
-            requirement,
+            "Center the icon in its slot. Scale it uniformly until it is as large as possible inside the inset area. Never stretch, crop, rotate, or let it overflow.",
+            "The slot controls position, clearance, and spacing. The generated glyph is semantic evidence for later canonical icon restoration.",
             "",
         ])
     reference_lines = [f"- {item['reference_id']}: use as a whole-page visual precedent only" for item in references]
     hard_constraints = [item for item in intake["constraint_register"] if item["strength"] == "hard" and item["status"] == "active"]
     relationships = plan.get("semantic_relationships", plan.get("relationships", []))
     hierarchy = plan.get("hierarchy", {})
-    required_assets = [asset for asset in assets["assets"] if asset.get("required_usage")]
+    required_assets = [
+        asset
+        for asset in assets["assets"]
+        if asset.get("required_usage") and asset.get("internal", {}).get("source_kind") == "project_visual"
+    ]
     required_asset_names = [asset["name"] for asset in required_assets]
     profile_name = guidance_profile.get("name", guidance_profile["profile_id"])
     return f"""Create one polished consulting presentation slide image for the generation canvas only.
@@ -348,15 +411,20 @@ For every used icon role, create a clear rectangular icon slot at exactly the st
 
 These dimensions are calculated by the orchestration layer from the generation canvas, the icon's semantic size role, the canonical asset's intrinsic aspect ratio, and the configured inset. They are design constraints, not arbitrary suggestions. Do not independently resize the slots.
 
-{chr(10).join(asset_lines).rstrip()}
+{chr(10).join(icon_lines).rstrip() or "No library icon roles were selected for this slide."}
+
+ATTACHED PROJECT VISUALS
+The project visuals below are supplied as ordered image inputs after the visual-reference pages. Mandatory visuals must appear. Optional visuals may be omitted when they do not strengthen the composition. If an optional visual is used, all content and geometry protection rules still apply.
+
+{chr(10).join(project_visual_lines).rstrip() or "No project visuals were allocated to this slide."}
 
 VISUAL REFERENCE GUIDANCE
 The attached reference images are visual precedents selected for this slide.
 {chr(10).join(reference_lines)}
 Learn from their visual language, information density, whitespace, alignment, hierarchy, diagram language, and component polish. Do not copy their content or page layout.
 
-MANDATORY IDENTITY ROLES
-The mandatory asset roles for this slide are {json.dumps(required_asset_names, ensure_ascii=False)}. Their source files remain internal unless the selected provider supports protected-asset attachment. Render recognizable semantic placeholders inside their configured icon slots. Do not create a detailed substitute treatment outside the slot. Exact canonical files are retained internally and will replace placeholders during editable PowerPoint reconstruction.
+MANDATORY PROJECT VISUALS
+The mandatory project visuals for this slide are {json.dumps(required_asset_names, ensure_ascii=False)}. Use their attached source images directly and follow their individual placement treatment. Exact canonical files are retained for editable PowerPoint reconstruction.
 
 CONFIGURED STYLE SYSTEM
 Use a {style['background']} background. Use {style['display_font']} for display typography and {style['body_font']} for body typography. Use black or near-black text with a restrained orange accent family led by {style['accent_colors'][0]}, {style['accent_colors'][1]}, and {style['accent_colors'][2]}. Use {style['density']} information density. Maintain {style['whitespace']} whitespace. Render icons with {style['icon_treatment']}. Follow these diagram conventions: {style['diagram_conventions']}.
@@ -374,6 +442,40 @@ You own the genuine visual design decisions for the body, including spatial orga
 OUTPUT QUALITY
 Produce a professional, presentation-ready consulting slide region with strong hierarchy, crisp typography, clear relationships, consistent spacing, self-evident connectors, and no decorative clutter. All required text must be legible. Avoid generic SaaS-dashboard styling. Avoid unnecessary legends. Return only the slide-region image.
 """
+
+
+def _generation_image_inputs(
+    references: list[dict[str, Any]], assets: dict[str, Any]
+) -> list[dict[str, Any]]:
+    inputs = [
+        {
+            "input_index": index,
+            "input_role": "visual_reference",
+            "reference_id": item["reference_id"],
+            "path": item["path"],
+            "preserve_exact_content": False,
+        }
+        for index, item in enumerate(references, start=1)
+    ]
+    for asset in assets["assets"]:
+        internal = asset.get("internal", {})
+        path = internal.get("canonical_file")
+        if not internal.get("attach_to_generation") or not path:
+            continue
+        inputs.append({
+            "input_index": len(inputs) + 1,
+            "input_role": "project_visual",
+            "asset_id": internal["asset_id"],
+            "name": asset["name"],
+            "path": path,
+            "media_type": internal.get("media_type"),
+            "placement": internal.get("placement"),
+            "usage": "mandatory" if asset.get("required_usage") else "optional",
+            "intrinsic_aspect_ratio": internal.get("intrinsic_aspect_ratio"),
+            "preserve_exact_content": True,
+            "preserve_aspect_ratio": True,
+        })
+    return inputs
 
 
 def review_contract(slide: dict[str, Any]) -> dict[str, Any]:
@@ -535,6 +637,7 @@ def run_pipeline(
     assets = normalized_assets(icon_selection, slide.get("user_provided_assets", []), canvas, deck)
     connector_qa = validate_connector_configuration(deck)
     prompt = assemble_prompt(deck, canvas, slide, intake, plan, guidance_profile, assets, references)
+    generation_image_inputs = _generation_image_inputs(references, assets)
     preflight_config_path = _resolve_policy_file(config_root, deck.get("preflight_config"), "preflight_config.json")
     preflight_config = _read_json(preflight_config_path)
     preflight, generation_package, preflight_markdown = build_generation_preflight(
@@ -549,6 +652,7 @@ def run_pipeline(
         preflight_config,
         output_dir,
     )
+    generation_package["image_inputs"] = generation_image_inputs
     review = review_contract(slide)
     review_config_path = _resolve_policy_file(config_root, deck.get("generation_review_config"), "generation_review_config.json")
     review_config = _read_json(review_config_path)
@@ -600,7 +704,10 @@ def run_pipeline(
             "prompt_file": str((output_dir / "imagegen_prompt.txt").resolve()),
             "preflight_file": str((output_dir / "generation_preflight.json").resolve()),
             "reference_image_paths": [item["path"] for item in references],
-            "attached_asset_paths": [],
+            "attached_asset_paths": [
+                item["path"] for item in generation_image_inputs if item["input_role"] == "project_visual"
+            ],
+            "image_inputs": generation_image_inputs,
             "asset_prompt_mode": deck["user_asset_policy"]["generation_attachment_mode"],
             "expected_output_scope": "generation_region",
             "target_image": None,
@@ -645,6 +752,7 @@ def run_pipeline(
             "source_traceability": "Every reconstructed content-bearing object must cite intake_manifest source atoms or an explicitly generated visual role.",
             "icons": "Detect each authoritative rectangular icon slot separately from its generated glyph. Map the glyph to selected_assets as semantic evidence. Store slot box, center, padding, nearby relationships, and semantic intent. Discard generated glyph geometry for reconstruction.",
             "icon_placement": "Editable reconstruction must proportionally contain-fit and center the canonical SVG inside the measured icon slot. Never stretch or use the generated glyph bounding box as the placement contract.",
+            "project_images": "For every detected image, the Agent decides whether it maps to one of the selected project visuals. Exact matches restore the canonical project file with proportional contain fitting. Other image content uses the measured screenshot crop.",
             "connectors": "Independently audit conceptual source ownership, target ownership, direction, topology, route feasibility, junction visibility, and attachment sides against semantic groups, sibling participation, reading logic, exact source content, and upstream intent. Treat generated connector pixels as evidence. Measure approximate corridor and style, then reconstruct the audited native connector graph.",
             "coordinates": "Measure in generation-region pixels and retain generation_region.offset_y_px for full-slide reconstruction.",
             "deck_chrome": "Do not infer or reconstruct header and footer from the generated image. Editable reconstruction combines deck_chrome_configuration geometry and styling with resolved_chrome_content outside the generation region.",
@@ -672,8 +780,8 @@ def run_pipeline(
 
 - Semantic planning is stored separately from exact authoritative content.
 - {len(references)} Agent-selected visual reference pages are retained as identified visual precedents.
-- {len(assets['assets'])} canonical SVG assets selected or confirmed by the Agent are preserved with provenance and authoritative icon-slot dimensions.
-- User-provided canonical SVGs remain internal and are represented to Image 2 as mandatory semantic roles.
+- {len(assets['assets'])} selected icons and project visuals are preserved with provenance, intrinsic aspect ratios, and slide-specific usage decisions.
+- Every selected project visual is attached to the generation request. Mandatory visuals must appear, while optional visuals remain available to the image model.
 - Connector style configuration passed automatic ratio and clarity checks.
 - Image generation follows the recorded preflight approval mode for this run.
 - Slide understanding receives the saved upstream package in addition to the generated pixels.
@@ -688,7 +796,7 @@ def run_pipeline(
 
 ## Next action
 
-Use `generation_preflight.md` and `generation_package.json` according to the user's requested review level. Generate from `imagegen_prompt.txt` with the Agent-selected visual references. Canonical logo files stay available for reconstruction under the configured description-only generation policy. After generation, register the saved image and continue with Agent-authored slide understanding.
+Use `generation_preflight.md` and `generation_package.json` according to the user's requested review level. Generate from `imagegen_prompt.txt` with the ordered image inputs in `generation_context.json`. After generation, register the saved image and continue with Agent-authored slide understanding.
 """
     (output_dir / "report.md").write_text(report, encoding="utf-8")
     return {

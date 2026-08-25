@@ -177,8 +177,12 @@ async function openProject(path, includeInternal = false) {
   $("#workspace-project-path").textContent = detail.project.workspace_path;
   $("#workspace-project-path").title = detail.project.workspace_path;
   renderProjectProgress(detail.progress);
-  $("#workspace-deliverables").innerHTML = resources.categories.deliverables.length
-    ? resources.categories.deliverables.map(item => resourceCard(item, { allowOpen: true })).join("")
+  const presentationOutputs = resources.categories.deliverables.filter(item => ["final", "current_progress"].includes(item.presentation_role));
+  const finalOutput = presentationOutputs.find(item => item.presentation_role === "final");
+  const currentOutput = presentationOutputs.find(item => item.presentation_role === "current_progress");
+  const displayOutput = finalOutput || currentOutput;
+  $("#workspace-deliverables").innerHTML = displayOutput
+    ? resourceCard(displayOutput, { allowOpen: true })
     : `<div class="empty-state"><strong>No presentation output yet</strong><span>Your editable PowerPoint and its previews will appear here automatically.</span></div>`;
   bindPreviewCards();
   renderProjectResources(resources);
