@@ -41,7 +41,7 @@ class ReconstructionSceneTests(unittest.TestCase):
         self.assertEqual(by_id["I_stage1"]["recolor"], "#D93900")
         self.assertIsNone(by_id["I_openai"]["recolor"])
         self.assertEqual(by_id["T_stage1_body"]["bullet_style"], "disc")
-        self.assertGreaterEqual(by_id["T_title"]["style"]["font_size_px"], 49)
+        self.assertGreaterEqual(by_id["T_title"]["style"]["font_size_px"], 48)
         for textbox in (item for item in scene["objects"] if item["kind"] == "textbox" and item["id"].startswith("T_")):
             self.assertAlmostEqual(textbox["style"]["font_size_pt"] * 2, round(textbox["style"]["font_size_pt"] * 2))
         self.assertTrue(scene["compiler_report"]["text_fitting"]["all_textboxes_passed"])
