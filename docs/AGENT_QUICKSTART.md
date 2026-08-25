@@ -4,18 +4,19 @@ This guide connects Slidecraft to an Agent host. Users then work through ordinar
 
 ## Install
 
-Install Python 3.10 or newer and Node.js. From a cloned repository, run the following commands.
+Install Python 3.10 or newer and the current Node.js LTS release. The guided installer creates an isolated runtime, prepares the constructor, verifies the installation, and connects detected agent apps.
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install '.[cv,documents,agent]'
-.venv/bin/slidecraft init
-.venv/bin/slidecraft check-install
+curl -fsSL https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | python3 -
 ```
 
-On Windows, use `.venv\Scripts\python` and `.venv\Scripts\slidecraft` in the same commands.
+Windows PowerShell users can run this equivalent command.
 
-`slidecraft init` creates the local data directories, installs the managed PowerPoint constructor dependencies, and seeds the reusable collections. It is non-interactive.
+```powershell
+irm https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | py -3 -
+```
+
+See [Installation](INSTALLATION.md) for selected host setup, a reviewable download flow, and the manual contributor installation.
 
 ## Connect an Agent host
 
@@ -28,7 +29,9 @@ slidecraft-mcp
 The server introduces its tools and workflow when the agent app connects. Agent apps with reusable
 skill support can also install the bundled Slidecraft skill for richer presentation guidance.
 
-For Codex CLI, register the installed command once.
+The guided installer registers detected Codex and Claude Code installations. The commands below are available when manual registration is useful.
+
+For Codex CLI, register the installed MCP command once.
 
 ```bash
 codex mcp add slidecraft -- /absolute/path/to/slidecraft-mcp
@@ -40,10 +43,10 @@ added from the MCP settings interface as a local STDIO server.
 For Claude Code, register the same executable.
 
 ```bash
-claude mcp add slidecraft -- /absolute/path/to/slidecraft-mcp
+claude mcp add slidecraft --scope user -- /absolute/path/to/slidecraft-mcp
 ```
 
-For GitHub Copilot Chat in VS Code, add `.vscode/mcp.json` to the presentation workspace.
+For GitHub Copilot, add the MCP command to `~/.copilot/mcp-config.json` for the current user or `.mcp.json` in a presentation workspace.
 
 ```json
 {

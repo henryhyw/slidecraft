@@ -6,25 +6,36 @@ The current alpha is ready for local projects through Codex, Claude Code, GitHub
 
 ## Install
 
-Python 3.10 or newer is required. Node.js is used by the current portable PowerPoint constructor.
+Install Python 3.10 or newer and the current Node.js LTS release, then run the guided installer.
+
+macOS and Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | python3 -
+```
+
+Windows PowerShell
+
+```powershell
+irm https://raw.githubusercontent.com/henryhyw/slidecraft/v0.1.0-alpha.1/install.py | py -3 -
+```
+
+The installer creates an isolated runtime, installs everyday presentation features, prepares the editable PowerPoint constructor, verifies the installation, and connects detected agent apps. It can be run again safely when Slidecraft is updated.
+
+See [Installation](docs/INSTALLATION.md) for an inspect-before-running option, selected agent setup, GitHub Copilot workspace setup, installation locations, and troubleshooting.
+
+Contributors can install from a cloned checkout with the same guided flow.
 
 ```bash
 git clone https://github.com/henryhyw/slidecraft.git
 cd slidecraft
-python3 -m venv .venv
-.venv/bin/python -m pip install '.[cv,documents,agent]'
-.venv/bin/slidecraft init
-.venv/bin/slidecraft check-install
+python3 install.py --source .
 ```
 
-On Windows, use `.venv\Scripts\python` and `.venv\Scripts\slidecraft` in the same commands.
-
-`slidecraft init` prepares the PowerPoint constructor in Slidecraft's application data folder. Install Node.js once, then Slidecraft manages the constructor packages for every project.
-
-Open the local dashboard with the following command.
+The installer prints the exact dashboard command when it finishes. It follows this form.
 
 ```bash
-.venv/bin/slidecraft console
+/path/to/Slidecraft/app/bin/slidecraft console
 ```
 
 The dashboard shows projects, style settings, shared resource collections, provider configuration, and runtime health. Project and library folders can be opened directly in the operating-system file browser.
@@ -34,8 +45,8 @@ The dashboard shows projects, style settings, shared resource collections, provi
 Slidecraft exposes the same capabilities in process, through its CLI, and over MCP.
 
 ```bash
-.venv/bin/slidecraft agent-capabilities
-.venv/bin/slidecraft-mcp
+slidecraft agent-capabilities
+slidecraft-mcp
 ```
 
 Your agent app manages the conversation. Slidecraft records project decisions, sources, progress, and deliverables so any new session can continue from the same project. The dashboard presents those files and settings in one place.

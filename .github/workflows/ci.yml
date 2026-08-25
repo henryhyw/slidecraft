@@ -29,7 +29,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pytest -q
-      - run: python -m ruff check src tests
+      - run: python -m ruff check src tests install.py
       - run: slidecraft --version
       - run: slidecraft config validate
       - run: python -m build
@@ -47,4 +47,5 @@ jobs:
       - run: python -m pip install -e ".[dev,cv]"
       - run: slidecraft init
       - run: slidecraft check-install
+      - run: python install.py --dry-run --agent none --source . --install-dir "${{ runner.temp }}/slidecraft-guided-install"
       - run: node --check js/scene_to_pptx.mjs

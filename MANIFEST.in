@@ -1,0 +1,3 @@
+include install.py
+include AGENTS.md
+recursive-include docs *.md

@@ -2,6 +2,7 @@
 
 ## Get started
 
+- [Installation](INSTALLATION.md) provides the guided cross-platform installer and troubleshooting.
 - [Agent quickstart](AGENT_QUICKSTART.md) explains installation and host integration.
 - [Configuration](CONFIGURATION.md) explains defaults, project settings, and runtime overrides.
 - [Release readiness](RELEASE_READINESS.md) states certified coverage and remaining release work.
