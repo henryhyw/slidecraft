@@ -1,7 +1,7 @@
-# Security Policy
+# Security
 
-Report vulnerabilities privately to the repository maintainers before public disclosure.
+Please report a suspected vulnerability privately through GitHub Security Advisories for this repository. Include the affected version, a minimal reproduction, and the expected impact.
 
-Slidecraft treats uploaded documents, images, SVGs, model outputs, component packages, and provider responses as untrusted input. Provider credentials are read from named environment variables. They must not be written into run artifacts. Local component directories cannot execute Python unless the user explicitly installs a trusted component-factory package.
+SlidePoise processes local presentation assets. Treat files from unknown sources as untrusted. The supported visual input path uses PNG, JPEG, SVG, and WebP assets. Keep the framework and its Python and Node dependencies current.
 
-Normal pipeline runs are non-interactive. PowerPoint automation and model downloads require explicit setup commands. The framework does not attempt to grant operating-system permissions automatically.
+PptxGenJS currently brings in `image-size`, whose ICNS, JXL, and HEIF parsers have unresolved denial-of-service advisories in the published npm releases. SlidePoise does not accept those formats through its supported asset path. We will update the transitive dependency when an upstream patched release is available.

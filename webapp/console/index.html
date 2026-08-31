@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SlidePoise Console</title>
+  <link rel="stylesheet" href="/console/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div><div><strong>SlidePoise</strong><small>Presentations and styles</small></div></div>
+      <nav aria-label="Primary">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span><span>Overview</span></button>
+        <button class="nav-item" data-view="runs"><span class="nav-icon">▤</span><span>Presentations</span></button>
+        <button class="nav-item" data-view="design"><span class="nav-icon">◐</span><span>Style</span></button>
+        <button class="nav-item" data-view="resources"><span class="nav-icon">▦</span><span>Resources</span></button>
+        <button class="nav-item" data-view="system"><span class="nav-icon">⚙</span><span>System</span></button>
+      </nav>
+      <div class="sidebar-footer"><span class="status-dot"></span><div><strong>On this computer</strong></div></div>
+    </aside>
+    <main>
+      <header class="topbar"><div><p class="eyebrow" id="view-eyebrow">WORKSPACE</p><h1 id="view-title">Overview</h1><p id="view-description" class="view-description"></p></div></header>
+      <section class="view active" id="view-overview">
+        <div class="hero-panel"><div><h2>Shape the story.<br>Make it a slide.</h2><p>Turn an idea into a polished, editable presentation.</p><button class="text-button" data-view="design">Choose a style ↗</button></div><div class="hero-art" aria-hidden="true"><div class="paper paper-back"></div><div class="paper paper-front"><span></span><b>A point<br>of view.</b><div><i></i><i></i><i></i></div></div></div></div>
+        <div class="overview-work-grid"><div class="overview-metrics" id="metrics"></div><section class="latest-presentation-card" id="latest-presentation"></section></div>
+        <div class="section-heading"><div><p class="eyebrow">RECENT</p><h3>Presentations</h3></div><button class="text-button" data-view="runs">View all</button></div><div class="project-grid" id="recent-runs"></div>
+      </section>
+      <section class="view" id="view-runs"><div id="runs-list-panel"><div class="project-grid" id="all-runs"></div></div><div id="run-detail" hidden></div></section>
+      <section class="view" id="view-design"><div id="profile-chooser"></div><div class="design-settings" id="design-settings"></div></section>
+      <section class="view" id="view-resources"><div class="library-grid" id="library-grid"></div></section>
+      <section class="view" id="view-system"><div id="system-settings"></div><div class="health-grid" id="health-grid"></div></section>
+    </main>
+  </div>
+  <dialog id="editor-dialog"><form id="editor-form"><div class="dialog-heading"><div><p class="eyebrow" id="editor-scope"></p><h2 id="editor-title"></h2></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></div><div id="editor-fields"></div><p class="setting-help" id="editor-help"></p><p id="editor-error" class="error-message" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="quiet-button" data-close>Cancel</button><button class="primary-button" id="editor-save" type="submit">Save changes</button></div></form></dialog>
+  <dialog id="preview-dialog"><div class="preview-shell"><div class="dialog-heading"><h2 id="preview-title">Preview</h2><button class="icon-button" data-close aria-label="Close">×</button></div><div id="preview-body"></div></div></dialog>
+  <dialog id="library-dialog" class="collection-dialog"><div class="dialog-heading"><div><p class="eyebrow">LIBRARY SET</p><h2 id="library-title"></h2></div><button class="icon-button" data-close aria-label="Close set">×</button></div><div id="library-detail"></div></dialog>
+  <dialog id="profile-dialog" class="collection-dialog"><div class="dialog-heading"><div><p class="eyebrow" id="profile-dialog-scope">GUIDANCE PROFILE</p><h2 id="profile-title"></h2></div><button class="icon-button" data-close aria-label="Close profile">×</button></div><div id="profile-content"></div></dialog>
+  <dialog id="component-dialog" class="component-dialog"><div class="dialog-heading"><div><p class="eyebrow">NATIVE COMPONENT</p><h2 id="component-title"></h2></div><button class="icon-button" data-close aria-label="Close component">×</button></div><div id="component-content"></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="/dialog-dismiss.js"></script>
+  <script src="/console/app.js"></script>
+  <script src="/console/authoring.js"></script>
+  <script src="/console/components.js"></script>
+</body>
+</html>

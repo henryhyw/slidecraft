@@ -1,5 +1,0 @@
-interface:
-  display_name: "Slidecraft"
-  short_description: "Turn your materials into a polished, editable PowerPoint"
-  brand_color: "#D94F14"
-  default_prompt: "Use $slidecraft to turn my materials into a polished, editable presentation, then show me the proposed brief and slide messages before designing the slides."

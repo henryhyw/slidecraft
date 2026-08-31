@@ -1,3 +1,0 @@
-# Compatibility entry point for environments that install from requirements.txt.
-# Dependency groups remain authoritative in pyproject.toml.
-.[all]

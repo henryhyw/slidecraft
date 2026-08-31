@@ -1,0 +1,30 @@
+{
+  "plan": {
+    "status": "pending",
+    "approved_artifact": "work/slide-intent.json",
+    "user_feedback_summary": ""
+  },
+  "resources": {
+    "status": "pending",
+    "approved_artifact": "work/resource-selection.json",
+    "contact_sheet": "work/generation-context-sheet.png",
+    "user_feedback_summary": ""
+  },
+  "image": {
+    "status": "pending",
+    "candidate_path": "",
+    "edit_revision": 0,
+    "user_feedback_summary": "",
+    "edit_history": []
+  },
+  "illustrations": {
+    "status": "not_applicable",
+    "candidate_ids": [],
+    "entity_ids": [],
+    "decision": "",
+    "user_feedback_summary": "",
+    "source_board": "work/illustration-source-board.png",
+    "refined_board": "",
+    "refinement_mapping": "work/refined-illustrations.json"
+  }
+}

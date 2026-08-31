@@ -1,16 +1,15 @@
 # Contributing
 
-Use Python 3.10 or newer and Node.js 22 for constructor development.
+Start by reading `AGENTS.md`, `slidepoise/SKILL.md`, and `slidepoise/references/maintenance.md`.
+
+Before opening a pull request, run these checks.
 
 ```bash
-python -m venv .venv
-.venv/bin/python -m pip install -e ".[dev,cv]"
-npm install
-.venv/bin/python -m pytest -q
-.venv/bin/python -m ruff check src tests
-.venv/bin/slidecraft check-install
+python -m pytest -q
+node --test tests/console_interactions.test.mjs tests/panel_interactions.test.mjs
+python slidepoise/scripts/preflight_config.py framework/defaults/slidepoise-config.json
+python slidepoise/scripts/preflight_catalogs.py --profiles-root profiles
+python slidepoise/scripts/audit_skill_boundaries.py
 ```
 
-Changes to a schema or scene route require a versioned contract update and a generic fixture. Slide-specific IDs, titles, layouts, and asset choices must not enter reusable compiler code. Constructor changes require package validation and, where available, a native Microsoft PowerPoint render comparison.
-
-Never weaken a quality gate to make a fixture pass. Add a supported route or return a clear unsupported-capability result before publication.
+Changes to the workflow must preserve the three human approval gates. Mechanical tools may measure, validate, transform, and construct. Visual and semantic judgement remains with the host Agent.
